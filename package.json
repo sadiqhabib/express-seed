@@ -1,0 +1,70 @@
+{
+  "name": "MyApplication",
+  "description": "",
+  "version": "0.0.1",
+  "homepage": "http://my-application.com",
+  "author": {
+    "name": "Your Name",
+    "email": "you@somewhere.com",
+    "url": "http://somewhere.com/"
+  },
+  "contributors": [],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/my/application"
+  },
+  "bugs": {
+    "url": "https://github.com/my/application/issues"
+  },
+  "keywords": [],
+  "engines": {
+    "node": ">=5.3.0",
+    "npm": ">=3.5.2"
+  },
+  "main": "scripts/server.js",
+  "scripts": {
+    "start": "node scripts/server.js",
+    "start:dev": "nodemon scripts/server.js",
+    "pretest": "gulp lint",
+    "test": "gulp test",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags"
+  },
+  "dependencies": {
+    "app-module-path": "^1.0.5",
+    "bcryptjs": "^2.3.0",
+    "body-parser": "^1.14.1",
+    "chalk": "^1.1.1",
+    "compression": "^1.6.0",
+    "cookie-parser": "^1.4.0",
+    "entities": "^1.1.1",
+    "express": "^4.13.3",
+    "glob": "^5.0.15",
+    "i18n": "^0.5.0",
+    "jsonwebtoken": "^5.4.0",
+    "mongoose": "^4.2.4",
+    "mongoose-schema-extend": "^0.1.7",
+    "nodemailer": "^1.8.0",
+    "nodemailer-sendgrid-transport": "^0.2.0",
+    "passport": "^0.3.0",
+    "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
+    "passport-strategy": "^1.0.0",
+    "serve-static": "^1.10.0"
+  },
+  "devDependencies": {
+    "debounce": "^1.0.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-cached": "^1.1.0",
+    "gulp-jasmine": "^2.0.1",
+    "gulp-jscs": "^3.0.1",
+    "gulp-jscs-stylish": "^1.1.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-nodemon": "^2.0.4",
+    "jasmine-core": "^2.3.4",
+    "jasmine-spec-reporter": "^2.4.0",
+    "jshint-stylish": "^2.0.1"
+  }
+}
