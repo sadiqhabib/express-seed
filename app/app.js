@@ -15,7 +15,7 @@ var cookieParser = require('cookie-parser');
  * Application dependencies
  */
 var db = require('app/db');
-var auth = require('app/auth');
+var auth = require('app/auth/auth');
 var config = require('app/config');
 var router = require('app/router');
 
