@@ -42,19 +42,25 @@ module.exports = {
   REFRESH_TOKEN_COOKIE_SECURE: false,
 
   //Tokens
-  TOKEN_AUDIENCE: 'http://my-application.com/app',
-  TOKEN_ISSUER: 'http://my-application.com/api',
-  TOKEN_SECRETS: {
-    access: '',
-    refresh: '',
-    verifyEmail: '',
-    resetPassword: ''
-  },
-  TOKEN_EXPIRATIONS: {
-    access: 3600,
-    refresh: 30 * 24 * 3600,
-    verifyEmail: 48 * 3600,
-    resetPassword: 24 * 3600
+  TOKEN_DEFAULT_AUDIENCE: 'http://my-application.com/app',
+  TOKEN_DEFAULT_ISSUER: 'http://my-application.com/api',
+  TOKEN_TYPES: {
+    access: {
+      secret: '',
+      expiration: 3600
+    },
+    refresh: {
+      secret: '',
+      expiration: 30 * 24 * 3600
+    },
+    verifyEmail: {
+      secret: '',
+      expiration: 48 * 3600
+    },
+    resetPassword: {
+      secret: '',
+      expiration: 24 * 3600
+    }
   },
 
   //Sendgrid

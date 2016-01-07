@@ -12,7 +12,7 @@ let ValidationError = require('app/error/types/validationError');
 let BadRequestError = require('app/error/types/badRequestError');
 let NotFoundError = require('app/error/types/notFoundError');
 let ServerError = require('app/error/types/serverError');
-let TokenUtils = require('app/shared/utility/tokenUtils.js');
+let tokens = require('app/shared/services/tokens.js');
 let mailer = require('app/shared/services/mailer');
 let config = require('app/config');
 let User = require('app/user/user.model');
@@ -22,7 +22,7 @@ let User = require('app/user/user.model');
  */
 const APP_BASE_URL = config.APP_BASE_URL;
 const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
-const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
+const RESET_PASSWORD_TOKEN_EXPIRATION = tokens.getExpiration('resetPassword');
 
 /**
  * Generate verification email
@@ -30,7 +30,7 @@ const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
 function sendVerificationEmail(req, res) {
 
   //Generate a mail verification token
-  let token = TokenUtils.generate('verifyEmail', {
+  let token = tokens.generate('verifyEmail', {
     id: req.user.id
   });
 
@@ -93,7 +93,7 @@ module.exports = {
       });
 
       //Generate access token for immediate login
-      user.accessToken = TokenUtils.generate('access', user.toJSON());
+      user.accessToken = tokens.generate('access', user.toJSON());
       user.save().then(function(user) {
 
         //Convert to json
@@ -174,7 +174,7 @@ module.exports = {
     }
 
     //Generate a password reset token
-    let token = TokenUtils.generate('resetPassword', {
+    let token = tokens.generate('resetPassword', {
       id: req.user.id
     });
 
@@ -210,7 +210,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    TokenUtils.validate('resetPassword', token).then(function(payload) {
+    tokens.validate('resetPassword', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {
@@ -280,7 +280,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    TokenUtils.validate('verifyEmail', token).then(function(payload) {
+    tokens.validate('verifyEmail', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {

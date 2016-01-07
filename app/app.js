@@ -15,6 +15,7 @@ let cookieParser = require('cookie-parser');
  * Application dependencies
  */
 let router = require('./shared/services/router');
+let tokens = require('./shared/services/tokens');
 let db = require('./shared/services/db');
 let auth = require('./auth/auth');
 let config = require('./config');
@@ -32,6 +33,9 @@ let sendError = require('./error/middleware/sendError');
  */
 const I18N_LOCALES = config.I18N_LOCALES;
 const I18N_DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
+const TOKEN_TYPES = config.TOKEN_TYPES;
+const TOKEN_DEFAULT_ISSUER = config.TOKEN_DEFAULT_ISSUER;
+const TOKEN_DEFAULT_AUDIENCE = config.TOKEN_DEFAULT_AUDIENCE;
 
 /**
  * Export module
@@ -43,6 +47,13 @@ module.exports = function() {
 
   //Setup database
   db(app);
+
+  //Setup tokens
+  tokens.setDefaults({
+    issuer: TOKEN_DEFAULT_ISSUER,
+    audience: TOKEN_DEFAULT_AUDIENCE
+  });
+  tokens.register(TOKEN_TYPES);
 
   //Compression
   app.use(compression({
