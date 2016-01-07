@@ -17,7 +17,7 @@ let Schema = mongoose.Schema;
 /**
  * Application dependencies
  */
-let db = require('app/db');
+let db = require('app/shared/services/db');
 
 /**
  * Define migration schema
@@ -157,8 +157,9 @@ let commands = {
         ));
 
         //Try to load the script
+        let script = null;
         try {
-          let script = require(path.resolve(migration.file));
+          script = require(path.resolve(migration.file));
         }
         catch (error) {
           process.stdout.write(chalk.red('FAIL\n'));

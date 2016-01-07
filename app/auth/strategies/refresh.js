@@ -9,7 +9,7 @@ let passport = require('passport');
  * Application dependencies
  */
 let RefreshStrategy = require('app/auth/passport/refreshStrategy');
-let token = require('app/shared/token');
+let TokenUtils = require('app/shared/utility/tokenUtils.js');
 let User = require('app/user/user.model');
 
 /**
@@ -26,7 +26,7 @@ module.exports = function() {
     }
 
     //Validate token
-    token.validate('refresh', refreshToken).then(function(payload) {
+    TokenUtils.validate('refresh', refreshToken).then(function(payload) {
 
       //No ID?
       if (!payload.id) {

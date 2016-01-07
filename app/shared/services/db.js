@@ -8,16 +8,10 @@ let glob = require('glob');
 let chalk = require('chalk');
 let mongoose = require('mongoose');
 
-//Add string to object ID method
-String.prototype.toObjectId = function() {
-  return new mongoose.Types.ObjectId(this.toString());
-};
-
 /**
  * Application dependencies
  */
-let config = require('./config');
-let dbErrorHandler = require('./error/handlers/db');
+let config = require('app/config');
 
 /**
  * Configuration
@@ -26,6 +20,22 @@ const DB_URI = config.DB_URI;
 const DB_USER = config.DB_USER;
 const DB_PASS = config.DB_PASS;
 const DB_DEBUG = config.DB_DEBUG;
+
+/**
+ * Add string to object ID method
+ */
+String.prototype.toObjectId = function() {
+  return new mongoose.Types.ObjectId(this.toString());
+};
+
+/**
+ * Error handler
+ */
+function dbErrorHandler(err) {
+  console.error(chalk.red('Database error:'));
+  console.error(chalk.red(err.stack ? err.stack : err));
+  process.exit(-1);
+}
 
 /**
  * Export

@@ -1,33 +1,14 @@
 'use strict';
 
 /**
- * External dependencies
+ * Application dependencies
  */
-let mongoose = require('mongoose');
+let storeError = require('app/error/handlers/storeError.js');
 
 /**
  * Module export
  */
 module.exports = function(err, req, res, next) {
-
-  //Create error data
-  let data = {
-    name: err.name || 'UnknownError',
-    code: err.code || '',
-    message: err.message || '',
-    data: err.data || null,
-    stack: err.stack || null,
-    request: {
-      url: req.baseUrl,
-      headers: req.headers,
-      body: req.body
-    },
-    user: req.user ? req.user._id : null
-  };
-
-  //Save in database
-  mongoose.model('Error').create(data);
-
-  //Proceed to next middleware
+  storeError(err, req);
   next(err);
 };

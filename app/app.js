@@ -14,10 +14,10 @@ let cookieParser = require('cookie-parser');
 /**
  * Application dependencies
  */
-let db = require('./db');
+let router = require('./shared/services/router');
+let db = require('./shared/services/db');
 let auth = require('./auth/auth');
 let config = require('./config');
-let router = require('./router');
 
 /**
  * Error handling middleware

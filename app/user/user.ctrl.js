@@ -12,8 +12,8 @@ let ValidationError = require('app/error/types/validationError');
 let BadRequestError = require('app/error/types/badRequestError');
 let NotFoundError = require('app/error/types/notFoundError');
 let ServerError = require('app/error/types/serverError');
-let token = require('app/shared/token');
-let mailer = require('app/shared/mailer');
+let TokenUtils = require('app/shared/utility/tokenUtils.js');
+let mailer = require('app/shared/services/mailer');
 let config = require('app/config');
 let User = require('app/user/user.model');
 
@@ -30,7 +30,7 @@ const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
 function sendVerificationEmail(req, res) {
 
   //Generate a mail verification token
-  let token = token.generate('verifyEmail', {
+  let token = TokenUtils.generate('verifyEmail', {
     id: req.user.id
   });
 
@@ -93,7 +93,7 @@ module.exports = {
       });
 
       //Generate access token for immediate login
-      user.accessToken = token.generate('access', user.toJSON());
+      user.accessToken = TokenUtils.generate('access', user.toJSON());
       user.save().then(function(user) {
 
         //Convert to json
@@ -174,7 +174,7 @@ module.exports = {
     }
 
     //Generate a password reset token
-    let token = token.generate('resetPassword', {
+    let token = TokenUtils.generate('resetPassword', {
       id: req.user.id
     });
 
@@ -210,7 +210,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    token.validate('resetPassword', token).then(function(payload) {
+    TokenUtils.validate('resetPassword', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {
@@ -280,7 +280,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    token.validate('verifyEmail', token).then(function(payload) {
+    TokenUtils.validate('verifyEmail', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {

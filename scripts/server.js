@@ -24,7 +24,6 @@ require('app-module-path').addPath(__dirname + '/..');
  * Application dependencies
  */
 let config = require('app/config');
-let expressErrorHandler = require('app/error/handlers/express');
 
 /**
  * Configuration
@@ -33,6 +32,20 @@ const ENV = config.ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config.SERVER_PORT;
 const SERVER_HTTPS = config.SERVER_HTTPS;
+
+/**
+ * Error handler
+ */
+function expressErrorHandler(err) {
+  if (err.errno === 'EADDRINUSE') {
+    console.error(chalk.red('Web server port %s is already in use'), SERVER_PORT);
+  }
+  else {
+    console.error(chalk.red('Web server error:'));
+    console.error(chalk.red(err));
+  }
+  process.exit(-1);
+}
 
 /**
  * Log

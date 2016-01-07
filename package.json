@@ -33,7 +33,9 @@
     "pretest": "npm run lint",
     "test": "mocha app/**/*.spec.js",
     "preversion": "npm test",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "migrate": "node scripts/migrate.js",
+    "refresh": "node scripts/migrate.js refresh"
   },
   "dependencies": {
     "app-module-path": "^1.0.5",
@@ -64,6 +66,7 @@
     "jshint": "^2.9.1-rc2",
     "jshint-stylish": "^2.0.1",
     "mocha": "^2.3.4",
-    "sinon": "^1.17.2"
+    "sinon": "^1.17.2",
+    "sinon-mongoose": "^1.2.0"
   }
 }

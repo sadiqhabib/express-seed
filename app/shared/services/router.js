@@ -11,7 +11,7 @@ let express = require('express');
 /**
  * Application dependencies
  */
-let config = require('./config');
+let config = require('app/config');
 
 /**
  * Configuration
