@@ -9,7 +9,7 @@ let BearerStrategy = require('passport-http-bearer').Strategy;
 /**
  * Application dependencies
  */
-let tokenizer = require('app/shared/tokenizer');
+let token = require('app/shared/token');
 let User = require('app/user/user.model');
 
 /**
@@ -21,7 +21,7 @@ module.exports = function() {
   passport.use(new BearerStrategy(function(accessToken, cb) {
 
     //Validate token
-    tokenizer.validate('access', accessToken).then(function(payload) {
+    token.validate('access', accessToken).then(function(payload) {
 
       //No ID?
       if (!payload.id) {

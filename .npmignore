@@ -8,5 +8,4 @@ node_modules/
 npm-debug.log
 
 # App
-env/local.js
-log/
+config/local.js

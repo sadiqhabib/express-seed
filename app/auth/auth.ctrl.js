@@ -8,7 +8,7 @@ let passport = require('passport');
 /**
  * Application dependencies
  */
-let tokenizer = require('app/shared/tokenizer');
+let token = require('app/shared/token');
 let UnauthenticatedError = require('app/error/types/unauthenticatedError');
 let config = require('app/config');
 
@@ -101,11 +101,11 @@ module.exports = {
       req.user = user;
 
       //Create claims and generate access token
-      let accessToken = tokenizer.generate('access', user.getClaims());
+      let accessToken = token.generate('access', user.getClaims());
 
       //Generate refresh token if we want to be remembered
       if (remember) {
-        let refreshToken = tokenizer.generate('refresh', user.getClaims());
+        let refreshToken = token.generate('refresh', user.getClaims());
         res.cookie('refreshToken', refreshToken, {
           maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE * 1000, //in ms
           secure: REFRESH_TOKEN_COOKIE_SECURE,

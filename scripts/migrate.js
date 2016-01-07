@@ -8,21 +8,21 @@ require('app-module-path').addPath(__dirname + '/..');
 /**
  * External dependencies
  */
-var path = require('path');
-var chalk = require('chalk');
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let path = require('path');
+let glob = require('glob');
+let chalk = require('chalk');
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 /**
  * Application dependencies
  */
-var globber = require('utils/globber');
-var db = require('app/db');
+let db = require('app/db');
 
 /**
  * Define migration schema
  */
-var MigrationSchema = new Schema({
+let MigrationSchema = new Schema({
   file: String,
   date: {
     type: Date,
@@ -33,13 +33,13 @@ var MigrationSchema = new Schema({
 /**
  * Define migration model
  */
-var MIGRATIONS_PATH = './migrations/';
-var Migration = mongoose.model('Migration', MigrationSchema);
+let MIGRATIONS_PATH = './migrations/';
+let Migration = mongoose.model('Migration', MigrationSchema);
 
 /**
  * Available commands
  */
-var commands = {
+let commands = {
 
   /**
    * Migrate up
@@ -47,7 +47,7 @@ var commands = {
   up: function(done) {
 
     //Load all migrations from the migrations path
-    var migrations = globber.files(MIGRATIONS_PATH + '**/*.js');
+    let migrations = glob.sync(MIGRATIONS_PATH + '**/*.js');
 
     //Nothing to do?
     if (migrations.length === 0) {
@@ -56,7 +56,7 @@ var commands = {
 
     //Query existing migrations
     Migration.find({}).then(function(migrations) {
-      var existing = {};
+      let existing = {};
       if (migrations.length) {
         migrations.forEach(function(migration) {
           existing[migration.file] = migration;
@@ -74,8 +74,8 @@ var commands = {
         }
 
         //Get migration
-        var migration = migrations.shift();
-        var script = require(path.resolve(migration));
+        let migration = migrations.shift();
+        let script = require(path.resolve(migration));
 
         //Log
         process.stdout.write(chalk.grey(
@@ -149,7 +149,7 @@ var commands = {
         }
 
         //Get migration
-        var migration = migrations.shift();
+        let migration = migrations.shift();
 
         //Log
         process.stdout.write(chalk.grey(
@@ -158,7 +158,7 @@ var commands = {
 
         //Try to load the script
         try {
-          var script = require(path.resolve(migration.file));
+          let script = require(path.resolve(migration.file));
         }
         catch (error) {
           process.stdout.write(chalk.red('FAIL\n'));
@@ -222,11 +222,11 @@ var commands = {
 };
 
 //Defaults
-var command = 'up';
-var debug = false;
+let command = 'up';
+let debug = false;
 
 //Process CLI args to determine command
-var args = process.argv;
+let args = process.argv;
 args.shift();
 args.shift();
 if (args.length) {

@@ -8,7 +8,6 @@
 	"funcscope": true,
 	"futurehostile": true,
 	"globals": {
-		"angular": false,
 		"define": false,
 		"require": false,
 		"exports": false,
@@ -21,8 +20,7 @@
 		"afterEach": false,
 		"afterAll": false,
 		"it": false,
-		"inject": false,
-		"expect": false
+		"inject": false
 	},
 	"latedef": "nofunc",
 	"noarg": true,

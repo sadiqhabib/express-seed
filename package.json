@@ -27,8 +27,11 @@
   "scripts": {
     "start": "node scripts/server.js --es_staging",
     "start:dev": "nodemon scripts/server.js --es_staging",
-    "pretest": "gulp lint",
-    "test": "gulp test",
+    "lint": "npm run lint:jshint && npm run lint:jscs",
+    "lint:jshint": "jshint . --reporter=node_modules/jshint-stylish",
+    "lint:jscs": "jscs . --reporter=node_modules/jscs-stylish",
+    "pretest": "npm run lint",
+    "test": "mocha app/**/*.spec.js",
     "preversion": "npm test",
     "postversion": "git push && git push --tags"
   },
@@ -41,29 +44,26 @@
     "cookie-parser": "^1.4.0",
     "entities": "^1.1.1",
     "express": "^4.13.3",
-    "glob": "^5.0.15",
+    "glob": "^6.0.3",
     "i18n": "^0.5.0",
-    "jsonwebtoken": "^5.4.0",
+    "jsonwebtoken": "^5.5.4",
     "mongoose": "^4.2.4",
-    "nodemailer": "^1.8.0",
+    "nodemailer": "^1.11.0",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "passport": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "passport-strategy": "^1.0.0",
-    "serve-static": "^1.10.0"
+    "serve-static": "^1.10.0",
+    "yargs": "^3.31.0"
   },
   "devDependencies": {
-    "debounce": "^1.0.0",
-    "gulp": "gulpjs/gulp#4.0",
-    "gulp-cached": "^1.1.0",
-    "gulp-jasmine": "^2.0.1",
-    "gulp-jscs": "^3.0.1",
-    "gulp-jscs-stylish": "^1.1.0",
-    "gulp-jshint": "^1.11.2",
-    "gulp-nodemon": "^2.0.4",
-    "jasmine-core": "^2.3.4",
-    "jasmine-spec-reporter": "^2.4.0",
-    "jshint-stylish": "^2.0.1"
+    "chai": "^3.4.1",
+    "jscs": "^2.8.0",
+    "jscs-stylish": "^0.3.1",
+    "jshint": "^2.9.1-rc2",
+    "jshint-stylish": "^2.0.1",
+    "mocha": "^2.3.4",
+    "sinon": "^1.17.2"
   }
 }

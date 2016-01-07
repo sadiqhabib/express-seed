@@ -3,17 +3,17 @@
 /**
  * External dependencies
  */
-var async = require('async');
+let async = require('async');
 
 /**
  * Application dependencies
  */
-var User = require('app/user/user.model');
+let User = require('app/user/user.model');
 
 /**
  * Data
  */
-var users = [
+let users = [
   {
     name: 'Admin',
     email: 'admin@my-application.com',
@@ -66,7 +66,7 @@ module.exports = {
   down: function(cb) {
 
     //Collect emails
-    var emails = users.map(function(user) {
+    let emails = users.map(function(user) {
       return user.email;
     });
 

@@ -1,10 +1,9 @@
 {
   "preset": "google",
-  "fileExtensions": [".js", ".ts"],
+  "fileExtensions": [".js"],
   "maxErrors": 100,
   "verbose": false,
   "excludeFiles": [
-    "**/*.json",
     "node_modules/**"
   ],
   "requireParenthesesAroundIIFE": true,

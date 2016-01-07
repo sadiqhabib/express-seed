@@ -12,7 +12,7 @@ let ValidationError = require('app/error/types/validationError');
 let BadRequestError = require('app/error/types/badRequestError');
 let NotFoundError = require('app/error/types/notFoundError');
 let ServerError = require('app/error/types/serverError');
-let tokenizer = require('app/shared/tokenizer');
+let token = require('app/shared/token');
 let mailer = require('app/shared/mailer');
 let config = require('app/config');
 let User = require('app/user/user.model');
@@ -22,7 +22,6 @@ let User = require('app/user/user.model');
  */
 const APP_BASE_URL = config.APP_BASE_URL;
 const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
-const RESET_PASSWORD_TOKEN_SECRET = config.RESET_PASSWORD_TOKEN_SECRET;
 const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
 
 /**
@@ -31,7 +30,7 @@ const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
 function sendVerificationEmail(req, res) {
 
   //Generate a mail verification token
-  let token = tokenizer.generate('verifyEmail', {
+  let token = token.generate('verifyEmail', {
     id: req.user.id
   });
 
@@ -94,7 +93,7 @@ module.exports = {
       });
 
       //Generate access token for immediate login
-      user.accessToken = tokenizer.generate('access', user.toJSON());
+      user.accessToken = token.generate('access', user.toJSON());
       user.save().then(function(user) {
 
         //Convert to json
@@ -175,7 +174,7 @@ module.exports = {
     }
 
     //Generate a password reset token
-    let token = tokenizer.generate('resetPassword', {
+    let token = token.generate('resetPassword', {
       id: req.user.id
     });
 
@@ -211,7 +210,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    tokenizer.validate('resetPassword', token).then(function(payload) {
+    token.validate('resetPassword', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {
@@ -281,7 +280,7 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    tokenizer.validate('verifyEmail', token).then(function(payload) {
+    token.validate('verifyEmail', token).then(function(payload) {
 
       //No ID present?
       if (!payload.id) {

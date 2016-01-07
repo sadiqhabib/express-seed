@@ -4,6 +4,7 @@
  * External dependencies
  */
 let path = require('path');
+let glob = require('glob');
 let chalk = require('chalk');
 let mongoose = require('mongoose');
 
@@ -16,7 +17,6 @@ String.prototype.toObjectId = function() {
  * Application dependencies
  */
 let config = require('./config');
-let globber = require('./shared/globber');
 let dbErrorHandler = require('./error/handlers/db');
 
 /**
@@ -57,7 +57,7 @@ module.exports = function(app, options) {
 
     //Load models
     console.log('Loading model files...');
-    globber.files('./app/**/*.model.js').forEach(function(modelPath) {
+    glob.sync('./app/**/*.model.js').forEach(function(modelPath) {
       console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
       require(path.resolve(modelPath));
     });

@@ -4,6 +4,7 @@
  * External dependencies
  */
 let path = require('path');
+let glob = require('glob');
 let chalk = require('chalk');
 let express = require('express');
 
@@ -11,7 +12,6 @@ let express = require('express');
  * Application dependencies
  */
 let config = require('./config');
-let globber = require('./shared/globber');
 
 /**
  * Configuration
@@ -28,7 +28,7 @@ module.exports = function(app) {
 
   //Load API routes
   console.log('Loading API routes...');
-  globber.files('./app/**/*.routes.js').forEach(function(routePath) {
+  glob.sync('./app/**/*.routes.js').forEach(function(routePath) {
     console.log(chalk.grey(' - %s'), routePath.replace('./app/', ''));
     require(path.resolve(routePath))(api);
   });

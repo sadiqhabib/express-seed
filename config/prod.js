@@ -61,8 +61,5 @@ module.exports = {
   SENDGRID_API_KEY: '',
 
   //Cryptography
-  BCRYPT_ROUNDS: 10,
-
-  //Storage
-  STORAGE_PATH: 'data'
+  BCRYPT_ROUNDS: 10
 };
