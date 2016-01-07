@@ -3,18 +3,27 @@
 /**
  * External dependencies
  */
-var nodemailer = require('nodemailer');
-var sendgrid = require('nodemailer-sendgrid-transport');
+let nodemailer = require('nodemailer');
+let sendgrid = require('nodemailer-sendgrid-transport');
 
 /**
  * Application dependencies
  */
-var config = require('app/config');
+let config = require('app/config');
+
+/**
+ * Constants
+ */
+const SENDGRID_API_KEY = config.SENDGRID_API_KEY;
 
 /**
  * Create mailer
  */
-var mailer = nodemailer.createTransport(sendgrid(config.sendgrid || {}));
+let mailer = nodemailer.createTransport(sendgrid({
+  auth: {
+    api_key: SENDGRID_API_KEY
+  }
+}));
 
 /**
  * Export mailer interface (wrapped in promise)

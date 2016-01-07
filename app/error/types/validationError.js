@@ -3,17 +3,17 @@
 /**
  * Module dependencies
  */
-var ClientError = require('app/error/types/clientError');
+let ClientError = require('app/error/types/clientError');
 
 /**
  * Helper to normalize validation data
  */
 function normalizeData(raw) {
-  var data = {
+  let data = {
     fields: {}
   };
   if (raw.errors) {
-    for (var field in raw.errors) {
+    for (let field in raw.errors) {
       if (raw.errors.hasOwnProperty(field)) {
         data.fields[field] = {
           type: raw.errors[field].kind,
@@ -32,7 +32,7 @@ function ValidationError(code, message, data) {
 
   //Parameter juggling
   if (typeof code === 'object') {
-    var raw = code;
+    let raw = code;
     data = normalizeData(raw);
     message = message || raw.message;
     code = 'NOT_VALIDATED';

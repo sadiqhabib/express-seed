@@ -3,19 +3,24 @@
 /**
  * External dependencies
  */
-var chalk = require('chalk');
+let chalk = require('chalk');
 
 /**
  * Application dependencies
  */
-var config = require('app/config');
+let config = require('app/config');
+
+/**
+ * Configuration
+ */
+const SERVER_PORT = config.SERVER_PORT;
 
 /**
  * Error handlers
  */
 module.exports = function(err) {
   if (err.errno === 'EADDRINUSE') {
-    console.error(chalk.red('Web server port %s is already in use'), config.server.port);
+    console.error(chalk.red('Web server port %s is already in use'), SERVER_PORT);
   }
   else {
     console.error(chalk.red('Web server error:'));

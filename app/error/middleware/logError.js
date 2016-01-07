@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-var chalk = require('chalk');
+let chalk = require('chalk');
 
 /**
  * Module export
@@ -21,7 +21,7 @@ module.exports = function(err, req, res, next) {
   //Validation error data
   if (err.name === 'ValidationError') {
     if (err.data && err.data.fields) {
-      for (var field in err.data.fields) {
+      for (let field in err.data.fields) {
         if (err.data.fields.hasOwnProperty(field)) {
           console.error(chalk.red('  - ', err.data.fields[field].message));
         }

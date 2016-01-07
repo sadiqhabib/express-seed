@@ -3,7 +3,7 @@
 /**
  * Module dependencies
  */
-var ClientError = require('app/error/types/clientError');
+let ClientError = require('app/error/types/clientError');
 
 /**
  * Error constructor

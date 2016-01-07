@@ -3,13 +3,13 @@
 /**
  * External dependencies
  */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 /**
  * Error schema
  */
-var ErrorSchema = new Schema({
+let ErrorSchema = new Schema({
   name: {
     type: String
   },

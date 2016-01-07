@@ -3,20 +3,24 @@
 /**
  * External dependencies
  */
-var mongoose = require('mongoose');
-var bcrypt = require('bcryptjs');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let bcrypt = require('bcryptjs');
+let Schema = mongoose.Schema;
 
 /**
  * Application dependencies
  */
-var config = require('app/config');
-var BCRYPT_ROUNDS = config.bcrypt.rounds;
+let config = require('app/config');
+
+/**
+ * Configuration
+ */
+const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
 
 /**
  * User schema
  */
-var UserSchema = new Schema({
+let UserSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -62,7 +66,7 @@ UserSchema.pre('save', function(next) {
   }
 
   //Get self
-  var self = this;
+  let self = this;
 
   //Generate salt
   bcrypt.genSalt(BCRYPT_ROUNDS, function(error, salt) {

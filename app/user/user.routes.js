@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-var express = require('express');
+let express = require('express');
 
 /**
  * User routes
@@ -11,13 +11,13 @@ var express = require('express');
 module.exports = function(app) {
 
   //Get controllers and middleware
-  var userCtrl = require('app/user/user.ctrl');
-  var ensureAuthenticated = require('app/auth/middleware/ensureAuthenticated');
-  var ensureAdmin = require('app/auth/middleware/ensureAdmin');
-  var findUserByEmail = userCtrl.findUserByEmail;
+  let userCtrl = require('app/user/user.ctrl');
+  let ensureAuthenticated = require('app/auth/middleware/ensureAuthenticated');
+  let ensureAdmin = require('app/auth/middleware/ensureAdmin');
+  let findUserByEmail = userCtrl.findUserByEmail;
 
   //Create new router
-  var router = express.Router();
+  let router = express.Router();
 
   //Define routes
   router.get('/', ensureAuthenticated, ensureAdmin, userCtrl.query);

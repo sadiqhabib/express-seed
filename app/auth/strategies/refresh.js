@@ -3,14 +3,14 @@
 /**
  * External dependencies
  */
-var passport = require('passport');
+let passport = require('passport');
 
 /**
  * Application dependencies
  */
-var RefreshStrategy = require('app/auth/passport/refreshStrategy');
-var tokenizer = require('utils/tokenizer');
-var User = require('app/user/user.model');
+let RefreshStrategy = require('app/auth/passport/refreshStrategy');
+let tokenizer = require('app/shared/tokenizer');
+let User = require('app/user/user.model');
 
 /**
  * Refresh token strategy

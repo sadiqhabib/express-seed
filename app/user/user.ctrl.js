@@ -3,24 +3,27 @@
 /**
  * External dependencies
  */
-var chalk = require('chalk');
+let chalk = require('chalk');
 
 /**
  * Application dependencies
  */
-var ValidationError = require('app/error/types/validationError');
-var BadRequestError = require('app/error/types/badRequestError');
-var NotFoundError = require('app/error/types/notFoundError');
-var ServerError = require('app/error/types/serverError');
-var tokenizer = require('utils/tokenizer');
-var mailer = require('app/mailer');
-var config = require('app/config');
-var User = require('app/user/user.model');
+let ValidationError = require('app/error/types/validationError');
+let BadRequestError = require('app/error/types/badRequestError');
+let NotFoundError = require('app/error/types/notFoundError');
+let ServerError = require('app/error/types/serverError');
+let tokenizer = require('app/shared/tokenizer');
+let mailer = require('app/shared/mailer');
+let config = require('app/config');
+let User = require('app/user/user.model');
 
 /**
  * Configuration
  */
-var BASE_URL = config.app.baseUrl;
+const APP_BASE_URL = config.APP_BASE_URL;
+const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
+const RESET_PASSWORD_TOKEN_SECRET = config.RESET_PASSWORD_TOKEN_SECRET;
+const RESET_PASSWORD_TOKEN_EXPIRATION = config.RESET_PASSWORD_TOKEN_EXPIRATION;
 
 /**
  * Generate verification email
@@ -28,19 +31,19 @@ var BASE_URL = config.app.baseUrl;
 function sendVerificationEmail(req, res) {
 
   //Generate a mail verification token
-  var token = tokenizer.generate('verifyEmail', {
+  let token = tokenizer.generate('verifyEmail', {
     id: req.user.id
   });
 
   //Create data for i18n
-  var data = {
-    link: BASE_URL + '/email/verify/' + token
+  let data = {
+    link: APP_BASE_URL + '/email/verify/' + token
   };
 
   //Create email (TODO: html email should be in a template)
-  var email = {
+  let email = {
     to: req.user.email,
-    from: config.mailer.from.noreply,
+    from: EMAIL_IDENTITY_NOREPLY,
     subject: res.__('user.verification.mail.subject'),
     text: res.__('user.verification.mail.text', data),
     html: res.__('user.verification.mail.html', data)
@@ -77,7 +80,7 @@ module.exports = {
   create: function(req, res, next) {
 
     //Get user data
-    var data = req.body;
+    let data = req.body;
 
     //Create user
     User.create(data).then(function(user) {
@@ -95,7 +98,7 @@ module.exports = {
       user.save().then(function(user) {
 
         //Convert to json
-        var userJson = user.toJSON();
+        let userJson = user.toJSON();
 
         //Manually append access token now to allow the user to login,
         //because the model deletes it from JSON form by default
@@ -115,12 +118,12 @@ module.exports = {
   update: function(req, res, next) {
 
     //Get user data and user
-    var data = req.body;
-    var user = req.user;
+    let data = req.body;
+    let user = req.user;
 
     //Update data
-    var cantUpdate = ['roles', 'isSuspended', 'isEmailVerified'];
-    for (var key in data) {
+    let cantUpdate = ['roles', 'isSuspended', 'isEmailVerified'];
+    for (let key in data) {
       if (data.hasOwnProperty(key) && cantUpdate.indexOf(key) === -1) {
         user[key] = data[key];
       }
@@ -172,20 +175,20 @@ module.exports = {
     }
 
     //Generate a password reset token
-    var token = tokenizer.generate('resetPassword', {
+    let token = tokenizer.generate('resetPassword', {
       id: req.user.id
     });
 
     //Create data for i18n
-    var data = {
-      link: BASE_URL + '/password/reset/' + token,
-      validity: Math.floor(config.token.types.resetPassword.expiration / 3600)
+    let data = {
+      link: APP_BASE_URL + '/password/reset/' + token,
+      validity: Math.floor(RESET_PASSWORD_TOKEN_EXPIRATION / 3600)
     };
 
     //Create email (TODO: html email should be in a template)
-    var email = {
+    let email = {
       to: req.user.email,
-      from: config.mailer.from.noreply,
+      from: EMAIL_IDENTITY_NOREPLY,
       subject: res.__('user.resetPassword.mail.subject'),
       text: res.__('user.resetPassword.mail.text', data),
       html: res.__('user.resetPassword.mail.html', data)
@@ -205,7 +208,7 @@ module.exports = {
   resetPassword: function(req, res, next) {
 
     //Get token from body
-    var token = req.body.token;
+    let token = req.body.token;
 
     //Validate token
     tokenizer.validate('resetPassword', token).then(function(payload) {
@@ -236,9 +239,9 @@ module.exports = {
         user.save().then(function() {
 
           //Create email (TODO: html email should be in a template)
-          var email = {
+          let email = {
             to: user.email,
-            from: config.mailer.from.noreply,
+            from: EMAIL_IDENTITY_NOREPLY,
             subject: res.__('user.resetPasswordConfirm.mail.subject'),
             text: res.__('user.resetPasswordConfirm.mail.text'),
             html: res.__('user.resetPasswordConfirm.mail.html')
@@ -275,7 +278,7 @@ module.exports = {
   verifyEmail: function(req, res, next) {
 
     //Get token from body
-    var token = req.body.token;
+    let token = req.body.token;
 
     //Validate token
     tokenizer.validate('verifyEmail', token).then(function(payload) {

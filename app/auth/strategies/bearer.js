@@ -3,14 +3,14 @@
 /**
  * External dependencies
  */
-var passport = require('passport');
-var BearerStrategy = require('passport-http-bearer').Strategy;
+let passport = require('passport');
+let BearerStrategy = require('passport-http-bearer').Strategy;
 
 /**
  * Application dependencies
  */
-var tokenizer = require('utils/tokenizer');
-var User = require('app/user/user.model');
+let tokenizer = require('app/shared/tokenizer');
+let User = require('app/user/user.model');
 
 /**
  * Bearer strategy

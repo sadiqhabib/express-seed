@@ -3,8 +3,8 @@
 /**
  * Application dependencies
  */
-var ServerError = require('app/error/types/serverError');
-var InternalError = require('app/error/types/internalError');
+let ServerError = require('app/error/types/serverError');
+let InternalError = require('app/error/types/internalError');
 
 /**
  * Check if internal error

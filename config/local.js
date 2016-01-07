@@ -1,28 +1,18 @@
 'use strict';
 
 /**
- * Local environment configuration
+ * Environment configuration (local overrides)
  */
-module.exports = {
+export default {
 
-  /**
-   * Database settings
-   */
-  db: {
-    uri: 'mongodb://localhost/my-application',
-    debug: true,
-    options: {
-      user: '',
-      pass: ''
-    }
-  },
+  //Database
+  DB_URI: 'mongodb://localhost/my-application',
+  DB_DEBUG: true,
+  DB_USER: '',
+  DB_PASS: '',
 
   /**
    * Sendgrid settings
    */
-  sendgrid: {
-    auth: {
-      api_key: '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'
-    }
-  }
+  SENDGRID_API_KEY: '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'
 };

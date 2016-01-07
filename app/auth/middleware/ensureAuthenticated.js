@@ -3,13 +3,13 @@
 /**
  * External dependencies
  */
-var passport = require('passport');
+let passport = require('passport');
 
 /**
  * Application dependencies
  */
-var User = require('app/user/user.model');
-var UnauthenticatedError = require('app/error/types/unauthenticatedError');
+let User = require('app/user/user.model');
+let UnauthenticatedError = require('app/error/types/unauthenticatedError');
 
 /**
  * Module export

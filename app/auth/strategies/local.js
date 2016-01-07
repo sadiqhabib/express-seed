@@ -3,13 +3,13 @@
 /**
  * External dependencies
  */
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+let passport = require('passport');
+let LocalStrategy = require('passport-local').Strategy;
 
 /**
  * Application dependencies
  */
-var User = require('app/user/user.model');
+let User = require('app/user/user.model');
 
 /**
  * Local strategy

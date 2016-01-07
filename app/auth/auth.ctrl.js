@@ -3,20 +3,20 @@
 /**
  * External dependencies
  */
-var passport = require('passport');
+let passport = require('passport');
 
 /**
  * Application dependencies
  */
-var tokenizer = require('utils/tokenizer');
-var UnauthenticatedError = require('app/error/types/unauthenticatedError');
-var config = require('app/config');
+let tokenizer = require('app/shared/tokenizer');
+let UnauthenticatedError = require('app/error/types/unauthenticatedError');
+let config = require('app/config');
 
 /**
  * Constants
  */
-var REFRESH_TOKEN_COOKIE_MAX_AGE = config.auth.refreshToken.maxAge * 1000; //in ms
-var REFRESH_TOKEN_COOKIE_SECURE = config.auth.refreshToken.httpsOnly;
+const REFRESH_TOKEN_COOKIE_MAX_AGE = config.REFRESH_TOKEN_COOKIE_MAX_AGE;
+const REFRESH_TOKEN_COOKIE_SECURE = config.REFRESH_TOKEN_COOKIE_SECURE;
 
 /**
  * To camel case
@@ -70,8 +70,8 @@ module.exports = {
   token: function(req, res, next) {
 
     //Get grant type and initialize access token
-    var grantType = toCamelCase(req.body.grantType);
-    var remember = !!req.body.remember;
+    let grantType = toCamelCase(req.body.grantType);
+    let remember = !!req.body.remember;
 
     /**
      * Callback handler
@@ -85,7 +85,7 @@ module.exports = {
 
       //No user found?
       if (!user) {
-        var errorCode;
+        let errorCode;
         if (grantType === 'password') {
           errorCode = 'INVALID_CREDENTIALS';
         }
@@ -101,13 +101,13 @@ module.exports = {
       req.user = user;
 
       //Create claims and generate access token
-      var accessToken = tokenizer.generate('access', user.getClaims());
+      let accessToken = tokenizer.generate('access', user.getClaims());
 
       //Generate refresh token if we want to be remembered
       if (remember) {
-        var refreshToken = tokenizer.generate('refresh', user.getClaims());
+        let refreshToken = tokenizer.generate('refresh', user.getClaims());
         res.cookie('refreshToken', refreshToken, {
-          maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
+          maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE * 1000, //in ms
           secure: REFRESH_TOKEN_COOKIE_SECURE,
           httpOnly: true
         });

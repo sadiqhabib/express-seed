@@ -3,15 +3,20 @@
 /**
  * External dependencies
  */
-var path = require('path');
-var chalk = require('chalk');
-var express = require('express');
+let path = require('path');
+let chalk = require('chalk');
+let express = require('express');
 
 /**
  * Application dependencies
  */
-var config = require('app/config');
-var globber = require('utils/globber');
+let config = require('./config');
+let globber = require('./shared/globber');
+
+/**
+ * Configuration
+ */
+const API_BASE_PATH = config.API_BASE_PATH;
 
 /**
  * Export
@@ -19,20 +24,15 @@ var globber = require('utils/globber');
 module.exports = function(app) {
 
   //Create API sub router
-  var api = express.Router();
+  let api = express.Router();
 
   //Load API routes
   console.log('Loading API routes...');
-  globber.files('./server/app/**/*.routes.js').forEach(function(routePath) {
-    console.log(chalk.grey(' - %s'), routePath.replace('./server/app/', ''));
+  globber.files('./app/**/*.routes.js').forEach(function(routePath) {
+    console.log(chalk.grey(' - %s'), routePath.replace('./app/', ''));
     require(path.resolve(routePath))(api);
   });
 
   //Use the API router
-  app.use(config.api.baseUrl, api);
-
-  //Send all other GET requests to Angular
-  app.get('/*', function(req, res) {
-    res.sendFile(path.resolve('./public/index.html'));
-  });
+  app.use(API_BASE_PATH, api);
 };

@@ -1,30 +1,39 @@
 'use strict';
 
 /**
- * Dependencies
+ * External dependencies
  */
-var chalk = require('chalk');
-var meanie = require('meanie-core');
+let join = require('path').join;
+let argv = require('yargs').argv;
+let chalk = require('chalk');
 
 /**
- * Load config
+ * Determine environment
  */
-var config = meanie.getConfig();
+const ENV = argv.env || process.env.NODE_ENV || 'dev';
 
 /**
- * Trigger warning if using default environment
+ * Load and merge environment configuration files
  */
-if (meanie.isUsingDefaultEnvironment()) {
-  console.warn(chalk.yellow(
-    'Environment not specified, using default environment `%s`.'
-  ), config.env);
-  console.info(chalk.grey(
-    'To set your NODE_ENV, add "export NODE_ENV=development" to your bash profile,',
-    'or run the application with the -env=environment flag.'
-  ));
-}
+let env = loadConfig(ENV);
+let local = loadConfig('local');
+let config = Object.assign(env, local, {ENV: ENV});
 
 /**
- * Return config
+ * Export config
  */
 module.exports = config;
+
+/**
+ * Helper to load a config file and return parsed YAML object
+ */
+function loadConfig(env) {
+  try {
+    let configPath = join('..', 'config', env);
+    return require(configPath);
+  }
+  catch (e) {
+    console.error(chalk.red(e));
+    return {};
+  }
+}

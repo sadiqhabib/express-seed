@@ -3,29 +3,35 @@
 /**
  * External dependencies
  */
-var path = require('path');
-var i18n = require('i18n');
-var express = require('express');
-var bodyParser = require('body-parser');
-var compression = require('compression');
-var serveStatic = require('serve-static');
-var cookieParser = require('cookie-parser');
+let path = require('path');
+let i18n = require('i18n');
+let express = require('express');
+let bodyParser = require('body-parser');
+let compression = require('compression');
+let serveStatic = require('serve-static');
+let cookieParser = require('cookie-parser');
 
 /**
  * Application dependencies
  */
-var db = require('app/db');
-var auth = require('app/auth/auth');
-var config = require('app/config');
-var router = require('app/router');
+let db = require('./db');
+let auth = require('./auth/auth');
+let config = require('./config');
+let router = require('./router');
 
 /**
  * Error handling middleware
  */
-var normalizeError = require('app/error/middleware/normalizeError');
-var logError = require('app/error/middleware/logError');
-var storeError = require('app/error/middleware/storeError');
-var sendError = require('app/error/middleware/sendError');
+let normalizeError = require('./error/middleware/normalizeError');
+let logError = require('./error/middleware/logError');
+let storeError = require('./error/middleware/storeError');
+let sendError = require('./error/middleware/sendError');
+
+/**
+ * Configuration
+ */
+const I18N_LOCALES = config.I18N_LOCALES;
+const I18N_DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
 
 /**
  * Export module
@@ -33,7 +39,7 @@ var sendError = require('app/error/middleware/sendError');
 module.exports = function() {
 
   //Initialize express app
-  var app = express();
+  let app = express();
 
   //Setup database
   db(app);
@@ -61,7 +67,12 @@ module.exports = function() {
   app.use(cookieParser());
 
   //Configure i18n and use 'accept-language' header to guess language settings
-  i18n.configure(config.i18n);
+  i18n.configure({
+    directory: 'app/locales',
+    locales: I18N_LOCALES,
+    defaultLocale: I18N_DEFAULT_LOCALE,
+    objectNotation: true
+  });
   app.use(i18n.init);
 
   //Set static folders

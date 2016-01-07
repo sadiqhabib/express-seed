@@ -3,14 +3,14 @@
 /**
  * External dependencies
  */
-var path = require('path');
-var chalk = require('chalk');
+let path = require('path');
+let chalk = require('chalk');
 
 /**
  * Application dependencies
  */
-var passport = require('passport');
-var globber = require('utils/globber');
+let passport = require('passport');
+let globber = require('app/shared/globber');
 
 /**
  * Export

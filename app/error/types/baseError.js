@@ -32,7 +32,7 @@ BaseError.prototype.name = 'Error';
  * Convert to simple object for JSON responses
  */
 BaseError.prototype.toResponse = function() {
-  var error = {
+  let error = {
     code: this.code
   };
   if (this.message) {

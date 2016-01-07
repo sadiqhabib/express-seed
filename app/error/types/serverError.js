@@ -3,7 +3,7 @@
 /**
  * Module dependencies
  */
-var BaseError = require('app/error/types/baseError');
+let BaseError = require('app/error/types/baseError');
 
 /**
  * Error constructor

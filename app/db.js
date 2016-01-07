@@ -3,12 +3,9 @@
 /**
  * External dependencies
  */
-var path = require('path');
-var chalk = require('chalk');
-var mongoose = require('mongoose');
-
-//Mongoose extend just needs to be loaded
-require('mongoose-schema-extend');
+let path = require('path');
+let chalk = require('chalk');
+let mongoose = require('mongoose');
 
 //Add string to object ID method
 String.prototype.toObjectId = function() {
@@ -18,30 +15,41 @@ String.prototype.toObjectId = function() {
 /**
  * Application dependencies
  */
-var config = require('app/config');
-var object = require('utils/object');
-var globber = require('utils/globber');
-var dbErrorHandler = require('app/error/handlers/db');
+let config = require('./config');
+let globber = require('./shared/globber');
+let dbErrorHandler = require('./error/handlers/db');
+
+/**
+ * Configuration
+ */
+const DB_URI = config.DB_URI;
+const DB_USER = config.DB_USER;
+const DB_PASS = config.DB_PASS;
+const DB_DEBUG = config.DB_DEBUG;
 
 /**
  * Export
  */
 module.exports = function(app, options) {
 
-  //Options given?
-  options = object.extend(config.db, options);
+  //Merge options
+  options = Object.assign({
+    user: DB_USER,
+    pass: DB_PASS,
+    debug: DB_DEBUG
+  }, options);
 
   //Set debugging on or off
   mongoose.set('debug', options.debug);
 
   //Connect to database
-  console.log('Connecting to database', chalk.magenta(options.uri), '...');
-  var db = mongoose.connect(options.uri, options.options);
+  console.log('Connecting to database', chalk.magenta(DB_URI), '...');
+  let db = mongoose.connect(DB_URI, options);
 
   //Handle connection events
   mongoose.connection.on('error', dbErrorHandler);
   mongoose.connection.on('connected', function() {
-    console.log(chalk.green('Database connected @'), chalk.magenta(options.uri));
+    console.log(chalk.green('Database connected @'), chalk.magenta(DB_URI));
   });
 
   //Loading within app?
@@ -49,8 +57,8 @@ module.exports = function(app, options) {
 
     //Load models
     console.log('Loading model files...');
-    globber.files('./server/app/**/*.model.js').forEach(function(modelPath) {
-      console.log(chalk.grey(' - %s'), modelPath.replace('./server/app/', ''));
+    globber.files('./app/**/*.model.js').forEach(function(modelPath) {
+      console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
       require(path.resolve(modelPath));
     });
 

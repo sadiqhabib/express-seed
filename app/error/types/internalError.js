@@ -3,7 +3,7 @@
 /**
  * Module dependencies
  */
-var BaseError = require('app/error/types/baseError');
+let BaseError = require('app/error/types/baseError');
 
 /**
  * Error constructor
@@ -29,7 +29,7 @@ InternalError.prototype.name = 'InternalError';
  * Convert to simple object for JSON responses (does not expose message)
  */
 InternalError.prototype.toResponse = function() {
-  var error = {
+  let error = {
     code: this.code
   };
   return error;

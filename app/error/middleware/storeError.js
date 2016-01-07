@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 
 /**
  * Module export
@@ -11,7 +11,7 @@ var mongoose = require('mongoose');
 module.exports = function(err, req, res, next) {
 
   //Create error data
-  var data = {
+  let data = {
     name: err.name || 'UnknownError',
     code: err.code || '',
     message: err.message || '',

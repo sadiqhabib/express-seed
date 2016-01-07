@@ -3,8 +3,8 @@
 /**
  * External dependencies
  */
-var util = require('util');
-var Strategy = require('passport-strategy');
+let util = require('util');
+let Strategy = require('passport-strategy');
 
 /**
  * Define refresh token strategy
@@ -31,8 +31,8 @@ util.inherits(RefreshStrategy, Strategy);
 RefreshStrategy.prototype.authenticate = function(req) {
 
   //Initialize vars
-  var refreshToken;
-  var self = this;
+  let refreshToken;
+  let self = this;
 
   //Get refresh token from cookies
   if (req.cookies.refreshToken) {

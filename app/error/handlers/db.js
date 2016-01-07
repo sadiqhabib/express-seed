@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-var chalk = require('chalk');
+let chalk = require('chalk');
 
 /**
  * Error handlers

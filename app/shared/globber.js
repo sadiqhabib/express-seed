@@ -1,8 +1,9 @@
+'use strict';
 
 /**
  * Module dependencies
  */
-var glob = require('glob');
+let glob = require('glob');
 
 /**
  * Globber
@@ -15,9 +16,9 @@ module.exports = {
   files: function(globPatterns, removeRoot) {
 
     //Get self
-    var self = this;
-    var urlRegex = new RegExp('^(?:[a-z]+:)?\/\/', 'i');
-    var output = [];
+    let self = this;
+    let urlRegex = new RegExp('^(?:[a-z]+:)?\/\/', 'i');
+    let output = [];
 
     //If glob pattern is array, we use each pattern in a recursive way, otherwise we use glob
     if (Array.isArray(globPatterns)) {
@@ -37,7 +38,7 @@ module.exports = {
       }
 
       //Get files
-      var files = glob.sync(globPatterns);
+      let files = glob.sync(globPatterns);
 
       //Remove root?
       if (removeRoot) {
