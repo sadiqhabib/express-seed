@@ -3,7 +3,7 @@
 /**
  * Environment configuration (local overrides)
  */
-export default {
+module.exports = {
 
   //Database
   DB_URI: 'mongodb://localhost/my-application',
