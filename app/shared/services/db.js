@@ -62,17 +62,15 @@ module.exports = function(app, options) {
     console.log(chalk.green('Database connected @'), chalk.magenta(DB_URI));
   });
 
+  //Load models
+  console.log('Loading model files...');
+  glob.sync('./app/**/*.model.js').forEach(function(modelPath) {
+    console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
+    require(path.resolve(modelPath));
+  });
+
   //Loading within app?
   if (app) {
-
-    //Load models
-    console.log('Loading model files...');
-    glob.sync('./app/**/*.model.js').forEach(function(modelPath) {
-      console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
-      require(path.resolve(modelPath));
-    });
-
-    //Append to app
     app.db = db;
   }
 

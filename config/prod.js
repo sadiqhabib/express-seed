@@ -22,6 +22,10 @@ module.exports = {
   //Server
   SERVER_PORT: process.env.PORT || 80,
   SERVER_HTTPS: false,
+  SERVER_LATENCY: false,
+  SERVER_LATENCY_MIN: 0,
+  SERVER_LATENCY_MAX: 0,
+  SERVER_PUBLIC_INDEX: './public/index.html',
 
   //Database
   DB_URI: 'mongodb://localhost/my-application',

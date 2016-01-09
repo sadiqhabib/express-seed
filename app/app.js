@@ -5,6 +5,7 @@
  */
 let path = require('path');
 let i18n = require('i18n');
+let cors = require('cors');
 let express = require('express');
 let bodyParser = require('body-parser');
 let compression = require('compression');
@@ -36,6 +37,10 @@ const I18N_DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
 const TOKEN_TYPES = config.TOKEN_TYPES;
 const TOKEN_DEFAULT_ISSUER = config.TOKEN_DEFAULT_ISSUER;
 const TOKEN_DEFAULT_AUDIENCE = config.TOKEN_DEFAULT_AUDIENCE;
+const APP_BASE_URL = config.APP_BASE_URL;
+const SERVER_LATENCY = config.SERVER_LATENCY;
+const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
+const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
 
 /**
  * Export module
@@ -54,6 +59,11 @@ module.exports = function() {
     audience: TOKEN_DEFAULT_AUDIENCE
   });
   tokens.register(TOKEN_TYPES);
+
+  //CORS
+  app.use(cors({
+    origin: APP_BASE_URL
+  }));
 
   //Compression
   app.use(compression({
@@ -89,6 +99,15 @@ module.exports = function() {
   //Set static folders
   app.use(serveStatic(path.resolve('./public')));
   app.use(serveStatic(path.resolve('./data')));
+
+  //Simulate latency
+  if (SERVER_LATENCY) {
+    let latency = require('express-simulate-latency')({
+      min: SERVER_LATENCY_MIN,
+      max: SERVER_LATENCY_MAX
+    });
+    app.use(latency);
+  }
 
   //Load authentication
   auth(app);

@@ -40,19 +40,22 @@
   "dependencies": {
     "app-module-path": "^1.0.5",
     "bcryptjs": "^2.3.0",
-    "body-parser": "^1.14.1",
+    "body-parser": "^1.14.2",
     "chalk": "^1.1.1",
     "compression": "^1.6.0",
     "cookie-parser": "^1.4.0",
+    "cors": "^2.7.1",
     "entities": "^1.1.1",
     "express": "^4.13.3",
     "glob": "^6.0.3",
     "i18n": "^0.5.0",
     "jsonwebtoken": "^5.5.4",
-    "mongoose": "^4.2.4",
+    "moment": "^2.11.0",
+    "mongoose": "^4.3.4",
+    "multer": "^1.1.0",
     "nodemailer": "^1.11.0",
     "nodemailer-sendgrid-transport": "^0.2.0",
-    "passport": "^0.3.0",
+    "passport": "^0.3.2",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "passport-strategy": "^1.0.0",
@@ -61,12 +64,13 @@
   },
   "devDependencies": {
     "chai": "^3.4.1",
+    "express-simulate-latency": "0.0.2",
     "jscs": "^2.8.0",
     "jscs-stylish": "^0.3.1",
     "jshint": "^2.9.1-rc2",
-    "jshint-stylish": "^2.0.1",
+    "jshint-stylish": "^2.1.0",
     "mocha": "^2.3.4",
     "sinon": "^1.17.2",
-    "sinon-mongoose": "^1.2.0"
+    "sinon-mongoose": "^1.2.1"
   }
 }

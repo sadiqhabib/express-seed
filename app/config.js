@@ -35,10 +35,12 @@ function loadConfig(env) {
     return require(configPath);
   }
   catch (e) {
-    console.error(
-      chalk.red('Could not load environment file'),
-      chalk.magenta(env + '.js')
-    );
+    if (env !== 'local') {
+      console.error(
+        chalk.red('Could not load environment configuration file'),
+        chalk.magenta(env + '.js')
+      );
+    }
     return {};
   }
 }

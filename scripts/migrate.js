@@ -47,7 +47,7 @@ let commands = {
   up: function(done) {
 
     //Load all migrations from the migrations path
-    let migrations = glob.sync(MIGRATIONS_PATH + '**/*.js');
+    let migrations = glob.sync(MIGRATIONS_PATH + '*.js');
 
     //Nothing to do?
     if (migrations.length === 0) {
@@ -65,6 +65,9 @@ let commands = {
       return existing;
     }).then(function(existing) {
 
+      //Run next migration
+      next();
+
       //Helper to run migrations one by one
       function next() {
 
@@ -75,7 +78,15 @@ let commands = {
 
         //Get migration
         let migration = migrations.shift();
-        let script = require(path.resolve(migration));
+        let script;
+        try {
+          script = require(path.resolve(migration));
+        }
+        catch (e) {
+          console.error(chalk.red('Error loading migration', path.basename(migration)));
+          console.error(chalk.red(e));
+          return next();
+        }
 
         //Log
         process.stdout.write(chalk.grey(
@@ -117,9 +128,6 @@ let commands = {
           });
         });
       }
-
-      //Install now
-      next();
     }, function(error) {
       done('Failed to read existing migrations:\n' + error.message);
     });

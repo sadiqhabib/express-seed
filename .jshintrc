@@ -29,6 +29,6 @@
 	"strict": false,
 	"undef": true,
 	"unused": true,
-	"browser": true,
+	"browser": false,
 	"node": true
 }
