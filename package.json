@@ -26,14 +26,14 @@
   "main": "scripts/server.js",
   "scripts": {
     "start": "node scripts/server.js --es_staging",
-    "start:dev": "nodemon scripts/server.js --es_staging",
+    "nodemon": "nodemon scripts/server.js --es_staging",
     "lint": "npm run lint:jshint && npm run lint:jscs",
     "lint:jshint": "jshint . --reporter=node_modules/jshint-stylish",
     "lint:jscs": "jscs . --reporter=node_modules/jscs-stylish",
     "pretest": "npm run lint",
     "test": "mocha app/**/*.spec.js",
     "preversion": "npm test",
-    "postversion": "git push && git push --tags",
+    "postversion": "git push && git push --tags && npm publish",
     "migrate": "node scripts/migrate.js",
     "refresh": "node scripts/migrate.js refresh"
   },
