@@ -1,9 +1,9 @@
-# Express Seed
+# Express seed project
 
 [![github release](https://img.shields.io/github/release/meanie/express-seed.svg)](https://github.com/meanie/express-seed/releases)
 [![node dependencies](https://david-dm.org/meanie/express-seed.svg)](https://david-dm.org/meanie/express-seed)
 [![github issues](https://img.shields.io/github/issues/meanie/express-seed.svg)](https://github.com/meanie/express-seed/issues)
-[![codacy](https://img.shields.io/codacy/e7834f33fcb24ee9a390a3872794d078.svg)](https://www.codacy.com/app/meanie/express-seed)
+[![codacy](https://img.shields.io/codacy/1c5ef6bbcc9e4772aedc4d2243949d5b.svg)](https://www.codacy.com/app/meanie/express-seed)
 [![gitter](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%92-brightgreen.svg)](https://gitter.im/meanie/meanie?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This repository contains a seed project for Express server applications written in ES5/ES6. It is part of the [Meanie](https://github.com/meanie/meanie) eco system, which is a collection of boilerplate code and libraries for developing, testing and building javascript applications using the MEAN stack (MongoDB, Express, Angular and Node).
