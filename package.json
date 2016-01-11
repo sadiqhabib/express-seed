@@ -1,22 +1,22 @@
 {
-  "name": "MyApplication",
-  "description": "",
+  "name": "MeanieExpressSeed",
+  "description": "Seed project for Express applications",
   "version": "1.0.0",
-  "homepage": "http://my-application.com",
+  "homepage": "https://github.com/meanie/express-seed",
   "author": {
-    "name": "Your Name",
-    "email": "you@somewhere.com",
-    "url": "http://somewhere.com/"
+    "name": "Adam Buczynski",
+    "email": "me@adambuczynski.com",
+    "url": "http://adambuczynski.com/"
   },
   "contributors": [],
   "license": "SEE LICENSE IN LICENSE.md",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/my/application"
+    "url": "https://github.com/meanie/express-seed"
   },
   "bugs": {
-    "url": "https://github.com/my/application/issues"
+    "url": "https://github.com/meanie/express-seed/issues"
   },
   "keywords": [],
   "engines": {
@@ -27,13 +27,12 @@
   "scripts": {
     "start": "node scripts/server.js --es_staging",
     "nodemon": "nodemon scripts/server.js --es_staging",
-    "lint": "npm run lint:jshint && npm run lint:jscs",
     "lint:jshint": "jshint . --reporter=node_modules/jshint-stylish",
     "lint:jscs": "jscs . --reporter=node_modules/jscs-stylish",
+    "lint": "npm run lint:jshint && npm run lint:jscs",
     "pretest": "npm run lint",
     "test": "mocha app/**/*.spec.js",
-    "preversion": "npm test",
-    "postversion": "git push && git push --tags && npm publish",
+    "postversion": "git push && git push --tags",
     "migrate": "node scripts/migrate.js",
     "refresh": "node scripts/migrate.js refresh"
   },
