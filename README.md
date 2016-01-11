@@ -1,3 +1,5 @@
+![Meanie](https://raw.githubusercontent.com/meanie/meanie/master/meanie-logo-full.png)
+
 # Express seed project
 
 [![github release](https://img.shields.io/github/release/meanie/express-seed.svg)](https://github.com/meanie/express-seed/releases)
