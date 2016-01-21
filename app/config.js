@@ -40,6 +40,7 @@ function loadConfig(env) {
         chalk.red('Could not load environment configuration file'),
         chalk.magenta(env + '.js')
       );
+      process.exit(0);
     }
     return {};
   }
