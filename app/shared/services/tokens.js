@@ -38,8 +38,13 @@ module.exports = {
    */
   register: function(type, config) {
 
+    //Invalid input
+    if (!type) {
+      return;
+    }
+
     //Handle object maps
-    if (type && typeof type === 'object') {
+    if (typeof type === 'object') {
       for (let key in type) {
         if (type.hasOwnProperty(key)) {
           this.register(key, type[key]);
