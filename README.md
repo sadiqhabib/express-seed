@@ -51,8 +51,8 @@ Once installed, you can run the server using one of the following options:
 # Start the server using node
 npm start
 
-# Start the server for development (using nodemon)
-npm start:dev
+# Start the server for development (with nodemon)
+npm run dev
 ```
 
 Look in the `package.json` for other scripts available to you.
