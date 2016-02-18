@@ -13,7 +13,7 @@ let ValidationError = types.ValidationError;
 module.exports = function(error) {
 
   //Log error name and code
-  console.error(chalk.red(
+  console.log(chalk.red(
     error.name + (error.code ? (' (' + error.code + ')') : '') +
     (error.message ? (': ' + error.message) : '')
   ));
@@ -23,13 +23,13 @@ module.exports = function(error) {
     let fields = error.data.fields;
     for (let field in fields) {
       if (fields.hasOwnProperty(field)) {
-        console.error(chalk.red('  - ', field + ':', fields[field].message));
+        console.log(chalk.red('  - ', field + ':', fields[field].message));
       }
     }
   }
 
   //Log stack if present
   if (error.stack) {
-    console.error(chalk.red(error.stack));
+    console.log(chalk.red(error.stack));
   }
 };

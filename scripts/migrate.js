@@ -67,7 +67,7 @@ let debug = (typeof argv.debug !== 'undefined');
 
 //Validate it
 if (!command || !commands[command]) {
-  console.error(chalk.red('Unknown migration command:', command));
+  console.log(chalk.red('Unknown migration command:', command));
   process.exit(0);
 }
 

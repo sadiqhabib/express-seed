@@ -25,7 +25,7 @@ function statusError(error) {
 function statusSkip(reason) {
   process.stdout.write(chalk.yellow('SKIP\n'));
   if (reason) {
-    console.warn(chalk.yellow(reason));
+    console.log(chalk.yellow(reason));
   }
 }
 

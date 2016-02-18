@@ -41,8 +41,8 @@ String.prototype.toObjectId = function() {
  * Error handler
  */
 function dbErrorHandler(err) {
-  console.error(chalk.red('Database error:'));
-  console.error(chalk.red(err.stack ? err.stack : err));
+  console.log(chalk.red('Database error:'));
+  console.log(chalk.red(err.stack ? err.stack : err));
   process.exit(-1);
 }
 

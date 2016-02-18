@@ -17,13 +17,13 @@ function logError(error) {
     logValidationError(error);
   }
   else if (error.stack) {
-    console.error(chalk.red(error.stack));
+    console.log(chalk.red(error.stack));
   }
   else if (error.message) {
-    console.error(chalk.red(error.message));
+    console.log(chalk.red(error.message));
   }
   else {
-    console.error(chalk.red(error));
+    console.log(chalk.red(error));
   }
 }
 
@@ -31,11 +31,11 @@ function logError(error) {
  * Helper to log a validation error
  */
 function logValidationError(error) {
-  console.error(chalk.red(error.message));
+  console.log(chalk.red(error.message));
   for (let property in error.errors) {
     if (error.errors.hasOwnProperty(property)) {
       let vError = error.errors[property];
-      console.error(chalk.red('  -', property + ':', vError.message));
+      console.log(chalk.red('  -', property + ':', vError.message));
     }
   }
 }

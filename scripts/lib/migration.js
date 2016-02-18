@@ -24,8 +24,8 @@ let Migration = mongoose.model('Migration', new Schema({
 function saveMiration(migration) {
   return Migration.create({file: migration})
     .catch(error => {
-      console.error(chalk.red('Failed to save migration:'));
-      console.error(chalk.red(error.message));
+      console.log(chalk.red('Failed to save migration:'));
+      console.log(chalk.red(error.message));
     });
 }
 
@@ -35,8 +35,8 @@ function saveMiration(migration) {
 function removeMigration(migration) {
   return migration.remove()
     .catch(error => {
-      console.error(chalk.red('Failed to remove migration:'));
-      console.error(chalk.red(error.message));
+      console.log(chalk.red('Failed to remove migration:'));
+      console.log(chalk.red(error.message));
     });
 }
 
