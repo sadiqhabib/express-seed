@@ -1,56 +1,25 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
-let chalk = require('chalk');
+let mongoose = require('mongoose');
+let ValidationError = require('../error/types/validationError');
+let handleError = require('../error/handlers/handleError');
+let tokens = require('../shared/services/tokens.js');
+let mailer = require('../shared/services/mailer');
 
 /**
- * Application dependencies
+ * Emails
  */
-let ValidationError = require('app/error/types/validationError');
-let BadRequestError = require('app/error/types/badRequestError');
-let NotFoundError = require('app/error/types/notFoundError');
-let ServerError = require('app/error/types/serverError');
-let tokens = require('app/shared/services/tokens.js');
-let mailer = require('app/shared/services/mailer');
-let config = require('app/config');
-let User = require('app/user/user.model');
+let verifyEmailAddressEmail = require('./emails/verifyEmailAddress');
+let passwordHasChangedEmail = require('./emails/passwordHasChanged');
+let resetPasswordEmail = require('./emails/resetPassword');
 
 /**
- * Configuration
+ * Models
  */
-const APP_BASE_URL = config.APP_BASE_URL;
-const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
-const RESET_PASSWORD_TOKEN_EXPIRATION = tokens.getExpiration('resetPassword');
-
-/**
- * Generate verification email
- */
-function sendVerificationEmail(req, res) {
-
-  //Generate a mail verification token
-  let token = tokens.generate('verifyEmail', {
-    id: req.user.id
-  });
-
-  //Create data for i18n
-  let data = {
-    link: APP_BASE_URL + '/email/verify/' + token
-  };
-
-  //Create email (TODO: html email should be in a template)
-  let email = {
-    to: req.user.email,
-    from: EMAIL_IDENTITY_NOREPLY,
-    subject: res.__('user.verification.mail.subject'),
-    text: res.__('user.verification.mail.text', data),
-    html: res.__('user.verification.mail.html', data)
-  };
-
-  //Send mail
-  return mailer.sendMail(email);
-}
+let User = mongoose.model('User');
 
 /**
  * User controller
@@ -60,275 +29,237 @@ module.exports = {
   /**
    * Get data of authenticated user
    */
-  me: function(req, res, next) {
-
-    //Find user again, populating extra data
-    User.findById(req.user._id).then(function(user) {
-      if (!user) {
-        return next(new BadRequestError());
-      }
-      res.json(user.toJSON());
-    }, function(error) {
-      next(error);
-    });
+  me(req, res) {
+    let user = req.user;
+    res.json(user.toJSON());
   },
 
   /**
    * Create user
    */
-  create: function(req, res, next) {
+  create(req, res, next) {
 
     //Get user data
     let data = req.body;
 
     //Create user
-    User.create(data).then(function(user) {
+    User.create(data)
+      .then(user => {
 
-      //Store in request
-      req.user = user;
+        //Store in request
+        req.user = user;
 
-      //Send verification email (allow failure at this stage)
-      sendVerificationEmail(req, res).catch(function(error) {
-        console.warn(chalk.yellow('Email verification error:', error));
-      });
+        //Send verification email (allow failure at this stage)
+        mailer.send(verifyEmailAddressEmail(user)).catch(handleError);
 
-      //Generate access token for immediate login
-      user.accessToken = tokens.generate('access', user.toJSON());
-      user.save().then(function(user) {
+        //Generate access token for immediate login
+        user.accessToken = tokens.generate('access', user.toJSON());
+        return user;
+      })
+      .then(user => user.save())
+      .then(user => {
 
-        //Convert to json
+        //Convert to JSON
         let userJson = user.toJSON();
 
         //Manually append access token now to allow the user to login,
         //because the model deletes it from JSON form by default
         userJson.accessToken = user.accessToken;
         res.status(201).json(userJson);
-      }, function(error) {
-        next(error);
-      });
-    }, function(error) {
-      next(new ValidationError(error));
-    });
+      })
+      .catch(next);
   },
 
   /**
    * Update user
    */
-  update: function(req, res, next) {
+  update(req, res, next) {
 
-    //Get user data and user
-    let data = req.body;
-    let user = req.user;
-
-    //Update data
-    let cantUpdate = ['roles', 'isSuspended', 'isEmailVerified'];
-    for (let key in data) {
-      if (data.hasOwnProperty(key) && cantUpdate.indexOf(key) === -1) {
-        user[key] = data[key];
-      }
-    }
+    //Get user data and check if email changed
+    let user = Object.assign(req.user, req.data);
+    let isEmailChanged = user.isModified('email');
 
     //Save user
-    user.save().then(function(user) {
-      res.json(user.toJSON());
-    }, function(error) {
-      next(new ValidationError(error));
-    });
+    user.save()
+      .then(user => {
+
+        //Store updated user in request
+        req.user = user;
+        res.json(user.toJSON());
+
+        //Send new email verification
+        if (isEmailChanged) {
+          mailer.send(verifyEmailAddressEmail(user)).catch(handleError);
+        }
+      })
+      .catch(next);
+  },
+
+  /**
+   * Change password
+   */
+  changePassword(req, res, next) {
+
+    //Get user and new password
+    let user = req.user;
+    let password = req.body.password;
+
+    //Set password
+    user.password = password;
+    user.save()
+      .then(user => {
+        mailer.send(passwordHasChangedEmail(user)).catch(handleError);
+        res.end();
+      })
+      .catch(next);
   },
 
   /**
    * Exists check
    */
-  exists: function(req, res, next) {
-    User.find(req.body).limit(1).then(function(users) {
-      res.json({exists: users.length > 0});
-    }, function(error) {
-      next(error);
-    });
-  },
-
-  /**
-   * Query users
-   */
-  query: function(req, res, next) {
-    User.find({
-      roles: 'user'
-    }).then(function(users) {
-      res.json(users);
-    }, function(error) {
-      next(error);
-    });
+  exists(req, res, next) {
+    User.find(req.body).limit(1)
+      .then(users => {
+        res.json({exists: users.length > 0});
+      })
+      .catch(next);
   },
 
   /**
    * Send password reset mail
    */
-  sendPasswordResetMail: function(req, res, next) {
+  sendPasswordResetEmail(req, res, next) {
 
     //If no user was found, send response anyway to prevent hackers from
     //figuring out which email addresses are valid and which aren't.
     if (!req.user) {
-      return setTimeout(function() {
+      return setTimeout(() => {
         res.end();
       }, 1000);
     }
 
-    //Generate a password reset token
-    let token = tokens.generate('resetPassword', {
-      id: req.user.id
-    });
+    //Get user
+    let user = req.user;
 
-    //Create data for i18n
-    let data = {
-      link: APP_BASE_URL + '/password/reset/' + token,
-      validity: Math.floor(RESET_PASSWORD_TOKEN_EXPIRATION / 3600)
-    };
-
-    //Create email (TODO: html email should be in a template)
-    let email = {
-      to: req.user.email,
-      from: EMAIL_IDENTITY_NOREPLY,
-      subject: res.__('user.resetPassword.mail.subject'),
-      text: res.__('user.resetPassword.mail.text', data),
-      html: res.__('user.resetPassword.mail.html', data)
-    };
-
-    //Send mail
-    mailer.sendMail(email).then(function() {
-      res.end();
-    }, function(error) {
-      next(new ServerError(error));
-    });
+    //Send password reset email
+    mailer.send(resetPasswordEmail(user))
+      .then(() => res.end())
+      .catch(next);
   },
 
   /**
    * Reset password
    */
-  resetPassword: function(req, res, next) {
+  resetPassword(req, res, next) {
 
     //Get token from body
     let token = req.body.token;
 
     //Validate token
-    tokens.validate('resetPassword', token).then(function(payload) {
+    tokens.validate('resetPassword', token)
+      .then(tokens.getId)
+      .then(id => User.findById(id))
+      .then(user => {
 
-      //No ID present?
-      if (!payload.id) {
-        return next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
-      }
-
-      //Find user
-      User.findById(payload.id).then(function(user) {
-
-        //No user?
+        //No user or token already used?
         if (!user) {
-          return next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
+          throw new ValidationError('INVALID_TOKEN');
         }
-
-        //Token already used?
-        if (user.usedTokens && user.usedTokens.indexOf(token) >= 0) {
-          return next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
+        if (user.usedTokens && user.usedTokens.includes(token)) {
+          throw new ValidationError('INVALID_TOKEN');
         }
 
         //Update password, mark token as used
         user.password = req.body.password;
         user.usedTokens.push(token);
-
-        //Save user
-        user.save().then(function() {
-
-          //Create email (TODO: html email should be in a template)
-          let email = {
-            to: user.email,
-            from: EMAIL_IDENTITY_NOREPLY,
-            subject: res.__('user.resetPasswordConfirm.mail.subject'),
-            text: res.__('user.resetPasswordConfirm.mail.text'),
-            html: res.__('user.resetPasswordConfirm.mail.html')
-          };
-
-          //Send confirmation mail (allow failure)
-          mailer.sendMail(email);
-          res.end();
-        }, function(error) {
-          next(new ValidationError(error));
-        });
-      });
-    }, function() {
-      return next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
-    });
+        return user;
+      })
+      .then(user => user.save())
+      .then(user => {
+        mailer.send(passwordHasChangedEmail(user)).catch(handleError);
+        res.end();
+      })
+      .catch(next);
   },
 
   /**
    * Send verification email
    */
-  sendVerificationEmail: function(req, res, next) {
-
-    //Send mail
-    sendVerificationEmail(req, res).then(function() {
-      res.end();
-    }, function(error) {
-      next(new ServerError(error));
-    });
+  sendVerificationEmail(req, res, next) {
+    let user = req.user;
+    mailer.send(verifyEmailAddressEmail(user))
+      .then(() => res.end())
+      .catch(next);
   },
 
   /**
    * Verify sent email verification token
    */
-  verifyEmail: function(req, res, next) {
+  verifyEmail(req, res, next) {
 
     //Get token from body
     let token = req.body.token;
 
     //Validate token
-    tokens.validate('verifyEmail', token).then(function(payload) {
-
-      //No ID present?
-      if (!payload.id) {
-        return next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
-      }
-
-      //Find user and update
-      User.findOneAndUpdate({
-        _id: payload.id
+    tokens.validate('verifyEmail', token)
+      .then(tokens.getId)
+      .then(id => User.findOneAndUpdate({
+        _id: id
       }, {
         isEmailVerified: true
-      }).then(function() {
+      }))
+      .then(() => {
         res.json({
           isValid: true
         });
-      }, function() {
-        next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
-      });
-    }, function() {
-      next(new ValidationError('INVALID_TOKEN', 'Invalid token'));
-    });
+      })
+      .catch(next);
   },
 
+  /**************************************************************************
+   * Middleware
+   ***/
+
   /**
-   * Find by email
+   * Find by email (doesn't trigger 404's)
    */
-  findUserByEmail: function(req, res, next) {
+  findByEmail(req, res, next) {
 
     //No email?
     if (!req.body.email) {
-      return next(new NotFoundError());
+      return next();
     }
 
     //Find by email
     User.findOne({
       email: req.body.email
-    }).then(function(user) {
-
-      //Not found?
-      if (!user) {
-        return next(new NotFoundError());
-      }
-
-      //Save in request and proceed to next middleware
+    }).then(user => {
       req.user = user;
       next();
-    }, function(error) {
-      next(error);
-    });
+    }).catch(next);
+  },
+
+  /**
+   * Data collection
+   */
+  collectData(req, res, next) {
+
+    //Extract posted data and collect other data from request
+    let {firstName, lastName, email, phone, address, password} = req.body;
+    let user = req.user;
+
+    //Prepare data object
+    req.data = {
+      firstName, lastName, email, phone, address
+    };
+
+    //Password is only appended when creating a new user. For editing, we
+    //use a separate route to change password with higher security.
+    if (!user) {
+      req.data.password = password;
+    }
+
+    //Next middleware
+    next();
   }
 };

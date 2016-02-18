@@ -4,6 +4,7 @@ Thumbs.db
 *.sublime-*
 *.log
 node_modules
+coverage
 
 # App
 config/local.*

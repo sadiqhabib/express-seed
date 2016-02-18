@@ -6,35 +6,21 @@
 require('app-module-path').addPath(__dirname + '/..');
 
 /**
- * External dependencies
+ * Dependencies
  */
-let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
-let mongoose = require('mongoose');
-let Schema = mongoose.Schema;
-
-/**
- * Application dependencies
- */
+let argv = require('yargs').argv;
+let Promise = require('bluebird');
 let db = require('app/shared/services/db');
+let log = require('./lib/log');
+let run = require('./lib/run');
+let Migration = require('./lib/migration');
 
 /**
- * Define migration schema
+ * Define migrations path
  */
-let MigrationSchema = new Schema({
-  file: String,
-  date: {
-    type: Date,
-    default: Date.now
-  }
-});
-
-/**
- * Define migration model
- */
-let MIGRATIONS_PATH = './migrations/';
-let Migration = mongoose.model('Migration', MigrationSchema);
+const MIGRATIONS_PATH = './migrations/';
 
 /**
  * Available commands
@@ -44,208 +30,45 @@ let commands = {
   /**
    * Migrate up
    */
-  up: function(done) {
+  up() {
 
     //Load all migrations from the migrations path
     let migrations = glob.sync(MIGRATIONS_PATH + '*.js');
-
-    //Nothing to do?
     if (migrations.length === 0) {
-      return done(null, 'No migrations found');
+      return Promise.resolve('No migrations found');
     }
 
-    //Query existing migrations
-    Migration.find({}).then(function(migrations) {
-      let existing = {};
-      if (migrations.length) {
-        migrations.forEach(function(migration) {
-          existing[migration.file] = migration;
-        });
-      }
-      return existing;
-    }).then(function(existing) {
-
-      //Run next migration
-      next();
-
-      //Helper to run migrations one by one
-      function next() {
-
-        //Done installing
-        if (migrations.length === 0) {
-          return done(null, 'Finished all migrations');
-        }
-
-        //Get migration
-        let migration = migrations.shift();
-        let script;
-        try {
-          script = require(path.resolve(migration));
-        }
-        catch (e) {
-          console.error(chalk.red('Error loading migration', path.basename(migration)));
-          console.error(chalk.red(e));
-          return next();
-        }
-
-        //Log
-        process.stdout.write(chalk.grey(
-          'Running migration ' + migration.replace(MIGRATIONS_PATH, '') + '... '
-        ));
-
-        //Check if already ran before
-        if (existing[migration]) {
-          process.stdout.write(chalk.yellow('SKIP\n'));
-          console.warn(chalk.yellow('Already executed on', existing[migration].date));
-          return next();
-        }
-
-        //Validate migration
-        if (typeof script.up !== 'function') {
-          process.stdout.write(chalk.yellow('SKIP\n'));
-          console.warn(chalk.yellow('No `up` migration present'));
-          return next();
-        }
-
-        //Run migration
-        script.up(function(error) {
-          if (error) {
-            process.stdout.write(chalk.red('FAIL\n'));
-            console.error(chalk.red(error.message));
-            if (error.stack) {
-              console.error(chalk.red(error.stack));
-            }
-          }
-          else {
-            process.stdout.write(chalk.green('OK\n'));
-          }
-
-          //Save and run next migration
-          Migration.create({
-            file: migration
-          }).then(next, function(error) {
-            done('Failed to save migration:\n' + error.message);
-          });
-        });
-      }
-    }, function(error) {
-      done('Failed to read existing migrations:\n' + error.message);
-    });
+    //Query existing migrations and then run the UP migrations
+    return Migration.find(true)
+      .then(existing => run.up(migrations, existing));
   },
 
   /**
    * Migrate down
    */
-  down: function(done) {
-
-    //Query existing migrations (last run first)
-    Migration.find({}).sort({
-      date: -1
-    }).then(function(migrations) {
-
-      //No existing migrations?
-      if (!migrations.length) {
-        return done(null, 'No existing migrations to roll back');
-      }
-
-      //Helper to run migrations one by one
-      function next() {
-
-        //Done migrating down
-        if (migrations.length === 0) {
-          return done(null, 'Finished all migrations');
+  down() {
+    return Migration.find()
+      .then(migrations => {
+        if (!migrations.length) {
+          return 'No existing migrations to roll back';
         }
-
-        //Get migration
-        let migration = migrations.shift();
-
-        //Log
-        process.stdout.write(chalk.grey(
-          'Rolling back migration ' + migration.file.replace(MIGRATIONS_PATH, '') + '... '
-        ));
-
-        //Try to load the script
-        let script = null;
-        try {
-          script = require(path.resolve(migration.file));
-        }
-        catch (error) {
-          process.stdout.write(chalk.red('FAIL\n'));
-          console.error(chalk.red(error.message));
-          migration.remove().then(next, function(error) {
-            done('Failed to remove migration:\n' + error.message);
-          });
-          return;
-        }
-
-        //Validate migration
-        if (typeof script.down !== 'function') {
-          process.stdout.write(chalk.yellow('SKIP\n'));
-          console.warn(chalk.yellow('No `down` migration present'));
-          return next();
-        }
-
-        //Run migration
-        script.down(function(error) {
-          if (error) {
-            process.stdout.write(chalk.red('FAIL\n'));
-            console.error(chalk.red(error.message));
-            if (error.stack) {
-              console.error(chalk.red(error.stack));
-            }
-          }
-          else {
-            process.stdout.write(chalk.green('OK\n'));
-          }
-
-          //Remove and run next migration
-          migration.remove().then(next, function(error) {
-            done('Failed to remove migration:\n' + error.message);
-          });
-        });
-      }
-
-      //Run next
-      next();
-    }, function(error) {
-      done('Failed to read existing migrations:\n' + error.message);
-    });
+        return run.down(migrations);
+      });
   },
 
   /**
    * Refresh database (migrate down and up again)
    */
-  refresh: function(done) {
-    commands.down(function(error) {
-      if (error) {
-        return done(error);
-      }
-      commands.up(function(error) {
-        if (error) {
-          return done(error);
-        }
-        done(null, 'Database refreshed');
-      });
-    });
+  refresh() {
+    return this.down()
+      .then(() => this.up())
+      .then(() => 'Database refreshed');
   }
 };
 
 //Defaults
-let command = 'up';
-let debug = false;
-
-//Process CLI args to determine command
-let args = process.argv;
-args.shift();
-args.shift();
-if (args.length) {
-  command = args.shift();
-  args.forEach(function(arg) {
-    if (arg === '-d') {
-      debug = true;
-    }
-  });
-}
+let command = (argv._.length ? argv._[0] : 'up');
+let debug = (typeof argv.debug !== 'undefined');
 
 //Validate it
 if (!command || !commands[command]) {
@@ -254,16 +77,9 @@ if (!command || !commands[command]) {
 }
 
 //Run when DB connected
-db(null, {
-  debug: debug
-}).connection.on('connected', function() {
-  commands[command](function(error, success) {
-    if (error) {
-      console.error(chalk.red(error));
-    }
-    else if (success) {
-      console.log(chalk.green(success));
-    }
-    process.exit(0);
-  });
+db(null, {debug: debug}).connection.on('connected', () => {
+  commands[command]()
+    .then(log.success)
+    .catch(log.error)
+    .finally(() => process.exit(0));
 });

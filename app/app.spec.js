@@ -1,17 +1,14 @@
 'use strict';
 
-let chai = require('chai');
-let expect = chai.expect;
-
 /**
  * Specifications
  */
-describe('Server app', function() {
+describe('Server app', () => {
 
   /**
    * Main test
    */
-  it('should run this test', function() {
-    expect(true).to.equal(true);
+  it('should run this test', () => {
+    expect(true).to.be.true();
   });
 });

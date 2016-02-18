@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * Application dependencies
+ * Dependencies
  */
-let logError = require('app/error/handlers/logError.js');
+let logError = require('../handlers/logError');
 
 /**
  * Module export

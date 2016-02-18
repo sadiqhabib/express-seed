@@ -1,15 +1,11 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
-
-/**
- * Application dependencies
- */
 let passport = require('passport');
 
 /**
@@ -22,7 +18,7 @@ module.exports = function(app) {
 
   //Load authentication strategies
   console.log('Loading authentication strategies...');
-  glob.sync('./app/auth/strategies/**/*.js').forEach(function(strategyPath) {
+  glob.sync('./app/auth/strategies/**/*.js').forEach(strategyPath => {
     console.log(chalk.grey(' - %s'), strategyPath.replace('./app/', ''));
     require(path.resolve(strategyPath))();
   });

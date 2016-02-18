@@ -4,38 +4,28 @@
  * Module dependencies
  */
 let ClientError = require('app/error/types/clientError');
-
-/**
- * Helper to normalize validation data
- */
-function normalizeData(raw) {
-  let data = {
-    fields: {}
-  };
-  if (raw.errors) {
-    for (let field in raw.errors) {
-      if (raw.errors.hasOwnProperty(field)) {
-        data.fields[field] = {
-          type: raw.errors[field].kind,
-          message: raw.errors[field].message
-        };
-      }
-    }
-  }
-  return data;
-}
+let MongooseValidationError = require('mongoose').Error.ValidationError;
 
 /**
  * Error constructor
  */
-function ValidationError(code, message, data) {
+function ValidationError(code, data, message) {
 
-  //Parameter juggling
-  if (typeof code === 'object') {
-    let raw = code;
-    data = normalizeData(raw);
-    message = message || raw.message;
+  //Mongoose validation error fed?
+  if (code instanceof MongooseValidationError) {
+    let mve = code;
+    message = mve.message;
     code = 'NOT_VALIDATED';
+    data = {fields: {}};
+    for (let field in mve.errors) {
+      if (mve.errors.hasOwnProperty(field)) {
+        let error = mve.errors[field];
+        data.fields[field] = {
+          type: error.kind,
+          message: error.message
+        };
+      }
+    }
   }
 
   //Call parent constructor

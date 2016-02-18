@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * Application dependencies
+ * Dependencies
  */
-let storeError = require('app/error/handlers/storeError.js');
+let storeError = require('../handlers/storeError');
 
 /**
  * Module export

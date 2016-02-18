@@ -4,13 +4,14 @@
  * External dependencies
  */
 let passport = require('passport');
+let mongoose = require('mongoose');
 let BearerStrategy = require('passport-http-bearer').Strategy;
 
 /**
  * Application dependencies
  */
-let tokens = require('app/shared/services/tokens.js');
-let User = require('app/user/user.model');
+let tokens = require('app/shared/services/tokens');
+let User = mongoose.model('User');
 
 /**
  * Bearer strategy
@@ -18,36 +19,33 @@ let User = require('app/user/user.model');
 module.exports = function() {
 
   //Use local strategy
-  passport.use(new BearerStrategy(function(accessToken, cb) {
+  passport.use(new BearerStrategy((accessToken, cb) => {
 
     //Validate token
-    tokens.validate('access', accessToken).then(function(payload) {
-
-      //No ID?
-      if (!payload.id) {
-        return cb(null, false, {
-          error: 'INVALID_TOKEN'
-        });
-      }
-
-      //Find user by matching ID and access token
-      User.findByIdAndPopulate(payload.id).then(function(user) {
+    tokens.validate('access', accessToken)
+      .then(payload => {
+        if (!payload.id) {
+          return cb(null, false, {
+            error: 'INVALID_TOKEN'
+          });
+        }
+        return User.findByIdAndPopulate(payload.id);
+      })
+      .then(user => {
         if (!user) {
           return cb(null, false, {
             error: 'INVALID_TOKEN'
           });
         }
         return cb(null, user);
-      }, function(error) {
+      })
+      .catch(error => {
+        if (error.name === 'TokenExpiredError') {
+          return cb(null, false, {
+            error: 'EXPIRED_TOKEN'
+          });
+        }
         return cb(error);
       });
-    }, function(error) {
-      if (error.name === 'TokenExpiredError') {
-        return cb(null, false, {
-          error: 'EXPIRED_TOKEN'
-        });
-      }
-      return cb(error);
-    });
   }));
 };

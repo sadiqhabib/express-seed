@@ -1,22 +1,20 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
-
-/**
- * Application dependencies
- */
-let UnauthenticatedError = require('app/error/types/unauthenticatedError');
-let tokens = require('app/shared/services/tokens.js');
-let config = require('app/config');
+let moment = require('moment');
+let UnauthenticatedError = require('../error/types/unauthenticatedError');
+let tokens = require('../shared/services/tokens');
+let config = require('../config');
 
 /**
  * Constants
  */
 const REFRESH_TOKEN_COOKIE_MAX_AGE = config.REFRESH_TOKEN_COOKIE_MAX_AGE;
 const REFRESH_TOKEN_COOKIE_SECURE = config.REFRESH_TOKEN_COOKIE_SECURE;
+const SECURE_STATUS_EXPIRATION = config.SECURE_STATUS_EXPIRATION;
 
 /**
  * To camel case
@@ -33,11 +31,12 @@ function toCamelCase(str, ucfirst) {
   }
   return str
     .replace(/_+|\-+/g, ' ')
-    .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
       if (+match === 0) {
         return '';
       }
-      return (index === 0 && !ucfirst) ? match.toLowerCase() : match.toUpperCase();
+      return (index === 0 && !ucfirst) ?
+        match.toLowerCase() : match.toUpperCase();
     });
 }
 
@@ -49,15 +48,15 @@ module.exports = {
   /**
    * Verify authentication
    */
-  verify: function(req, res) {
+  verify(req, res) {
     res.end();
   },
 
   /**
    * Forget a user
    */
-  forget: function(req, res) {
-    res.clearCookie('refreshToken', null, {
+  forget(req, res) {
+    res.clearCookie('refreshToken', {
       secure: REFRESH_TOKEN_COOKIE_SECURE,
       httpOnly: true
     });
@@ -67,11 +66,12 @@ module.exports = {
   /**
    * Token request handler
    */
-  token: function(req, res, next) {
+  token(req, res, next) {
 
     //Get grant type and initialize access token
     let grantType = toCamelCase(req.body.grantType);
     let remember = !!req.body.remember;
+    let secureStatus = !!req.body.secureStatus;
 
     /**
      * Callback handler
@@ -97,11 +97,24 @@ module.exports = {
         return next(new UnauthenticatedError('USER_SUSPENDED'));
       }
 
-      //Set user in request
-      req.user = user;
+      //User pending approval?
+      if (!user.isApproved) {
+        return next(new UnauthenticatedError('USER_PENDING'));
+      }
 
-      //Create claims and generate access token
-      let accessToken = tokens.generate('access', user.getClaims());
+      //Set user in request and get claims
+      req.user = user;
+      let claims = user.getClaims();
+
+      //Requesting secure status?
+      if (secureStatus && grantType === 'password') {
+        claims.secureStatus = moment()
+          .add(SECURE_STATUS_EXPIRATION, 'seconds')
+          .toJSON();
+      }
+
+      //Generate access token
+      let accessToken = tokens.generate('access', claims);
 
       //Generate refresh token if we want to be remembered
       if (remember) {

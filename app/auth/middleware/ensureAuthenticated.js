@@ -8,7 +8,6 @@ let passport = require('passport');
 /**
  * Application dependencies
  */
-let User = require('app/user/user.model');
 let UnauthenticatedError = require('app/error/types/unauthenticatedError');
 
 /**
@@ -19,7 +18,7 @@ module.exports = function(req, res, next) {
   //Authenticate now
   passport.authenticate('bearer', {
     session: false
-  }, function(error, user) {
+  }, (error, user) => {
 
     //Check error
     if (error) {
@@ -28,7 +27,7 @@ module.exports = function(req, res, next) {
 
     //No user found?
     if (!user) {
-      return next(new UnauthenticatedError('INVALID_TOKEN', 'Invalid token'));
+      return next(new UnauthenticatedError('INVALID_TOKEN'));
     }
 
     //User suspended?
@@ -36,21 +35,15 @@ module.exports = function(req, res, next) {
       return next(new UnauthenticatedError('USER_SUSPENDED'));
     }
 
+    //User pending approval?
+    if (!user.isApproved) {
+      return next(new UnauthenticatedError('USER_PENDING'));
+    }
+
     //Set user in request
     req.user = user;
 
-    //Spoofing user?
-    if (user.hasRole('admin') && req.headers['x-use-site-as']) {
-      return User.findById(req.headers['x-use-site-as']).then(function(spoofUser) {
-        if (spoofUser) {
-          console.log('Spoofing as user:', req.headers['x-use-site-as']);
-          req.user = spoofUser;
-          req.user.addRole('admin');
-        }
-      }).finally(next);
-    }
-
-    //Just call next middleware
+    //Call next middleware
     next();
   })(req, res, next);
 };

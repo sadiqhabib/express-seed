@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let mongoose = require('mongoose');
 
@@ -19,7 +19,6 @@ module.exports = function(err, req) {
     stack: err.stack || null,
     request: req ? {
       url: req.baseUrl,
-      headers: req.headers,
       body: req.body
     } : null,
     user: req.user ? req.user._id : null

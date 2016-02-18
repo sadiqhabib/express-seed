@@ -1,20 +1,17 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let i18n = require('i18n');
 let cors = require('cors');
+let morgan = require('morgan');
 let express = require('express');
 let bodyParser = require('body-parser');
 let compression = require('compression');
 let serveStatic = require('serve-static');
 let cookieParser = require('cookie-parser');
-
-/**
- * Application dependencies
- */
 let router = require('./shared/services/router');
 let tokens = require('./shared/services/tokens');
 let db = require('./shared/services/db');
@@ -27,6 +24,7 @@ let config = require('./config');
 let normalizeError = require('./error/middleware/normalizeError');
 let logError = require('./error/middleware/logError');
 let storeError = require('./error/middleware/storeError');
+let processError = require('./error/middleware/processError');
 let sendError = require('./error/middleware/sendError');
 
 /**
@@ -41,6 +39,17 @@ const APP_BASE_URL = config.APP_BASE_URL;
 const SERVER_LATENCY = config.SERVER_LATENCY;
 const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
 const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
+
+//Configure i18n
+i18n.configure({
+  directory: 'app/locales',
+  locales: I18N_LOCALES,
+  defaultLocale: I18N_DEFAULT_LOCALE,
+  objectNotation: true,
+  api: {
+    '__': 't'
+  }
+});
 
 /**
  * Export module
@@ -62,16 +71,21 @@ module.exports = function() {
 
   //CORS
   app.use(cors({
-    origin: APP_BASE_URL
+    origin: APP_BASE_URL,
+    //NOTE: needed for cross domain cookies to work
+    credentials: true
   }));
 
   //Compression
   app.use(compression({
     level: 3,
-    filter: function(req, res) {
+    filter(req, res) {
       return (/json|text|javascript|css/).test(res.getHeader('Content-Type'));
     }
   }));
+
+  //Logger
+  app.use(morgan('dev'));
 
   //Parse application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({
@@ -87,14 +101,12 @@ module.exports = function() {
   //Add cookie parser middleware
   app.use(cookieParser());
 
-  //Configure i18n and use 'accept-language' header to guess language settings
-  i18n.configure({
-    directory: 'app/locales',
-    locales: I18N_LOCALES,
-    defaultLocale: I18N_DEFAULT_LOCALE,
-    objectNotation: true
-  });
+  //Use i18n and propagate locale to global scope
   app.use(i18n.init);
+  app.use((req, res, next) => {
+    i18n.setLocale(req.getLocale());
+    next();
+  });
 
   //Set static folders
   app.use(serveStatic(path.resolve('./public')));
@@ -120,6 +132,7 @@ module.exports = function() {
     normalizeError,
     logError,
     storeError,
+    processError,
     sendError
   ]);
 

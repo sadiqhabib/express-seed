@@ -5,7 +5,7 @@
  */
 module.exports = function toJsonPlugin(schema) {
   schema.options.toJSON = {
-    transform: function(doc, ret) {
+    transform(doc, ret) {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;

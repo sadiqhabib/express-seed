@@ -1,17 +1,13 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
 let express = require('express');
-
-/**
- * Application dependencies
- */
-let config = require('app/config');
+let config = require('../../config');
 
 /**
  * Configuration
@@ -29,7 +25,7 @@ module.exports = function(app) {
 
   //Load API routes
   console.log('Loading API routes...');
-  glob.sync('./app/**/*.routes.js').forEach(function(routePath) {
+  glob.sync('./app/**/*.routes.js').forEach(routePath => {
     console.log(chalk.grey(' - %s'), routePath.replace('./app/', ''));
     require(path.resolve(routePath))(api);
   });
@@ -39,7 +35,7 @@ module.exports = function(app) {
 
   //Send all other GET requests to the index.html file if needed
   if (SERVER_PUBLIC_INDEX) {
-    app.get('/*', function(req, res) {
+    app.get('/*', (req, res) => {
       res.sendFile(path.resolve(SERVER_PUBLIC_INDEX));
     });
   }

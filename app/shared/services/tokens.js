@@ -1,9 +1,10 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
-let jwt = require('jsonwebtoken');
+let Promise = require('bluebird');
+let jwt = Promise.promisifyAll(require('jsonwebtoken'));
 
 /**
  * Check if token config is valid
@@ -29,14 +30,14 @@ module.exports = {
   /**
    * Set defaults
    */
-  setDefaults: function(config) {
+  setDefaults(config) {
     Object.assign(defaults, config);
   },
 
   /**
    * Register token types
    */
-  register: function(type, config) {
+  register(type, config) {
 
     //Invalid input
     if (!type) {
@@ -66,7 +67,7 @@ module.exports = {
   /**
    * Generate a token
    */
-  generate: function(type, claims) {
+  generate(type, claims) {
 
     //Check if type exists
     if (!TypesMap.has(type)) {
@@ -87,7 +88,7 @@ module.exports = {
   /**
    * Validate a token
    */
-  validate: function(type, token) {
+  validate(type, token) {
 
     //Check if type exists
     if (!TypesMap.has(type)) {
@@ -100,15 +101,12 @@ module.exports = {
     let config = TypesMap.get(type);
 
     //Return as promise
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       jwt.verify(token, config.secret, {
         audience: config.audience,
         issuer: config.issuer
-      }, function(error, payload) {
-        if (error) {
-          return reject(error);
-        }
-        resolve(payload);
+      }, (error, payload) => {
+        return error ? reject(error) : resolve(payload);
       });
     });
   },
@@ -116,7 +114,7 @@ module.exports = {
   /**
    * Get the expiration of a certain token type
    */
-  getExpiration: function(type) {
+  getExpiration(type) {
 
     //Check if type exists
     if (!TypesMap.has(type)) {

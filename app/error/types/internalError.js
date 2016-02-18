@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Module dependencies
+ * Dependencies
  */
 let BaseError = require('app/error/types/baseError');
 
@@ -13,6 +13,7 @@ function InternalError(error) {
   //Set name and maintain stack properties
   this.name = error.name;
   this.stack = error.stack || null;
+  this.error = error;
 
   //Use base error constructor now
   BaseError.call(this, 'INTERNAL_ERROR', error.message, null, 500);

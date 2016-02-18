@@ -33,17 +33,6 @@ let ErrorSchema = new Schema({
 });
 
 /**
- * Transformation to JSON
+ * Define model
  */
-ErrorSchema.options.toJSON = {
-  transform: function(doc, ret) {
-    ret.id = ret._id.toString();
-    delete ret._id;
-    delete ret.__v;
-  }
-};
-
-/**
- * Export model
- */
-module.exports = mongoose.model('Error', ErrorSchema);
+mongoose.model('Error', ErrorSchema);

@@ -1,25 +1,34 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
 let mongoose = require('mongoose');
-
-/**
- * Application dependencies
- */
 let config = require('app/config');
 
 /**
- * Configuration
+ * Configure mongoose
+ */
+mongoose.Promise = require('bluebird');
+mongoose.plugin(require('../plugins/toJsonPlugin'));
+
+/**
+ * Settings
  */
 const DB_URI = config.DB_URI;
 const DB_USER = config.DB_USER;
 const DB_PASS = config.DB_PASS;
 const DB_DEBUG = config.DB_DEBUG;
+
+/**
+ * Helper to check if an ID is an object ID
+ */
+mongoose.isObjectId = function(id) {
+  return (id instanceof mongoose.Types.ObjectId);
+};
 
 /**
  * Add string to object ID method
@@ -58,13 +67,13 @@ module.exports = function(app, options) {
 
   //Handle connection events
   mongoose.connection.on('error', dbErrorHandler);
-  mongoose.connection.on('connected', function() {
+  mongoose.connection.on('connected', () => {
     console.log(chalk.green('Database connected @'), chalk.magenta(DB_URI));
   });
 
   //Load models
   console.log('Loading model files...');
-  glob.sync('./app/**/*.model.js').forEach(function(modelPath) {
+  glob.sync('./app/**/*.model.js').forEach(modelPath => {
     console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
     require(path.resolve(modelPath));
   });

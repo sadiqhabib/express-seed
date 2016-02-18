@@ -4,11 +4,12 @@
   "maxErrors": 100,
   "verbose": false,
   "excludeFiles": [
-    "node_modules/**"
+    "node_modules/**",
+    "coverage/**"
   ],
   "requireParenthesesAroundIIFE": true,
   "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-  "maximumLineLength": 100,
+  "maximumLineLength": 80,
   "validateLineBreaks": "LF",
   "validateIndentation": 2,
   "disallowTrailingComma": true,

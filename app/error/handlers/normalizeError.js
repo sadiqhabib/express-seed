@@ -1,10 +1,12 @@
 'use strict';
 
 /**
- * Application dependencies
+ * Dependencies
  */
-let ServerError = require('app/error/types/serverError.js');
-let InternalError = require('app/error/types/internalError.js');
+let ServerError = require('../types/serverError');
+let InternalError = require('../types/internalError');
+let ValidationError = require('../types/validationError');
+let MongooseValidationError = require('mongoose').Error.ValidationError;
 
 /**
  * Check if internal error
@@ -44,6 +46,11 @@ module.exports = function(err) {
   //Internal errors
   if (isInternalError(err)) {
     err = new InternalError(err);
+  }
+
+  //Mongoose validation error
+  if (err instanceof MongooseValidationError) {
+    err = new ValidationError(err);
   }
 
   //Must have code

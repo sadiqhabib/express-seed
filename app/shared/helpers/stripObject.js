@@ -9,7 +9,9 @@ function strip(properties, obj) {
   }
   let stripped = {};
   properties.forEach(function(property) {
-    stripped[property] = obj[property];
+    if (obj.hasOwnProperty(property)) {
+      stripped[property] = obj[property];
+    }
   });
   return stripped;
 }

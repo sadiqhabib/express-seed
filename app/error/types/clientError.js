@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Module dependencies
+ * Dependencies
  */
 let BaseError = require('app/error/types/baseError');
 

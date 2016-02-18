@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * Application dependencies
+ * Dependencies
  */
-let normalizeError = require('app/error/handlers/normalizeError.js');
+let normalizeError = require('../handlers/normalizeError');
 
 /**
  * Module export
