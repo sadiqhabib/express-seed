@@ -3,23 +3,27 @@
 /**
  * Dependencies
  */
-let ClientError = require('app/error/types/clientError');
+let ClientError = require('./clientError');
+const BAD_REQUEST = require('../codes').badRequest;
 
 /**
- * Error constructor
+ * Constructor
  */
 function BadRequestError(code, message, data) {
-  ClientError.call(this, code || 'BAD_REQUEST', message, data, 400);
+  if (code) {
+    this.code = code;
+  }
+  message = message || 'Bad request';
+  ClientError.call(this, message, data);
 }
 
 /**
- * Extend client error
+ * Extend prototype
  */
 BadRequestError.prototype = Object.create(ClientError.prototype);
 BadRequestError.prototype.constructor = BadRequestError;
 BadRequestError.prototype.name = 'BadRequestError';
+BadRequestError.prototype.code = BAD_REQUEST;
 
-/**
- * Module export
- */
+//Export
 module.exports = BadRequestError;

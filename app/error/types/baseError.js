@@ -3,48 +3,58 @@
 /**
  * Base error class
  */
-function BaseError(code, message, data, status) {
+function BaseError(message, data) {
 
-  //Parameter juggling
+  //If used another error as constructor, copy those properties
+  if (message && message instanceof Error) {
+    let error = message;
+    this.name = error.name;
+    this.message = error.message;
+    this.stack = error.stack || null;
+    return;
+  }
+
+  //Otherwise, check if data given as first parameter
   if (message && typeof message === 'object') {
-    status = data;
     data = message;
     message = '';
   }
-  else if (typeof message === 'number') {
-    status = message;
-    message = '';
-  }
 
-  //Set code, status, message and data
-  this.code = code || 'ERROR';
-  this.status = status || 500;
+  //Set message and data
   this.message = message || '';
   this.data = data || null;
 }
 
 /**
- * Error name
+ * Extend prototype
  */
-BaseError.prototype.name = 'Error';
+BaseError.prototype = Object.create(Error.prototype);
+BaseError.prototype.constructor = BaseError;
+BaseError.prototype.status = 500;
 
 /**
  * Convert to simple object for JSON responses
  */
-BaseError.prototype.toResponse = function() {
+BaseError.prototype.toJSON = function() {
+
+  //If no code, then we don't send any data
+  if (!this.code) {
+    return undefined;
+  }
+
+  //Create object
   let error = {
     code: this.code
   };
-  if (this.message) {
-    error.message = this.message;
-  }
+
+  //Append data
   if (this.data) {
     error.data = this.data;
   }
+
+  //Retun JSON
   return error;
 };
 
-/**
- * Module export
- */
+//Export
 module.exports = BaseError;

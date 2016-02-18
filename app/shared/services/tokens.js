@@ -4,7 +4,8 @@
  * Dependencies
  */
 let Promise = require('bluebird');
-let jwt = Promise.promisifyAll(require('jsonwebtoken'));
+let jwt = require('jsonwebtoken');
+let InvalidTokenError = require('../../error/types').InvalidTokenError;
 
 /**
  * Check if token config is valid
@@ -57,7 +58,9 @@ module.exports = {
     //Extend with default configuration and validate
     config = Object.assign({}, defaults, config);
     if (!isValidConfig(config)) {
-      throw new Error('Invalid token configuration for type `' + type + '`');
+      throw new InvalidTokenError(
+        'Invalid token configuration for type `' + type + '`'
+      );
     }
 
     //Store in map
@@ -71,7 +74,7 @@ module.exports = {
 
     //Check if type exists
     if (!TypesMap.has(type)) {
-      throw new Error('Unknown token type `' + type + '`');
+      throw new InvalidTokenError('Unknown token type `' + type + '`');
     }
 
     //Get config
@@ -93,7 +96,7 @@ module.exports = {
     //Check if type exists
     if (!TypesMap.has(type)) {
       return Promise.reject(
-        new Error('Unknown token type `' + type + '`')
+        new InvalidTokenError('Unknown token type `' + type + '`')
       );
     }
 
@@ -106,7 +109,10 @@ module.exports = {
         audience: config.audience,
         issuer: config.issuer
       }, (error, payload) => {
-        return error ? reject(error) : resolve(payload);
+        if (error) {
+          return reject(new InvalidTokenError(error.message));
+        }
+        resolve(payload);
       });
     });
   },
@@ -118,11 +124,21 @@ module.exports = {
 
     //Check if type exists
     if (!TypesMap.has(type)) {
-      throw new Error('Unknown token type `' + type + '`');
+      throw new InvalidTokenError('Unknown token type `' + type + '`');
     }
 
     //Get config and return expiration
     let config = TypesMap.get(type);
     return config.expiration || 0;
+  },
+
+  /**
+   * Get the ID out of token payload
+   */
+  getId(payload) {
+    if (!payload || !payload.id) {
+      throw new InvalidTokenError('No payload or no ID in payload');
+    }
+    return payload.id;
   }
 };

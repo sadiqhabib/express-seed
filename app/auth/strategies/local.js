@@ -1,15 +1,11 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
 let mongoose = require('mongoose');
 let LocalStrategy = require('passport-local').Strategy;
-
-/**
- * Application dependencies
- */
 let User = mongoose.model('User');
 
 /**

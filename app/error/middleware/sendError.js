@@ -3,14 +3,12 @@
 /**
  * Module export
  */
-module.exports = function(err, req, res, next) {
+module.exports = function(error, req, res, next) {
   next = next || null;
-  let errResponse;
-  if (typeof err.toResponse === 'function') {
-    errResponse = err.toResponse();
+  let json;
+  let status = error.status || 500;
+  if (typeof error.toJSON === 'function' && (json = error.toJSON())) {
+    return res.status(status).json(json);
   }
-  else {
-    errResponse = err;
-  }
-  return res.status(err.status || 500).json(errResponse);
+  res.status(status).end();
 };

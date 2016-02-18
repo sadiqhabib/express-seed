@@ -1,16 +1,12 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
 let mongoose = require('mongoose');
 let BearerStrategy = require('passport-http-bearer').Strategy;
-
-/**
- * Application dependencies
- */
-let tokens = require('app/shared/services/tokens');
+let tokens = require('../../shared/services/tokens');
 let User = mongoose.model('User');
 
 /**

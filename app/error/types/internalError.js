@@ -3,40 +3,23 @@
 /**
  * Dependencies
  */
-let BaseError = require('app/error/types/baseError');
+let BaseError = require('./baseError');
+const INTERNAL_ERROR = require('../codes').internalError;
 
 /**
- * Error constructor
+ * Constructor
  */
 function InternalError(error) {
-
-  //Set name and maintain stack properties
-  this.name = error.name;
-  this.stack = error.stack || null;
-  this.error = error;
-
-  //Use base error constructor now
-  BaseError.call(this, 'INTERNAL_ERROR', error.message, null, 500);
+  BaseError.call(this, error);
 }
 
 /**
- * Extend base error error
+ * Extend prototype
  */
 InternalError.prototype = Object.create(BaseError.prototype);
 InternalError.prototype.constructor = InternalError;
 InternalError.prototype.name = 'InternalError';
+InternalError.prototype.code = INTERNAL_ERROR;
 
-/**
- * Convert to simple object for JSON responses (does not expose message)
- */
-InternalError.prototype.toResponse = function() {
-  let error = {
-    code: this.code
-  };
-  return error;
-};
-
-/**
- * Module export
- */
+//Export
 module.exports = InternalError;

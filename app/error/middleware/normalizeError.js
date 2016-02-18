@@ -8,7 +8,7 @@ let normalizeError = require('../handlers/normalizeError');
 /**
  * Module export
  */
-module.exports = function(err, req, res, next) {
-  normalizeError(err);
-  next(err);
+module.exports = function(error, req, res, next) {
+  normalizeError(error);
+  next(error);
 };

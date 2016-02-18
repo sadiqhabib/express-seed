@@ -8,7 +8,7 @@ let storeError = require('../handlers/storeError');
 /**
  * Module export
  */
-module.exports = function(err, req, res, next) {
-  storeError(err, req);
-  next(err);
+module.exports = function(error, req, res, next) {
+  storeError(error, req);
+  next(error);
 };

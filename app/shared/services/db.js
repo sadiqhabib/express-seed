@@ -7,7 +7,7 @@ let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
 let mongoose = require('mongoose');
-let config = require('app/config');
+let config = require('../../config');
 
 /**
  * Configure mongoose

@@ -3,7 +3,8 @@
 /**
  * Dependencies
  */
-let User = require('app/user/user.model');
+let mongoose = require('mongoose');
+let User = mongoose.model('User');
 let users = require('./mock/users');
 
 /**

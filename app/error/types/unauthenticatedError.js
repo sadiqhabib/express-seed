@@ -3,23 +3,27 @@
 /**
  * Dependencies
  */
-let ClientError = require('app/error/types/clientError');
+let ClientError = require('./clientError');
+const NOT_AUTHENTICATED = require('../codes').notAuthenticated;
 
 /**
- * Error constructor
+ * Constructor
  */
-function UnauthenticatedError(code, message, data) {
-  ClientError.call(this, code || 'NOT_AUTHENTICATED', message, data, 401);
+function UnauthenticatedError(code, message) {
+  if (code) {
+    this.code = code;
+  }
+  message = message || 'Not authenticated';
+  ClientError.call(this, message, 401);
 }
 
 /**
- * Extend client error
+ * Extend prototype
  */
 UnauthenticatedError.prototype = Object.create(ClientError.prototype);
 UnauthenticatedError.prototype.constructor = UnauthenticatedError;
 UnauthenticatedError.prototype.name = 'UnauthenticatedError';
+UnauthenticatedError.prototype.code = NOT_AUTHENTICATED;
 
-/**
- * Module export
- */
+//Export
 module.exports = UnauthenticatedError;

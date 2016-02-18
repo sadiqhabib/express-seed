@@ -1,16 +1,12 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
 let mongoose = require('mongoose');
-
-/**
- * Application dependencies
- */
-let RefreshStrategy = require('app/auth/passport/refreshStrategy');
-let tokens = require('app/shared/services/tokens');
+let RefreshStrategy = require('../passport/refreshStrategy');
+let tokens = require('../../shared/services/tokens');
 let User = mongoose.model('User');
 
 /**

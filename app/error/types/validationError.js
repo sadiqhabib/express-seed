@@ -1,25 +1,25 @@
 'use strict';
 
 /**
- * Module dependencies
+ * Dependencies
  */
-let ClientError = require('app/error/types/clientError');
 let MongooseValidationError = require('mongoose').Error.ValidationError;
+let ClientError = require('./clientError');
+const NOT_VALIDATED = require('../codes').notValidated;
 
 /**
- * Error constructor
+ * Constructor
  */
 function ValidationError(code, data, message) {
 
   //Mongoose validation error fed?
   if (code instanceof MongooseValidationError) {
-    let mve = code;
-    message = mve.message;
-    code = 'NOT_VALIDATED';
+    let mongooseError = code;
+    message = mongooseError.message;
     data = {fields: {}};
-    for (let field in mve.errors) {
-      if (mve.errors.hasOwnProperty(field)) {
-        let error = mve.errors[field];
+    for (let field in mongooseError.errors) {
+      if (mongooseError.errors.hasOwnProperty(field)) {
+        let error = mongooseError.errors[field];
         data.fields[field] = {
           type: error.kind,
           message: error.message
@@ -28,18 +28,23 @@ function ValidationError(code, data, message) {
     }
   }
 
+  //Set code if given
+  else if (code) {
+    this.code = code;
+    message = message || 'Validation error';
+  }
+
   //Call parent constructor
-  ClientError.call(this, code, message, data, 422);
+  ClientError.call(this, message, data, 422);
 }
 
 /**
- * Extend client error
+ * Extend prototype
  */
 ValidationError.prototype = Object.create(ClientError.prototype);
 ValidationError.prototype.constructor = ValidationError;
 ValidationError.prototype.name = 'ValidationError';
+ValidationError.prototype.code = NOT_VALIDATED;
 
-/**
- * Module export
- */
+//Export
 module.exports = ValidationError;

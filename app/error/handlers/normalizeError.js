@@ -3,70 +3,65 @@
 /**
  * Dependencies
  */
-let ServerError = require('../types/serverError');
-let InternalError = require('../types/internalError');
-let ValidationError = require('../types/validationError');
-let MongooseValidationError = require('mongoose').Error.ValidationError;
-
-/**
- * Check if internal error
- */
-function isInternalError(err) {
-  if (err instanceof EvalError) {
-    return true;
-  }
-  if (err instanceof TypeError) {
-    return true;
-  }
-  if (err instanceof RangeError) {
-    return true;
-  }
-  if (err instanceof ReferenceError) {
-    return true;
-  }
-  if (err instanceof SyntaxError) {
-    return true;
-  }
-  if (err instanceof URIError) {
-    return true;
-  }
-  return false;
-}
+let types = require('../types');
+let BaseError = types.BaseError;
+let ServerError = types.ServerError;
+let InternalError = types.InternalError;
+let ValidationError = types.ValidationError;
+let MongooseValidationError = types.MongooseValidationError;
 
 /**
  * Module export
  */
-module.exports = function(err) {
+module.exports = function(error) {
 
-  //If this is not an object, create an error representation
-  if (typeof err !== 'object') {
-    err = new ServerError(String(err));
+  //If this is not an object yet at this stage, create an error representation
+  if (typeof error !== 'object') {
+    error = new ServerError(String(error));
   }
 
-  //Internal errors
-  if (isInternalError(err)) {
-    err = new InternalError(err);
+  //Wrap internal errors
+  if (isInternalError(error)) {
+    error = new InternalError(error);
   }
 
-  //Mongoose validation error
-  if (err instanceof MongooseValidationError) {
-    err = new ValidationError(err);
+  //Convert mongoose validation errors
+  if (error instanceof MongooseValidationError) {
+    error = new ValidationError(error);
   }
 
-  //Must have code
-  if (!err.code) {
-    console.log(err);
-    err = new InternalError(err);
+  //Still not an instance of BaseError at this stage?
+  if (!(error instanceof BaseError)) {
+    error = new BaseError(error);
   }
 
-  //If this error does not have a response conversion method, create
-  //generic server error
-  if (typeof err.toResponse !== 'function') {
-    err = new ServerError(err.code, err.message, err.data, 500);
-  }
-
-  //Ensure that err.message is enumerable (it is not by default)
-  Object.defineProperty(err, 'message', {
+  //Ensure that error.message is enumerable (it is not by default)
+  Object.defineProperty(error, 'message', {
     enumerable: true
   });
 };
+
+/**
+ * Check if internal error
+ */
+function isInternalError(error) {
+  if (error instanceof EvalError) {
+    return true;
+  }
+  if (error instanceof TypeError) {
+    return true;
+  }
+  if (error instanceof RangeError) {
+    return true;
+  }
+  if (error instanceof ReferenceError) {
+    return true;
+  }
+  if (error instanceof SyntaxError) {
+    return true;
+  }
+  if (error instanceof URIError) {
+    return true;
+  }
+  return false;
+}

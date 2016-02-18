@@ -8,15 +8,15 @@ let mongoose = require('mongoose');
 /**
  * Module export
  */
-module.exports = function(err, req) {
+module.exports = function(error, req) {
 
   //Create error data
   let data = {
-    name: err.name || 'UnknownError',
-    code: err.code || '',
-    message: err.message || '',
-    data: err.data || null,
-    stack: err.stack || null,
+    name: error.name || 'UnknownError',
+    code: error.code || '',
+    message: error.message || '',
+    data: error.data || null,
+    stack: error.stack || null,
     request: req ? {
       url: req.baseUrl,
       body: req.body

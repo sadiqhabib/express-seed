@@ -4,9 +4,9 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
-let ValidationError = require('../error/types/validationError');
-let handleError = require('../error/handlers/handleError');
-let tokens = require('../shared/services/tokens.js');
+let InvalidTokenError = require('../error/types').InvalidTokenError;
+let handleError = require('../error/handler');
+let tokens = require('../shared/services/tokens');
 let mailer = require('../shared/services/mailer');
 
 /**
@@ -163,10 +163,10 @@ module.exports = {
 
         //No user or token already used?
         if (!user) {
-          throw new ValidationError('INVALID_TOKEN');
+          throw new InvalidTokenError('No matching user found');
         }
         if (user.usedTokens && user.usedTokens.includes(token)) {
-          throw new ValidationError('INVALID_TOKEN');
+          throw new InvalidTokenError('Token already used');
         }
 
         //Update password, mark token as used

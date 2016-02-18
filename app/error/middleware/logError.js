@@ -8,7 +8,7 @@ let logError = require('../handlers/logError');
 /**
  * Module export
  */
-module.exports = function(err, req, res, next) {
-  logError(err);
-  next(err);
+module.exports = function(error, req, res, next) {
+  logError(error);
+  next(error);
 };

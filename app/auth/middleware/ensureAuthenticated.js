@@ -1,14 +1,10 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
-
-/**
- * Application dependencies
- */
-let UnauthenticatedError = require('app/error/types/unauthenticatedError');
+let UnauthenticatedError = require('../error/types').UnauthenticatedError;
 
 /**
  * Module export

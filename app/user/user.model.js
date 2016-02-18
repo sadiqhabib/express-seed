@@ -1,16 +1,12 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let mongoose = require('mongoose');
 let bcrypt = require('bcryptjs');
 let Schema = mongoose.Schema;
-
-/**
- * Application dependencies
- */
-let config = require('app/config');
+let config = require('../config');
 
 /**
  * Configuration

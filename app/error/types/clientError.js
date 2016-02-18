@@ -3,30 +3,36 @@
 /**
  * Dependencies
  */
-let BaseError = require('app/error/types/baseError');
+let BaseError = require('./baseError');
 
 /**
- * Error constructor
+ * Constructor
  */
-function ClientError(code, message, data, status) {
+function ClientError(message, data, status) {
 
-  //Validate status
-  if (!status || status < 400 || status > 499) {
-    status = 400;
+  //Check if status given as data
+  if (data && typeof data === 'number') {
+    status = data;
+    data = null;
+  }
+
+  //Set status if valid
+  if (status && status >= 400 && status <= 499) {
+    this.status = status;
   }
 
   //Call parent constructor
-  BaseError.call(this, code, message, data, status);
+  message = message || 'Client error';
+  BaseError.call(this, message, data);
 }
 
 /**
- * Extend base error error
+ * Extend prototype
  */
 ClientError.prototype = Object.create(BaseError.prototype);
 ClientError.prototype.constructor = ClientError;
 ClientError.prototype.name = 'ClientError';
+ClientError.prototype.status = 400;
 
-/**
- * Module export
- */
+//Export
 module.exports = ClientError;

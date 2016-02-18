@@ -1,18 +1,13 @@
 'use strict';
 
 /**
- * Add root folder to path
- */
-require('app-module-path').addPath(__dirname + '/..');
-
-/**
  * Dependencies
  */
 let glob = require('glob');
 let chalk = require('chalk');
 let argv = require('yargs').argv;
 let Promise = require('bluebird');
-let db = require('app/shared/services/db');
+let db = require('../app/shared/services/db');
 let log = require('./lib/log');
 let run = require('./lib/run');
 let Migration = require('./lib/migration');
