@@ -7,7 +7,7 @@ let mongoose = require('mongoose');
 let NotFoundError = require('../error/type/client/not-found');
 let BadRequestError = require('../error/type/client/bad-request');
 let InvalidTokenError = require('../error/type/client/invalid-token');
-let handleError = require('../error/handler');
+let errorHandler = require('../error/handler');
 let tokens = require('../services/tokens');
 let mailer = require('../services/mailer');
 
@@ -47,27 +47,18 @@ module.exports = {
     //Create user
     User.create(data)
       .then(user => {
-
-        //Store in request
-        req.user = user;
-
-        //Send verification email (allow failure at this stage)
-        mailer.send(verifyEmailAddressEmail(user)).catch(handleError);
-
-        //Generate access token for immediate login
-        user.accessToken = tokens.generate('access', user.toJSON());
-        return user;
+        mailer.send(verifyEmailAddressEmail(user)).catch(errorHandler);
+        return (req.user = user);
       })
-      .then(user => user.save())
       .then(user => {
 
-        //Convert to JSON
-        let userJson = user.toJSON();
-
-        //Manually append access token now to allow the user to login,
-        //because the model deletes it from JSON form by default
-        userJson.accessToken = user.accessToken;
-        res.status(201).json(userJson);
+        //Generate access token for immediate login
+        let json = user.toJSON();
+        json.accessToken = tokens.generate('access', user.getClaims());
+        return json;
+      })
+      .then(user => {
+        res.status(201).json(user);
       })
       .catch(next);
   },
@@ -84,15 +75,14 @@ module.exports = {
     //Save user
     user.save()
       .then(user => {
-
-        //Store updated user in request
-        req.user = user;
-        res.json(user.toJSON());
-
-        //Send new email verification
         if (isEmailChanged) {
-          mailer.send(verifyEmailAddressEmail(user)).catch(handleError);
+          mailer.send(verifyEmailAddressEmail(user)).catch(errorHandler);
         }
+        return (req.user = user);
+      })
+      .then(user => user.toJSON())
+      .then(user => {
+        res.json(user);
       })
       .catch(next);
   },
@@ -110,7 +100,7 @@ module.exports = {
     user.password = password;
     user.save()
       .then(user => {
-        mailer.send(passwordHasChangedEmail(user)).catch(handleError);
+        mailer.send(passwordHasChangedEmail(user)).catch(errorHandler);
         res.end();
       })
       .catch(next);
@@ -121,8 +111,9 @@ module.exports = {
    */
   exists(req, res, next) {
     User.find(req.body).limit(1)
-      .then(users => {
-        res.json({exists: users.length > 0});
+      .then(users => (users.length > 0))
+      .then(exists => {
+        res.json({exists: exists});
       })
       .catch(next);
   },
@@ -178,7 +169,7 @@ module.exports = {
       })
       .then(user => user.save())
       .then(user => {
-        mailer.send(passwordHasChangedEmail(user)).catch(handleError);
+        mailer.send(passwordHasChangedEmail(user)).catch(errorHandler);
         res.end();
       })
       .catch(next);
