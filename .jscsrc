@@ -9,7 +9,10 @@
   ],
   "requireParenthesesAroundIIFE": true,
   "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-  "maximumLineLength": 80,
+  "maximumLineLength": {
+    "value": 80,
+    "allExcept": ["regex", "urlComments"]
+  },
   "validateLineBreaks": "LF",
   "validateIndentation": 2,
   "disallowTrailingComma": true,
