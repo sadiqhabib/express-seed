@@ -1,41 +1,78 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let mongoose = require('mongoose');
 let bcrypt = require('bcryptjs');
 let Schema = mongoose.Schema;
+let config = require('../config');
 
 /**
- * Application dependencies
+ * Schemas
  */
-let config = require('app/config');
+let AddressSchema = require('../shared/address.schema');
+let FileSchema = require('../shared/file.schema');
 
 /**
  * Configuration
  */
 const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
+const USER_PASSWORD_MIN_LENGTH = config.USER_PASSWORD_MIN_LENGTH;
+
+/**
+ * Helper to create full name
+ */
+function createFullName(firstName, lastName) {
+  return String(firstName + ' ' + lastName).trim();
+}
 
 /**
  * User schema
  */
 let UserSchema = new Schema({
-  name: {
+
+  //Personal details
+  firstName: {
     type: String,
     required: true,
     trim: true
   },
+  lastName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  fullName: {
+    type: String,
+    default: ''
+  },
+  avatar: FileSchema,
+
+  //Contact details
   email: {
     type: String,
     trim: true,
     required: true,
     unique: true
   },
+  phone: {
+    type: String
+  },
+  address: AddressSchema,
+
+  //Security
   password: {
     type: String,
     required: true,
     trim: true
+  },
+  roles: {
+    type: [{
+      type: String,
+      enum: ['user', 'admin']
+    }],
+    default: ['user']
   },
   isSuspended: {
     type: Boolean,
@@ -45,13 +82,6 @@ let UserSchema = new Schema({
     type: Boolean,
     default: false
   },
-  roles: {
-    type: [{
-      type: String,
-      enum: ['user', 'admin']
-    }],
-    default: ['user']
-  },
   usedTokens: [String]
 });
 
@@ -60,9 +90,23 @@ let UserSchema = new Schema({
  */
 UserSchema.pre('save', function(next) {
 
+  //Create full name
+  this.fullName = createFullName(this.firstName, this.lastName);
+
+  //Check if email address modified
+  if (this.isModified('email')) {
+    this.isEmailVerified = false;
+  }
+
   //Check if password modified and present
-  if (!this.isModified('password') || !this.password) {
+  if (!this.isModified('password')) {
     return next();
+  }
+
+  //Validate password
+  if (!this.password || this.password.length < USER_PASSWORD_MIN_LENGTH) {
+    return next('Invalid password');
+    //TODO use proper error format for validation errors
   }
 
   //Get self
@@ -88,16 +132,16 @@ UserSchema.pre('save', function(next) {
 });
 
 /**
- * Virtual properties
+ * Email with name
  */
-UserSchema.virtual('emailWithName').get(function() {
+UserSchema.virtual('emailWithName').get(() => {
   if (!this.email) {
     return '';
   }
-  if (!this.name) {
+  if (!this.fullName) {
     return this.email;
   }
-  return this.name + ' <' + this.email + '>';
+  return this.fullName + ' <' + this.email + '>';
 });
 
 /**
@@ -116,14 +160,14 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
  * Has role checker
  */
 UserSchema.methods.hasRole = function(role) {
-  return this.roles.indexOf(role) !== -1;
+  return this.roles.includes(role);
 };
 
 /**
  * Add a user role
  */
 UserSchema.methods.addRole = function(role) {
-  if (this.roles.indexOf(role) === -1) {
+  if (!this.roles.includes(role)) {
     this.roles.push(role);
   }
 };
@@ -139,26 +183,35 @@ UserSchema.methods.getClaims = function() {
 };
 
 /**
+ * Helper to populate users
+ */
+function populate(query) {
+  return query;
+}
+
+/**
  * Find users by ID and populates data as needed
  */
 UserSchema.statics.findByIdAndPopulate = function(id) {
-  return this.findById(id);
+  let query = this.findById(id);
+  return populate(query);
 };
 
 /**
  * Find users by email and populates data as needed
  */
 UserSchema.statics.findByEmailAndPopulate = function(email) {
-  return this.findOne({
+  let query = this.findOne({
     email: email
   });
+  return populate(query);
 };
 
 /**
  * Transformation to JSON
  */
 UserSchema.options.toJSON = {
-  transform: function(doc, ret) {
+  transform(doc, ret) {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.__v;
@@ -167,10 +220,13 @@ UserSchema.options.toJSON = {
     delete ret.password;
     delete ret.roles;
     delete ret.usedTokens;
+
+    //Delete unnecessary data
+    delete ret.fullName;
   }
 };
 
 /**
- * Export model
+ * Define model
  */
-module.exports = mongoose.model('User', UserSchema);
+mongoose.model('User', UserSchema);

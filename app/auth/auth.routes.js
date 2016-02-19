@@ -1,18 +1,18 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let express = require('express');
 
 /**
- * User routes
+ * Auth routes
  */
 module.exports = function(app) {
 
   //Get controllers and middleware
-  let authCtrl = require('app/auth/auth.ctrl');
-  let ensureAuthenticated = require('app/auth/middleware/ensureAuthenticated');
+  let authCtrl = require('./auth.ctrl');
+  let ensureAuthenticated = authCtrl.ensureAuthenticated;
 
   //Create new router
   let router = express.Router();

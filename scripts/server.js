@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let chalk = require('chalk');
@@ -16,18 +16,9 @@ if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
 }
 
 /**
- * Add root folder to path
- */
-require('app-module-path').addPath(__dirname + '/..');
-
-/**
- * Application dependencies
- */
-let config = require('app/config');
-
-/**
  * Configuration
  */
+let config = require('../app/config');
 const ENV = config.ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config.SERVER_PORT;
@@ -38,11 +29,11 @@ const SERVER_HTTPS = config.SERVER_HTTPS;
  */
 function expressErrorHandler(err) {
   if (err.errno === 'EADDRINUSE') {
-    console.error(chalk.red('Web server port %s is already in use'), SERVER_PORT);
+    console.log(chalk.red('Web server port %s is already in use'), SERVER_PORT);
   }
   else {
-    console.error(chalk.red('Web server error:'));
-    console.error(chalk.red(err));
+    console.log(chalk.red('Web server error:'));
+    console.log(chalk.red(err));
   }
   process.exit(-1);
 }
@@ -57,7 +48,7 @@ console.log('Running application', chalk.magenta(APP_NAME),
  * Initialize express application
  */
 console.log('Starting Express server...');
-let app = require('app/app')();
+let app = require('../app/app')();
 let server = app.listen(SERVER_PORT, function() {
 
   //Skip if no address

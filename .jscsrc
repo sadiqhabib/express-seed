@@ -4,11 +4,15 @@
   "maxErrors": 100,
   "verbose": false,
   "excludeFiles": [
-    "node_modules/**"
+    "node_modules/**",
+    "coverage/**"
   ],
   "requireParenthesesAroundIIFE": true,
   "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-  "maximumLineLength": 100,
+  "maximumLineLength": {
+    "value": 80,
+    "allExcept": ["regex", "urlComments"]
+  },
   "validateLineBreaks": "LF",
   "validateIndentation": 2,
   "disallowTrailingComma": true,

@@ -36,7 +36,7 @@ function loadConfig(env) {
   }
   catch (e) {
     if (env !== 'local') {
-      console.error(
+      console.log(
         chalk.red('Could not load environment configuration file'),
         chalk.magenta(env + '.js')
       );

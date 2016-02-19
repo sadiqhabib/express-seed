@@ -1,24 +1,20 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let passport = require('passport');
-
-/**
- * Application dependencies
- */
-let RefreshStrategy = require('app/auth/passport/refreshStrategy');
-let tokens = require('app/shared/services/tokens.js');
-let User = require('app/user/user.model');
+let mongoose = require('mongoose');
+let RefreshStrategy = require('../../plugins/passport/refresh-strategy');
+let InvalidTokenError = require('../../error/type/client/invalid-token');
+let tokens = require('../../services/tokens');
+let User = mongoose.model('User');
 
 /**
  * Refresh token strategy
  */
 module.exports = function() {
-
-  //Use local strategy
-  passport.use(new RefreshStrategy(function(refreshToken, cb) {
+  passport.use(new RefreshStrategy((refreshToken, cb) => {
 
     //No refresh token?
     if (!refreshToken) {
@@ -26,33 +22,15 @@ module.exports = function() {
     }
 
     //Validate token
-    tokens.validate('refresh', refreshToken).then(function(payload) {
-
-      //No ID?
-      if (!payload.id) {
-        return cb(null, false, {
-          error: 'INVALID_TOKEN'
-        });
-      }
-
-      //Find user by matching ID
-      User.findByIdAndPopulate(payload.id).then(function(user) {
+    tokens.validate('refresh', refreshToken)
+      .then(tokens.getId)
+      .then(id => User.findByIdAndPopulate(id))
+      .then(user => {
         if (!user) {
-          return cb(null, false, {
-            error: 'INVALID_TOKEN'
-          });
+          throw new InvalidTokenError('No matching user found');
         }
         return cb(null, user);
-      }, function(error) {
-        return cb(error);
-      });
-    }, function(error) {
-      if (error.name === 'TokenExpiredError') {
-        return cb(null, false, {
-          error: 'EXPIRED_TOKEN'
-        });
-      }
-      return cb(error);
-    });
+      })
+      .catch(cb);
   }));
 };
