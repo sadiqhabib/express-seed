@@ -72,14 +72,17 @@ The following is an outline of the folder structure of this seed project:
 ├─ migrations
 
 # This folder contains the main run scripts for your application.
-└─ scripts
+├─ scripts
+
+# Test helpers and mocha options reside here.
+└─ test
 ```
+
+The app folder contains a mix of "route modules" (e.g. `user`, `auth`) and grouped helpers/services. The reason these are mixed is to prevent the need for excessively long relative paths for `require` statements (e.g. `../../../shared/services/db`). Feel free to restructure as needed for your application though.
 
 ## Issues & feature requests
 
-Please report any bugs, issues, suggestions and feature requests in the appropriate issue tracker:
-* [Express seed project issue tracker](https://github.com/meanie/express-seed/issues)
-* [Meanie CLI issue tracker](https://github.com/meanie/meanie/issues)
+Please report any bugs, issues, suggestions and feature requests in the [meanie-express-seed issue tracker](https://github.com/meanie/express-seed/issues).
 
 ## Contributing
 
@@ -87,7 +90,8 @@ Pull requests are welcome! If you would like to contribute to Meanie, please che
 
 ## Credits
 
-Inspiration for this seed project came from [MEAN.JS](https://github.com/meanjs/mean).
+* Inspiration for this seed project came from [MEAN.JS](https://github.com/meanjs/mean)
+* Meanie logo designed by [Quan-Lin Sim](mailto:quan.lin.sim+meanie@gmail.com)
 
 ## License
 
