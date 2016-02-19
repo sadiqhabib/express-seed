@@ -17,6 +17,7 @@ module.exports = {
 
   //API
   API_VERSION: 1,
+  API_BASE_URL: 'http://localhost:8081',
   API_BASE_PATH: '/api/v1/',
 
   //Server
@@ -44,6 +45,7 @@ module.exports = {
   //Authentication
   REFRESH_TOKEN_COOKIE_MAX_AGE: 30 * 24 * 3600, //seconds
   REFRESH_TOKEN_COOKIE_SECURE: false,
+  SECURE_STATUS_EXPIRATION: 300, //seconds
 
   //Tokens
   TOKEN_DEFAULT_AUDIENCE: 'http://my-application.com/app',
@@ -71,5 +73,9 @@ module.exports = {
   SENDGRID_API_KEY: '',
 
   //Cryptography
-  BCRYPT_ROUNDS: 10
+  BCRYPT_ROUNDS: 10,
+
+  //User
+  USER_PASSWORD_MIN_LENGTH: 6,
+  USER_AVATAR_MAX_FILE_SIZE: 512 * 1024 //bytes
 };
