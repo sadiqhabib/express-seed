@@ -93,7 +93,6 @@ module.exports = function(app) {
   router.post(
     '/avatar',
     ensureAuthenticated,
-    userCtrl.setMember,
     avatarCtrl.upload,
     avatarCtrl.save
   );
@@ -102,7 +101,6 @@ module.exports = function(app) {
   router.delete(
     '/avatar',
     ensureAuthenticated,
-    userCtrl.setMember,
     avatarCtrl.delete
   );
 

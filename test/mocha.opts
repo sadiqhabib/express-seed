@@ -1,2 +1,3 @@
 --require test/helpers/setup
 --require mocha-clean
+app/**/*.spec.js

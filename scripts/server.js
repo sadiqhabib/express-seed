@@ -18,7 +18,7 @@ if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
 /**
  * Configuration
  */
-let config = require('./app/config');
+let config = require('../app/config');
 const ENV = config.ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config.SERVER_PORT;
@@ -48,7 +48,7 @@ console.log('Running application', chalk.magenta(APP_NAME),
  * Initialize express application
  */
 console.log('Starting Express server...');
-let app = require('./app/app')();
+let app = require('../app/app')();
 let server = app.listen(SERVER_PORT, function() {
 
   //Skip if no address
