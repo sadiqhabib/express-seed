@@ -12,20 +12,20 @@ let bodyParser = require('body-parser');
 let compression = require('compression');
 let serveStatic = require('serve-static');
 let cookieParser = require('cookie-parser');
-let router = require('./shared/services/router');
-let tokens = require('./shared/services/tokens');
-let db = require('./shared/services/db');
-let auth = require('./auth/auth');
+let router = require('./services/router');
+let tokens = require('./services/tokens');
+let db = require('./services/db');
+let auth = require('./services/auth');
 let config = require('./config');
 
 /**
  * Error handling middleware
  */
-let normalizeError = require('./error/middleware/normalizeError');
-let logError = require('./error/middleware/logError');
-let storeError = require('./error/middleware/storeError');
-let processError = require('./error/middleware/processError');
-let sendError = require('./error/middleware/sendError');
+let normalizeError = require('./error/middleware/normalize-error');
+let logError = require('./error/middleware/log-error');
+let storeError = require('./error/middleware/store-error');
+let processError = require('./error/middleware/process-error');
+let sendError = require('./error/middleware/send-error');
 
 /**
  * Configuration

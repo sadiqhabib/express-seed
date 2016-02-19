@@ -5,8 +5,9 @@
  */
 let passport = require('passport');
 let moment = require('moment');
-let UnauthenticatedError = require('../error/types/unauthenticatedError');
-let tokens = require('../shared/services/tokens');
+let NotAuthenticatedError = require('../error/type/auth/not-authenticated');
+let UserSuspendedError = require('../error/type/auth/user-suspended');
+let tokens = require('../services/tokens');
 let config = require('../config');
 
 /**
@@ -78,28 +79,24 @@ module.exports = {
      */
     function authCallback(error, user) {
 
-      //Check error
+      //Error given?
       if (error) {
-        return next(error);
+        error = new NotAuthenticatedError(error);
       }
 
       //No user found?
-      if (!user) {
-        let errorCode;
-        if (grantType === 'password') {
-          errorCode = 'INVALID_CREDENTIALS';
-        }
-        return next(new UnauthenticatedError(errorCode));
+      else if (!user) {
+        error = new NotAuthenticatedError();
       }
 
       //User suspended?
-      if (user.isSuspended) {
-        return next(new UnauthenticatedError('USER_SUSPENDED'));
+      else if (user.isSuspended) {
+        error = new UserSuspendedError();
       }
 
-      //User pending approval?
-      if (!user.isApproved) {
-        return next(new UnauthenticatedError('USER_PENDING'));
+      //Check error
+      if (error) {
+        return next(error);
       }
 
       //Set user in request and get claims
@@ -141,5 +138,55 @@ module.exports = {
         passport.authenticate('refresh', authCallback)(req, res, next);
         break;
     }
+  },
+
+  /**************************************************************************
+   * Middleware
+   ***/
+
+  /**
+   * Ensure a user is an admin middleware
+   */
+  ensureAdmin(req, res, next) {
+    if (!req.user || !req.user.hasRole('admin')) {
+      res.status(403).send();
+    }
+    next();
+  },
+
+  /**
+   * Ensure a user is authenticated middleware
+   */
+  ensureAuthenticated(req, res, next) {
+
+    //Authenticate now
+    passport.authenticate('bearer', {
+      session: false
+    }, (error, user) => {
+
+      //Error given?
+      if (error) {
+        error = new NotAuthenticatedError(error);
+      }
+
+      //No user found?
+      else if (!user) {
+        error = new NotAuthenticatedError();
+      }
+
+      //User suspended?
+      else if (user.isSuspended) {
+        error = new UserSuspendedError();
+      }
+
+      //Check error
+      if (error) {
+        return next(error);
+      }
+
+      //Set user in request
+      req.user = user;
+      next();
+    })(req, res, next);
   }
 };

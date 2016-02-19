@@ -12,16 +12,18 @@ module.exports = function(app) {
 
   //Get controllers and middleware
   let userCtrl = require('./user.ctrl');
-  let clubCtrl = require('../club/club.ctrl');
-  let ensureAuthenticated = require('../auth/middleware/ensureAuthenticated');
+  let avatarCtrl = require('./avatar.ctrl');
+  let ensureAuthenticated = require('../auth/auth.ctrl').ensureAuthenticated;
 
   //Create new router
   let router = express.Router();
 
+  //Parameter handling
+  router.param('userId', userCtrl.findById);
+
   //Create user
   router.post(
     '/',
-    clubCtrl.findBySubdomain,
     userCtrl.collectData,
     userCtrl.create
   );
@@ -85,6 +87,29 @@ module.exports = function(app) {
     '/changePassword',
     ensureAuthenticated,
     userCtrl.changePassword
+  );
+
+  //Upload an avatar
+  router.post(
+    '/avatar',
+    ensureAuthenticated,
+    userCtrl.setMember,
+    avatarCtrl.upload,
+    avatarCtrl.save
+  );
+
+  //Delete an avatar
+  router.delete(
+    '/avatar',
+    ensureAuthenticated,
+    userCtrl.setMember,
+    avatarCtrl.delete
+  );
+
+  //Get a user's avatar stream
+  router.get(
+    '/:userId/avatar.*',
+    avatarCtrl.stream
   );
 
   //Register router

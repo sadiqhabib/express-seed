@@ -12,8 +12,6 @@ let User = mongoose.model('User');
  * Local strategy
  */
 module.exports = function() {
-
-  //Use local strategy
   passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password'

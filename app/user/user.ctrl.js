@@ -4,17 +4,19 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
-let InvalidTokenError = require('../error/types').InvalidTokenError;
+let NotFoundError = require('../error/type/client/not-found');
+let BadRequestError = require('../error/type/client/bad-request');
+let InvalidTokenError = require('../error/type/client/invalid-token');
 let handleError = require('../error/handler');
-let tokens = require('../shared/services/tokens');
-let mailer = require('../shared/services/mailer');
+let tokens = require('../services/tokens');
+let mailer = require('../services/mailer');
 
 /**
  * Emails
  */
-let verifyEmailAddressEmail = require('./emails/verifyEmailAddress');
-let passwordHasChangedEmail = require('./emails/passwordHasChanged');
-let resetPasswordEmail = require('./emails/resetPassword');
+let verifyEmailAddressEmail = require('./emails/verify-email-address');
+let passwordHasChangedEmail = require('./emails/password-has-changed');
+let resetPasswordEmail = require('./emails/reset-password');
 
 /**
  * Models
@@ -219,6 +221,28 @@ module.exports = {
   /**************************************************************************
    * Middleware
    ***/
+
+  /**
+   * Find by ID
+   */
+  findById(req, res, next, id) {
+
+    //Validate ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return next(new BadRequestError());
+    }
+
+    //Find by ID
+    User.findById(id)
+      .then(user => {
+        if (!user) {
+          return next(new NotFoundError());
+        }
+        req.user = user;
+        next();
+      })
+      .catch(next);
+  },
 
   /**
    * Find by email (doesn't trigger 404's)

@@ -12,7 +12,7 @@ module.exports = function(app) {
 
   //Get controllers and middleware
   let authCtrl = require('./auth.ctrl');
-  let ensureAuthenticated = require('./middleware/ensureAuthenticated');
+  let ensureAuthenticated = authCtrl.ensureAuthenticated;
 
   //Create new router
   let router = express.Router();

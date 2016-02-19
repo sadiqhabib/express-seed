@@ -3,6 +3,7 @@
 /**
  * Dependencies
  */
+let path = require('path');
 let glob = require('glob');
 let chalk = require('chalk');
 let argv = require('yargs').argv;
@@ -11,6 +12,15 @@ let db = require('../app/shared/services/db');
 let log = require('./lib/log');
 let run = require('./lib/run');
 let Migration = require('./lib/migration');
+
+/**
+ * Fix CWD if run from scripts path
+ */
+let cwd = process.cwd().split(path.sep);
+if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
+  cwd.pop();
+  process.chdir(cwd.join(path.sep));
+}
 
 /**
  * Define migrations path
