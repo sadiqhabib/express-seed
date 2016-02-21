@@ -101,12 +101,8 @@ module.exports = function() {
   //Add cookie parser middleware
   app.use(cookieParser());
 
-  //Use i18n and propagate locale to global scope
+  //Use i18n
   app.use(i18n.init);
-  app.use((req, res, next) => {
-    i18n.setLocale(req.getLocale());
-    next();
-  });
 
   //Set static folders
   app.use(serveStatic(path.resolve('./public')));

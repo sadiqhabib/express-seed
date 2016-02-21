@@ -3,7 +3,7 @@
 /**
  * Dependencies
  */
-let i18n = require('i18n');
+let Locale = require('../../services/locale');
 let config = require('../../config');
 
 /**
@@ -14,12 +14,17 @@ const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
 /**
  * Password changed helper
  */
-module.exports = function passwordHasChangedEmail(user) {
+module.exports = function passwordHasChanged(user) {
+
+  //Set locale for translation
+  let locale = new Locale(user.locale);
+
+  //Return email
   return {
     to: user.email,
     from: EMAIL_IDENTITY_NOREPLY,
-    subject: i18n.t('user.passwordHasChanged.mail.subject'),
-    text: i18n.t('user.passwordHasChanged.mail.text'),
-    html: i18n.t('user.passwordHasChanged.mail.html')
+    subject: locale.t('user.passwordHasChanged.mail.subject'),
+    text: locale.t('user.passwordHasChanged.mail.text'),
+    html: locale.t('user.passwordHasChanged.mail.html')
   };
 };

@@ -17,8 +17,9 @@ let FileSchema = require('../shared/file.schema');
 /**
  * Configuration
  */
+const DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
 const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
-const USER_PASSWORD_MIN_LENGTH = config.USER_PASSWORD_MIN_LENGTH;
+const PASSWORD_MIN_LENGTH = config.USER_PASSWORD_MIN_LENGTH;
 
 /**
  * Helper to create full name
@@ -48,6 +49,10 @@ let UserSchema = new Schema({
     default: ''
   },
   avatar: FileSchema,
+  locale: {
+    type: String,
+    default: DEFAULT_LOCALE
+  },
 
   //Contact details
   email: {
@@ -104,7 +109,7 @@ UserSchema.pre('save', function(next) {
   }
 
   //Validate password
-  if (!this.password || this.password.length < USER_PASSWORD_MIN_LENGTH) {
+  if (!this.password || this.password.length < PASSWORD_MIN_LENGTH) {
     return next('Invalid password');
     //TODO use proper error format for validation errors
   }

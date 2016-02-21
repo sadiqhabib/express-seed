@@ -3,7 +3,7 @@
 /**
  * Dependencies
  */
-let i18n = require('i18n');
+let Locale = require('../../services/locale');
 let tokens = require('../../services/tokens');
 let config = require('../../config');
 
@@ -17,7 +17,10 @@ const RESET_PASSWORD_TOKEN_EXPIRATION = tokens.getExpiration('resetPassword');
 /**
  * Verification email helper
  */
-module.exports = function sendResetPasswordEmail(user) {
+module.exports = function resetPassword(user) {
+
+  //Set locale for translation
+  let locale = new Locale(user.locale);
 
   //Generate a password reset token
   let token = tokens.generate('resetPassword', {
@@ -34,8 +37,8 @@ module.exports = function sendResetPasswordEmail(user) {
   return {
     to: user.email,
     from: EMAIL_IDENTITY_NOREPLY,
-    subject: i18n.t('user.resetPassword.mail.subject'),
-    text: i18n.t('user.resetPassword.mail.text', data),
-    html: i18n.t('user.resetPassword.mail.html', data)
+    subject: locale.t('user.resetPassword.mail.subject'),
+    text: locale.t('user.resetPassword.mail.text', data),
+    html: locale.t('user.resetPassword.mail.html', data)
   };
 };
