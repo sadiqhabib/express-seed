@@ -217,9 +217,6 @@ UserSchema.statics.findByEmailAndPopulate = function(email) {
  */
 UserSchema.options.toJSON = {
   transform(doc, ret) {
-    ret.id = ret._id.toString();
-    delete ret._id;
-    delete ret.__v;
 
     //Delete authentication related data
     delete ret.password;
