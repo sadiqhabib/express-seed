@@ -4,6 +4,7 @@
  * Dependencies
  */
 let Locale = require('../../services/locale');
+let mailer = require('../../services/mailer');
 let config = require('../../config');
 
 /**
@@ -19,12 +20,17 @@ module.exports = function passwordHasChanged(user) {
   //Set locale for translation
   let locale = new Locale(user.locale);
 
-  //Return email
-  return {
-    to: user.email,
-    from: EMAIL_IDENTITY_NOREPLY,
-    subject: locale.t('user.passwordHasChanged.mail.subject'),
-    text: locale.t('user.passwordHasChanged.mail.text'),
-    html: locale.t('user.passwordHasChanged.mail.html')
+  //Create data for emails
+  let data = {
+    confirmation: locale.t('user.passwordHasChanged.mail.confirmation')
   };
+
+  //Load
+  return mailer.load('password-has-changed', data)
+    .spread((text, html) => ({
+      to: user.email,
+      from: EMAIL_IDENTITY_NOREPLY,
+      subject: locale.t('user.passwordHasChanged.mail.subject'),
+      text, html
+    }));
 };

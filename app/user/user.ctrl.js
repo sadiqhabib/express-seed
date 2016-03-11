@@ -47,7 +47,9 @@ module.exports = {
     //Create user
     User.create(data)
       .then(user => {
-        mailer.send(verifyEmailAddressEmail(user)).catch(errorHandler);
+        verifyEmailAddressEmail(user)
+          .then(email => mailer.send(email))
+          .catch(errorHandler);
         return (req.user = user);
       })
       .then(user => {
@@ -76,7 +78,9 @@ module.exports = {
     user.save()
       .then(user => {
         if (isEmailChanged) {
-          mailer.send(verifyEmailAddressEmail(user)).catch(errorHandler);
+          verifyEmailAddressEmail(user)
+          .then(email => mailer.send(email))
+          .catch(errorHandler);
         }
         return (req.user = user);
       })
@@ -100,7 +104,9 @@ module.exports = {
     user.password = password;
     user.save()
       .then(user => {
-        mailer.send(passwordHasChangedEmail(user)).catch(errorHandler);
+        passwordHasChangedEmail(user)
+          .then(email => mailer.send(email))
+          .catch(errorHandler);
         res.end();
       })
       .catch(next);
@@ -135,7 +141,8 @@ module.exports = {
     let user = req.user;
 
     //Send password reset email
-    mailer.send(resetPasswordEmail(user))
+    resetPasswordEmail(user)
+      .then(email => mailer.send(email))
       .then(() => res.end())
       .catch(next);
   },
@@ -169,7 +176,9 @@ module.exports = {
       })
       .then(user => user.save())
       .then(user => {
-        mailer.send(passwordHasChangedEmail(user)).catch(errorHandler);
+        passwordHasChangedEmail(user)
+          .then(email => mailer.send(email))
+          .catch(errorHandler);
         res.end();
       })
       .catch(next);
@@ -180,7 +189,8 @@ module.exports = {
    */
   sendVerificationEmail(req, res, next) {
     let user = req.user;
-    mailer.send(verifyEmailAddressEmail(user))
+    verifyEmailAddressEmail(user)
+      .then(email => mailer.send(email))
       .then(() => res.end())
       .catch(next);
   },
