@@ -6,6 +6,7 @@
 let passport = require('passport');
 let moment = require('moment');
 let NotAuthenticatedError = require('../error/type/auth/not-authenticated');
+let NotAuthorizedError = require('../error/type/auth/not-authorized');
 let UserSuspendedError = require('../error/type/auth/user-suspended');
 let tokens = require('../services/tokens');
 let config = require('../config');
@@ -149,7 +150,7 @@ module.exports = {
    */
   ensureAdmin(req, res, next) {
     if (!req.user || !req.user.hasRole('admin')) {
-      res.status(403).send();
+      return next(new NotAuthorizedError());
     }
     next();
   },
