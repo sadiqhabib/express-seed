@@ -1,7 +1,7 @@
 {
   "name": "MeanieExpressSeed",
   "description": "Seed project for Express applications",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/meanie/express-seed",
   "author": {
     "name": "Adam Buczynski",
