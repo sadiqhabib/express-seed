@@ -8,7 +8,7 @@ function strip(properties, obj) {
     return obj;
   }
   let stripped = {};
-  properties.forEach(function(property) {
+  properties.forEach(property => {
     if (obj.hasOwnProperty(property)) {
       stripped[property] = obj[property];
     }
@@ -19,25 +19,9 @@ function strip(properties, obj) {
 /**
  * Helper to strip an object to only certain properties
  */
-module.exports = function stripObject() {
-  let obj = arguments[0];
-  let properties = [];
-  for (let i = 1; i < arguments.length; i++) {
-    properties.push(arguments[i]);
-  }
+module.exports = function stripObject(obj, ...properties) {
   if (Array.isArray(obj)) {
     return obj.map(strip.bind(null, properties));
   }
   return strip(properties, obj);
 };
-
-//TODO use the bottom version once rest params are in node
-// /**
-//  * Helper to strip an object to only certain properties
-//  */
-// module.exports = function stripObject(obj, ...properties) {
-//   if (Array.isArray(obj)) {
-//     return obj.map(strip.bind(null, properties));
-//   }
-//   return strip(properties, obj);
-// };
