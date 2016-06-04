@@ -16,7 +16,6 @@ module.exports = {
   APP_BASE_URL: 'http://my-application.com',
 
   //API
-  API_VERSION: 1,
   API_BASE_URL: 'http://my-application.com',
   API_BASE_PATH: '/api/v1/',
 
