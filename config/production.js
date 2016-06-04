@@ -6,7 +6,7 @@
 let pkg = require('../package.json');
 
 /**
- * Environment configuration (prod)
+ * Environment configuration (production)
  */
 module.exports = {
 

@@ -38,7 +38,8 @@
     "preversion": "npm run test -s",
     "postversion": "git push && git push --tags",
     "migrate": "node --es_staging scripts/migrate.js",
-    "refresh": "node --es_staging scripts/migrate.js refresh"
+    "refresh": "node --es_staging scripts/migrate.js refresh",
+    "deploy": "gcloud preview app deploy"
   },
   "dependencies": {
     "bcryptjs": "^2.3.0",

@@ -1,0 +1,9 @@
+runtime: custom
+vm: true
+
+skip_files:
+  - ^(.*/)?.*/node_modules/.*$
+  - ^(.*/)?.*/coverage/.*$
+  - ^(.*/)?.*/migrations/.*$
+  - ^(.*/)?.*/test/.*$
+  - ^(.*/)?.*/config/local\.js$
