@@ -17,7 +17,7 @@ module.exports = {
 
   //API
   API_BASE_URL: 'http://my-application.com',
-  API_BASE_PATH: '/api/v1/',
+  API_BASE_PATH: '/api/',
 
   //Server
   SERVER_PORT: process.env.PORT || 80,
