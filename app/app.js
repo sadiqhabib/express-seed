@@ -19,26 +19,19 @@ let auth = require('./services/auth');
 let config = require('./config');
 
 /**
- * Error handling middleware
- */
-let normalizeError = require('./error/middleware/normalize-error');
-let logError = require('./error/middleware/log-error');
-let storeError = require('./error/middleware/store-error');
-let processError = require('./error/middleware/process-error');
-let sendError = require('./error/middleware/send-error');
-
-/**
  * Configuration
  */
+const ENV = config.ENV;
 const I18N_LOCALES = config.I18N_LOCALES;
 const I18N_DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
 const TOKEN_TYPES = config.TOKEN_TYPES;
 const TOKEN_DEFAULT_ISSUER = config.TOKEN_DEFAULT_ISSUER;
 const TOKEN_DEFAULT_AUDIENCE = config.TOKEN_DEFAULT_AUDIENCE;
-const APP_BASE_URL = config.APP_BASE_URL;
+const APP_DOMAIN = config.APP_DOMAIN;
 const SERVER_LATENCY = config.SERVER_LATENCY;
 const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
 const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
+const ERROR_MIDDLEWARE = config.ERROR_MIDDLEWARE;
 
 //Configure i18n
 i18n.configure({
@@ -69,11 +62,24 @@ module.exports = function() {
   });
   tokens.register(TOKEN_TYPES);
 
+  //Trust proxy (for Google Cloud forwarding of requests)
+  app.set('trust_proxy', 1);
+
+  //Determine origin for CORS
+  let origin = [
+    new RegExp('[a-z0-9\-]+\.' + APP_DOMAIN.replace(/\./g, '\\\.'))
+  ];
+
+  //Add dev origins
+  if (ENV === 'dev') {
+    origin.push(/localhost\:8080/);
+    origin.push(/192\.168\.1\.[0-9]+/);
+  }
+
   //CORS
   app.use(cors({
-    origin: APP_BASE_URL,
-    //NOTE: needed for cross domain cookies to work
-    credentials: true
+    origin,
+    credentials: true //NOTE: needed for cross domain cookies to work
   }));
 
   //Compression
@@ -123,14 +129,13 @@ module.exports = function() {
   //Load router
   router(app);
 
+  //Create error handling middleware stack with two fixed handlers
+  let stack = ERROR_MIDDLEWARE
+    .concat(['process', 'send'])
+    .map(handler => require('./error/middleware/' + handler));
+
   //Error handlers
-  app.use([
-    normalizeError,
-    logError,
-    storeError,
-    processError,
-    sendError
-  ]);
+  app.use(stack);
 
   //Return express server instance
   return app;

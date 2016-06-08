@@ -3,16 +3,16 @@
 /**
  * Dependencies
  */
-let BaseError = require('./type/base');
-let ServerError = require('./type/server');
-let InternalError = require('./type/internal');
-let ValidationError = require('./type/client/validation');
+let BaseError = require('../type/base');
+let ServerError = require('../type/server');
+let InternalError = require('../type/internal');
+let ValidationError = require('../type/client/validation');
 let MongooseValidationError = require('mongoose').Error.ValidationError;
 
 /**
  * Module export
  */
-module.exports = function(error) {
+module.exports = function(error, req, res, next) {
 
   //If this is not an object yet at this stage, create an error representation
   if (typeof error !== 'object') {
@@ -39,8 +39,8 @@ module.exports = function(error) {
     enumerable: true
   });
 
-  //Return error
-  return error;
+  //Call next middleware
+  next(error);
 };
 
 /**

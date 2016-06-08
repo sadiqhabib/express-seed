@@ -13,6 +13,7 @@ module.exports = {
   //App
   APP_NAME: pkg.name,
   APP_VERSION: pkg.version,
+  APP_DOMAIN: 'my-application.com',
   APP_BASE_URL: 'http://my-application.com',
 
   //API
@@ -32,6 +33,14 @@ module.exports = {
   DB_DEBUG: false,
   DB_USER: '',
   DB_PASS: '',
+
+  //Google cloud
+  GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',
+  GCLOUD_PROJECT_ID: '',
+  GCLOUD_BUCKET_CONTENT: '',
+
+  //Error handling middleware
+  ERROR_MIDDLEWARE: ['normalize', 'log-to-console', 'log-to-gcloud'],
 
   //Internationalization
   I18N_LOCALES: ['en'],

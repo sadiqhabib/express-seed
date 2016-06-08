@@ -4,12 +4,12 @@
  * Dependencies
  */
 let chalk = require('chalk');
-let ValidationError = require('./type/client/validation');
+let ValidationError = require('../type/client/validation');
 
 /**
  * Module export
  */
-module.exports = function(error) {
+module.exports = function(error, req, res, next) {
 
   //Log stack if present
   if (error.stack) {
@@ -30,4 +30,7 @@ module.exports = function(error) {
       }
     }
   }
+
+  //Call next middleware
+  next(error);
 };

@@ -3,7 +3,7 @@
 /**
  * Dependencies
  */
-let NotAuthenticatedError = require('../../error/type/auth/not-authenticated');
+let NotAuthenticatedError = require('../type/auth/not-authenticated');
 let config = require('../../config');
 
 /**
@@ -15,7 +15,6 @@ const REFRESH_TOKEN_COOKIE_SECURE = config.REFRESH_TOKEN_COOKIE_SECURE;
  * Module export
  */
 module.exports = function(error, req, res, next) {
-  next = next || null;
 
   //For any unauthenticated error, clear the refresh token cookie
   //unless we were requesting secure status

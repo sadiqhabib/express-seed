@@ -10,7 +10,7 @@ function BaseError(message, data) {
     let error = message;
     this.name = error.name;
     this.message = error.message;
-    this.stack = error.stack || null;
+    this.stack = error.stack;
     if (error.code) {
       this.code = error.code;
     }
@@ -27,6 +27,11 @@ function BaseError(message, data) {
   this.message = message || '';
   this.data = data || null;
 
+  //Capture stack trace
+  if (!this.stack) {
+    Error.captureStackTrace(this, this.constructor);
+  }
+
   //Still no message present?
   if (!this.message) {
     this.message = 'Unknown error';
@@ -39,6 +44,13 @@ function BaseError(message, data) {
 BaseError.prototype = Object.create(Error.prototype);
 BaseError.prototype.constructor = BaseError;
 BaseError.prototype.status = 500;
+
+/**
+ * Convert to string
+ */
+BaseError.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
 
 /**
  * Convert to simple object for JSON responses
