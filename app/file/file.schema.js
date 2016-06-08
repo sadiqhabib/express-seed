@@ -4,14 +4,19 @@
  * Dependencies
  */
 let Schema = require('mongoose').Schema;
+let config = require('../config');
 
 /**
- * File schema
+ * Constants
+ */
+const BASE_URL = config.GCLOUD_STORAGE_BASE_URL;
+
+/**
+ * Google Cloud Storage file schema
  */
 let FileSchema = new Schema({
-  url: String,
-  mimeType: String,
-  data: Buffer
+  bucket: String,
+  path: String
 }, {
   _id: false
 });
@@ -21,7 +26,10 @@ let FileSchema = new Schema({
  */
 FileSchema.options.toJSON = {
   transform(doc, ret) {
-    return ret.url || '';
+    if (ret.path && ret.bucket) {
+      return BASE_URL + ret.bucket + '/' + ret.path;
+    }
+    return null;
   }
 };
 
