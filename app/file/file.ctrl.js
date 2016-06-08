@@ -65,12 +65,17 @@ module.exports = {
 
     //Get uploaded file and path for bucket
     let file = req.file;
-    let path = gcsPath(folder, name, file.mimetype, timestamp);
+    let contentType = file.mimetype;
+    let path = gcsPath(folder, name, contentType, timestamp);
 
     //Prepare file and stream
     let gcsBucket = gcs.bucket(bucket);
     let gcsFile = gcsBucket.file(path);
-    let stream = gcsFile.createWriteStream();
+    let stream = gcsFile.createWriteStream({
+      metadata: {
+        contentType
+      }
+    });
 
     //Handle errors
     stream.on('error', error => {
