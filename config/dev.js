@@ -38,6 +38,8 @@ module.exports = {
   GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',
   GCLOUD_PROJECT_ID: '',
   GCLOUD_BUCKET_CONTENT: '',
+  GCLOUD_LOG_PATH: '',
+  GCLOUD_LOG_FILE: '',
 
   //Error handling middleware
   ERROR_MIDDLEWARE: ['normalize', 'log-to-console'],
