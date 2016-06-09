@@ -13,13 +13,15 @@ module.exports = function(error, req, res, next) {
 
   //Log stack if present
   if (error.stack) {
-    return console.log(chalk.red(error.stack));
+    console.log(chalk.red(error.stack));
   }
 
   //Log error name and code
-  console.log(chalk.red(
-    error.name + (error.message ? (': ' + error.message) : '')
-  ));
+  else {
+    console.log(chalk.red(
+      error.name + (error.message ? (': ' + error.message) : '')
+    ));
+  }
 
   //Log validation error data
   if (error instanceof ValidationError && error.data && error.data.fields) {
