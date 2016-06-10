@@ -11,8 +11,21 @@ let ValidationError = require('../type/client/validation');
  */
 module.exports = function(error, req, res, next) {
 
+  //Log validation errors differently
+  if (error instanceof ValidationError && error.data && error.data.fields) {
+    console.log(chalk.red(
+      error.name + (error.message ? (': ' + error.message) : '')
+    ));
+    let fields = error.data.fields;
+    for (let field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        console.log(chalk.red('  - ', field + ':', fields[field].message));
+      }
+    }
+  }
+
   //Log stack if present
-  if (error.stack) {
+  else if (error.stack) {
     console.log(chalk.red(error.stack));
   }
 
@@ -21,16 +34,6 @@ module.exports = function(error, req, res, next) {
     console.log(chalk.red(
       error.name + (error.message ? (': ' + error.message) : '')
     ));
-  }
-
-  //Log validation error data
-  if (error instanceof ValidationError && error.data && error.data.fields) {
-    let fields = error.data.fields;
-    for (let field in fields) {
-      if (fields.hasOwnProperty(field)) {
-        console.log(chalk.red('  - ', field + ':', fields[field].message));
-      }
-    }
   }
 
   //Call next middleware

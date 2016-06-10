@@ -6,6 +6,8 @@
 let multer = require('multer');
 let mimeTypesFilter = require('../plugins/multer/mime-types-filter');
 let errorHandler = require('../error/handler');
+let BadRequestError = require('../error/type/client/bad-request');
+let FileTooLargeError = require('../error/type/client/file-too-large');
 let gcloud = require('../services/gcloud');
 let gcs = gcloud.storage();
 
@@ -46,7 +48,15 @@ module.exports = {
     }).single(config.field);
 
     //Use middleware
-    upload(req, res, next);
+    upload(req, res, function(error) {
+      if (error.message === 'File too large') {
+        error = new FileTooLargeError(config.maxFileSize);
+      }
+      else {
+        error = new BadRequestError(error.message);
+      }
+      next(error);
+    });
   },
 
   /**
