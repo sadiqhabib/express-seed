@@ -1,0 +1,99 @@
+/* jshint -W083 */
+'use strict';
+
+/**
+ * Dependencies
+ */
+let onlyId = require('../../helpers/only-id');
+
+/**
+ * Recursive handler of objects
+ */
+function setObject(obj, data, parentPath) {
+
+  //Loop all the keys
+  for (let key in data) {
+    if (data.hasOwnProperty(key)) {
+
+      //Determine path
+      let path = parentPath ? (parentPath + '.' + key) : key;
+
+      //If the current value is undefined, we set the data to whatever is given
+      if (typeof obj[key] === 'undefined') {
+        obj[key] = data[key];
+      }
+
+      //If the value is an array, it requires further handling
+      else if (Array.isArray(obj[key])) {
+
+        //First, we would expect the data to be an array as well
+        if (!Array.isArray(data[key])) {
+          throw new Error(
+            'Path `' + path + '` in data is expected to be an array`'
+          );
+        }
+
+        //Simplify the objects
+        let current = onlyId(obj[key]);
+        let updated = onlyId(data[key]);
+
+        //Find items not present in the current array
+        if (updated.some(x => current.indexOf(x) === -1)) {
+          obj[key] = data[key];
+        }
+
+        //Find items not present in the updated array
+        else if (current.some(x => updated.indexOf(x) === -1)) {
+          obj[key] = data[key];
+        }
+      }
+
+      //If it's a date, check if the same
+      else if (obj[key] instanceof Date && data[key] instanceof Date) {
+        if (obj[key].getTime() !== data[key].getTime()) {
+          obj[key] = data[key];
+        }
+      }
+
+      //If the value is an object, it requires further handling
+      else if (typeof obj[key] === 'object') {
+
+        //First, we would expect the data to be an object as well
+        if (typeof data[key] !== 'object') {
+          throw new Error(
+            'Path `' + path + '` in data is expected to be an object`'
+          );
+        }
+
+        //If either the current value or the new value are null, it's safe
+        //to simply set the replacement value.
+        if (obj[key] === null || data[key] === null) {
+          obj[key] = data[key];
+          continue;
+        }
+
+        //Recursive object check
+        setObject(obj[key], data[key], key);
+      }
+
+      //Anything else, check if changed
+      else if (obj[key] !== data[key]) {
+        obj[key] = data[key];
+      }
+    }
+  }
+}
+
+/**
+ * Set properties helper which will set only properties that have changed
+ * Note that for arrays, it assume primitive values
+ */
+module.exports = function setProperties(schema) {
+
+  /**
+   * Method for all schema's
+   */
+  schema.methods.setProperties = function(data) {
+    setObject(this, data);
+  };
+};

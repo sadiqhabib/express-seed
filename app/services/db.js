@@ -14,6 +14,7 @@ let config = require('../config');
  */
 mongoose.Promise = require('bluebird');
 mongoose.plugin(require('../plugins/mongoose/to-json-plugin'));
+mongoose.plugin(require('../plugins/mongoose/set-properties'));
 
 /**
  * Settings

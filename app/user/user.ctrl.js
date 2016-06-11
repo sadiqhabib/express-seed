@@ -70,8 +70,12 @@ module.exports = {
    */
   update(req, res, next) {
 
-    //Get user data and check if email changed
-    let user = Object.assign(req.user, req.data);
+    //Get user and data
+    let user = req.me;
+    let data = User.parseData(req.data);
+
+    //Set data and check if email changed
+    user.setProperties(data);
     let isEmailChanged = user.isModified('email');
 
     //Save user
