@@ -4,6 +4,7 @@
 /**
  * Dependencies
  */
+let ObjectId = require('mongoose').Types.ObjectId;
 let onlyId = require('../../helpers/only-id');
 
 /**
@@ -51,6 +52,14 @@ function setObject(obj, data, parentPath) {
       //If it's a date, check if the same
       else if (obj[key] instanceof Date && data[key] instanceof Date) {
         if (obj[key].getTime() !== data[key].getTime()) {
+          obj[key] = data[key];
+        }
+      }
+
+      //If it's an object ID, compare with helper
+      else if (obj[key] instanceof ObjectId) {
+        let id = onlyId(data[key]);
+        if (!obj[key].equals(id)) {
           obj[key] = data[key];
         }
       }
