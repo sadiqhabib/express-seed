@@ -8,6 +8,7 @@ let moment = require('moment');
 let NotAuthenticatedError = require('../error/type/auth/not-authenticated');
 let NotAuthorizedError = require('../error/type/auth/not-authorized');
 let UserSuspendedError = require('../error/type/auth/user-suspended');
+let UserPendingError = require('../error/type/auth/user-pending');
 let tokens = require('../services/tokens');
 let config = require('../config');
 
@@ -95,13 +96,18 @@ module.exports = {
         error = new UserSuspendedError();
       }
 
+      //User pending approval?
+      else if (!user.isApproved) {
+        error = new UserPendingError();
+      }
+
       //Check error
       if (error) {
         return next(error);
       }
 
       //Set user in request and get claims
-      req.user = user;
+      req.me = user;
       let claims = user.getClaims();
 
       //Requesting secure status?
@@ -146,17 +152,17 @@ module.exports = {
    ***/
 
   /**
-   * Ensure a user is an admin middleware
+   * Ensure a user is an admin
    */
   ensureAdmin(req, res, next) {
-    if (!req.user || !req.user.hasRole('admin')) {
+    if (!req.me || !req.me.hasRole('admin')) {
       return next(new NotAuthorizedError());
     }
     next();
   },
 
   /**
-   * Ensure a user is authenticated middleware
+   * Ensure a user is authenticated
    */
   ensureAuthenticated(req, res, next) {
 
@@ -180,13 +186,36 @@ module.exports = {
         error = new UserSuspendedError();
       }
 
+      //User pending approval?
+      else if (!user.isApproved) {
+        error = new UserPendingError();
+      }
+
       //Check error
       if (error) {
         return next(error);
       }
 
       //Set user in request
-      req.user = user;
+      req.me = user;
+      next();
+    })(req, res, next);
+  },
+
+  /**
+   * Check if a user is authenticated (doesn't throw errors if isn't)
+   * Use this if authentication is optional for a route but you
+   * need the authenticated user object if they are authenticated.
+   */
+  checkAuthenticated(req, res, next) {
+
+    //Authenticate now
+    passport.authenticate('bearer', {
+      session: false
+    }, (error, user) => {
+      if (user) {
+        req.me = user;
+      }
       next();
     })(req, res, next);
   }
