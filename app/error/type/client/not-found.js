@@ -8,9 +8,9 @@ let ClientError = require('../client');
 /**
  * Constructor
  */
-function NotFoundError(message) {
+function NotFoundError(message, data) {
   message = message || 'Resource not found';
-  ClientError.call(this, message, 404);
+  ClientError.call(this, message, data, 404);
 }
 
 /**
