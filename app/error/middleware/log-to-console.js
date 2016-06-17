@@ -11,8 +11,8 @@ let ValidationError = require('../type/client/validation');
  */
 module.exports = function(error, req, res, next) {
 
-  //Log stack if present
-  if (error.stack) {
+  //Log stack if present and if not trivial
+  if (error.stack && !error.isTrivial) {
     console.log(chalk.red(error.stack));
   }
 

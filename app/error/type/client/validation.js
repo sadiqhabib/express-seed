@@ -45,6 +45,7 @@ ValidationError.prototype = Object.create(ClientError.prototype);
 ValidationError.prototype.constructor = ValidationError;
 ValidationError.prototype.name = 'ValidationError';
 ValidationError.prototype.code = 'NOT_VALIDATED';
+ValidationError.prototype.isTrivial = true;
 
 //Export
 module.exports = ValidationError;

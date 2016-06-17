@@ -20,6 +20,7 @@ ExpiredTokenError.prototype = Object.create(InvalidTokenError.prototype);
 ExpiredTokenError.prototype.constructor = ExpiredTokenError;
 ExpiredTokenError.prototype.name = 'ExpiredTokenError';
 ExpiredTokenError.prototype.code = 'EXPIRED_TOKEN';
+ExpiredTokenError.prototype.isTrivial = true;
 
 //Export
 module.exports = ExpiredTokenError;

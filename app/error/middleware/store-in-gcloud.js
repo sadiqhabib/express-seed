@@ -18,6 +18,11 @@ const BASE_PATH = config.API_BASE_PATH;
  */
 module.exports = function(error, req, res, next) {
 
+  //Skip trivial errors
+  if (error.isTrivial) {
+    return next(error);
+  }
+
   //Fix fields keys (can't contain dots in key)
   if (error.name === 'ValidationError') {
     if (error.data && error.data.fields) {

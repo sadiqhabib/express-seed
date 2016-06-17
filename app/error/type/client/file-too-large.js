@@ -24,6 +24,7 @@ FileTooLargeError.prototype = Object.create(ClientError.prototype);
 FileTooLargeError.prototype.constructor = FileTooLargeError;
 FileTooLargeError.prototype.name = 'FileTooLargeError';
 FileTooLargeError.prototype.code = 'FILE_TOO_LARGE';
+FileTooLargeError.prototype.isTrivial = true;
 
 //Export
 module.exports = FileTooLargeError;

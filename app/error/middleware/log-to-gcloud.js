@@ -7,14 +7,6 @@ let fs = require('fs');
 let config = require('../../config');
 
 /**
- * Error types
- */
-let ValidationError = require('../type/client/validation');
-let NotAuthenticatedError = require('../type/auth/not-authenticated');
-let UserSuspendedError = require('../type/auth/user-suspended');
-let ExpiredTokenError = require('../type/client/expired-token');
-
-/**
  * Constants
  */
 const APP_NAME = config.APP_NAME;
@@ -27,13 +19,8 @@ const LOG_FILE = config.GCLOUD_LOG_FILE;
  */
 module.exports = function(error, req, res, next) {
 
-  //Skip certain errors
-  if (
-    error instanceof ValidationError ||
-    error instanceof NotAuthenticatedError ||
-    error instanceof UserSuspendedError ||
-    error instanceof ExpiredTokenError
-  ) {
+  //Skip trivial errors
+  if (error.isTrivial) {
     return next(error);
   }
 
@@ -52,7 +39,7 @@ module.exports = function(error, req, res, next) {
         userAgent: req.headers['user-agent'],
         remoteIp: req.ip
       },
-      user: req.user ? req.user._id : ''
+      user: req.me ? req.me._id : ''
     }
   };
 
