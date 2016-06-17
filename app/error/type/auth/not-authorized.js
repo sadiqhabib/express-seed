@@ -20,6 +20,7 @@ NotAuthorizedError.prototype = Object.create(ClientError.prototype);
 NotAuthorizedError.prototype.constructor = NotAuthorizedError;
 NotAuthorizedError.prototype.name = 'NotAuthorizedError';
 NotAuthorizedError.prototype.code = 'NOT_AUTHORIZED';
+NotAuthorizedError.prototype.isTrivial = true;
 
 //Export
 module.exports = NotAuthorizedError;

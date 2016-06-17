@@ -20,6 +20,7 @@ ExistsError.prototype = Object.create(ClientError.prototype);
 ExistsError.prototype.constructor = ExistsError;
 ExistsError.prototype.name = 'ExistsError';
 ExistsError.prototype.code = 'EXISTS';
+ExistsError.prototype.isTrivial = true;
 
 //Export
 module.exports = ExistsError;

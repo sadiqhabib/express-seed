@@ -41,6 +41,12 @@ module.exports = {
   GCLOUD_LOG_PATH: '',
   GCLOUD_LOG_FILE: '',
 
+  //Github
+  GITHUB_USER: '',
+  GITHUB_REPO: '',
+  GITHUB_TOKEN: '',
+  GITHUB_USER_AGENT: '',
+
   //Error handling middleware
   ERROR_MIDDLEWARE: ['normalize', 'log-to-console'],
 

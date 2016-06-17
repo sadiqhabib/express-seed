@@ -8,6 +8,12 @@ let ServerError = require('../type/server');
 let InternalError = require('../type/internal');
 let ValidationError = require('../type/client/validation');
 let MongooseValidationError = require('mongoose').Error.ValidationError;
+let config = require('../../config');
+
+/**
+ * Config
+ */
+const SERVER_VERSION = config.APP_VERSION;
 
 /**
  * Module export
@@ -30,7 +36,7 @@ module.exports = function(error, req, res, next) {
   }
 
   //Still not an instance of BaseError at this stage?
-  if (!(error instanceof BaseError)) {
+  if (!(error instanceof BaseError) && !error.isClientOriginated) {
     error = new BaseError(error);
   }
 
@@ -38,6 +44,14 @@ module.exports = function(error, req, res, next) {
   Object.defineProperty(error, 'message', {
     enumerable: true
   });
+
+  //Add context to error
+  error.context = error.context || {};
+  error.context.user = req.me;
+  error.context.userAgent = req.headers['user-agent'];
+  error.context.clientVersion = req.headers['x-version'];
+  error.context.serverVersion = SERVER_VERSION;
+  error.context.serverUrl = req.originalUrl;
 
   //Call next middleware
   next(error);

@@ -52,6 +52,7 @@
     "entities": "^1.1.1",
     "express": "^4.13.4",
     "gcloud": "^0.34.0",
+    "github": "^1.1.2",
     "glob": "^7.0.3",
     "i18n": "^0.6.0",
     "jsonwebtoken": "^7.0.0",
