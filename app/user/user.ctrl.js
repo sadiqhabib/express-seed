@@ -49,7 +49,7 @@ module.exports = {
       .then(user => {
         verifyEmailAddressEmail(user)
           .then(email => mailer.send(email))
-          .catch(errorHandler);
+          .catch(error => errorHandler(error, req));
         return (req.user = user);
       })
       .then(user => {
@@ -84,7 +84,7 @@ module.exports = {
         if (isEmailChanged) {
           verifyEmailAddressEmail(user)
           .then(email => mailer.send(email))
-          .catch(errorHandler);
+          .catch(error => errorHandler(error, req));
         }
         return (req.user = user);
       })
@@ -110,7 +110,7 @@ module.exports = {
       .then(user => {
         passwordHasChangedEmail(user)
           .then(email => mailer.send(email))
-          .catch(errorHandler);
+          .catch(error => errorHandler(error, req));
         res.end();
       })
       .catch(next);
@@ -182,7 +182,7 @@ module.exports = {
       .then(user => {
         passwordHasChangedEmail(user)
           .then(email => mailer.send(email))
-          .catch(errorHandler);
+          .catch(error => errorHandler(error, req));
         res.end();
       })
       .catch(next);

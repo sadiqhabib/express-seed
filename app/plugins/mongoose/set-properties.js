@@ -4,8 +4,10 @@
 /**
  * Dependencies
  */
-let ObjectId = require('mongoose').Types.ObjectId;
 let onlyId = require('../../helpers/only-id');
+let mongoose = require('mongoose');
+let Model = mongoose.Model;
+let ObjectId = mongoose.Types.ObjectId;
 
 /**
  * Recursive handler of objects
@@ -67,7 +69,17 @@ function setObject(obj, data, parentPath) {
       //If the value is an object, it requires further handling
       else if (typeof obj[key] === 'object') {
 
-        //First, we would expect the data to be an object as well
+        //If one of the values is a model instance, compare by ID's
+        if (obj[key] instanceof Model || data[key] instanceof Model) {
+          let current = onlyId(obj[key]);
+          let updated = onlyId(data[key]);
+          if (current !== updated) {
+            obj[key] = updated;
+          }
+          continue;
+        }
+
+        //Check if the data is an object as well
         if (typeof data[key] !== 'object') {
           throw new Error(
             'Path `' + path + '` in data is expected to be an object`'

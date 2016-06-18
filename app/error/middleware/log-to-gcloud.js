@@ -24,6 +24,20 @@ module.exports = function(error, req, res, next) {
     return next(error);
   }
 
+  //Create context
+  let context;
+  if (req) {
+    context = {
+      httpRequest: {
+        method: req.method,
+        url: req.originalUrl,
+        userAgent: req.headers['user-agent'],
+        remoteIp: req.ip
+      },
+      user: req.me ? req.me._id : ''
+    };
+  }
+
   //Create error data for log file
   let data = {
     eventTime: Date.now(),
@@ -32,15 +46,7 @@ module.exports = function(error, req, res, next) {
       version: APP_VERSION
     },
     message: error.stack,
-    context: {
-      httpRequest: {
-        method: req.method,
-        url: req.originalUrl,
-        userAgent: req.headers['user-agent'],
-        remoteIp: req.ip
-      },
-      user: req.me ? req.me._id : ''
-    }
+    context
   };
 
   //Write to log file

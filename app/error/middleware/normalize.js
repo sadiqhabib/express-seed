@@ -47,11 +47,13 @@ module.exports = function(error, req, res, next) {
 
   //Add context to error
   error.context = error.context || {};
-  error.context.user = req.me;
-  error.context.userAgent = req.headers['user-agent'];
-  error.context.clientVersion = req.headers['x-version'];
   error.context.serverVersion = SERVER_VERSION;
-  error.context.serverUrl = req.originalUrl;
+  if (req) {
+    error.context.user = req.me;
+    error.context.serverUrl = req.originalUrl;
+    error.context.userAgent = req.headers['user-agent'];
+    error.context.clientVersion = req.headers['x-version'];
+  }
 
   //Set origin if not set yet
   if (!error.context.origin) {

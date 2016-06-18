@@ -62,6 +62,6 @@ module.exports = function(error, req, res, next) {
 
   //Create issue
   github.issues.create({title, body, labels})
-    .catch(errorHandler)
+    .catch(error => errorHandler(error, req))
     .finally(() => next(error));
 };

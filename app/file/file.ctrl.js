@@ -49,11 +49,13 @@ module.exports = {
 
     //Use middleware
     upload(req, res, function(error) {
-      if (error.message === 'File too large') {
-        error = new FileTooLargeError(config.maxFileSize);
-      }
-      else {
-        error = new BadRequestError(error.message);
+      if (error) {
+        if (error.message === 'File too large') {
+          error = new FileTooLargeError(config.maxFileSize);
+        }
+        else {
+          error = new BadRequestError(error.message);
+        }
       }
       next(error);
     });
@@ -128,7 +130,7 @@ module.exports = {
     //Delete the file (allow failures but log errors)
     gcsFile.delete(error => {
       if (error) {
-        errorHandler(error);
+        errorHandler(error, req);
       }
       next();
     });
