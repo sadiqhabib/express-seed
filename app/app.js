@@ -129,13 +129,16 @@ module.exports = function() {
   //Load router
   router(app);
 
-  //Create error handling middleware stack with two fixed handlers
-  let stack = ERROR_MIDDLEWARE
+  //Create error handling middleware stack with two permanent handlers
+  ERROR_MIDDLEWARE
     .concat(['process', 'send'])
-    .map(handler => require('./error/middleware/' + handler));
+    .map(handler => require('./error/middleware/' + handler))
+    .forEach(handler => app.use(handler));
 
-  //Error handlers
-  app.use(stack);
+  //NOTE: Prevent Express from using the default error handler
+  //See: https://github.com/expressjs/express/issues/3024
+  /* jshint -W098 */
+  app.use(function(err, req, res, next) {});
 
   //Return express server instance
   return app;
