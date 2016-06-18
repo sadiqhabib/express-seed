@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let path = require('path');
 let chalk = require('chalk');
@@ -19,7 +19,7 @@ const CONFIG_PATH = path.join(BASE_PATH, 'config');
  */
 let envCfg = loadConfig(ENV);
 let localCfg = loadConfig('local');
-let mergedCfg = Object.assign(envCfg, localCfg, {ENV: ENV});
+let mergedCfg = Object.assign(envCfg, localCfg, {ENV});
 
 /**
  * Export merged config
@@ -30,11 +30,24 @@ module.exports = mergedCfg;
  * Helper to load a config file
  */
 function loadConfig(env) {
-  let configPath = path.join(CONFIG_PATH, env + '.js');
+  let configPath = path.join(CONFIG_PATH, env);
   try {
-    return require(configPath);
+    let config = require(configPath);
+    if (env === 'local') {
+      console.log(
+        chalk.yellow('Using local configuration file'),
+        chalk.magenta('local.js')
+      );
+    }
+    return config;
   }
   catch (e) {
+    if (env === 'development') {
+      return loadConfig('dev');
+    }
+    if (env === 'production') {
+      return loadConfig('prod');
+    }
     if (env !== 'local') {
       console.log(
         chalk.red('Could not load environment configuration file'),
