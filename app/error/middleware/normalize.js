@@ -36,7 +36,7 @@ module.exports = function(error, req, res, next) {
   }
 
   //Still not an instance of BaseError at this stage?
-  if (!(error instanceof BaseError) && !error.isClientOriginated) {
+  if (!(error instanceof BaseError)) {
     error = new BaseError(error);
   }
 
@@ -52,6 +52,11 @@ module.exports = function(error, req, res, next) {
   error.context.clientVersion = req.headers['x-version'];
   error.context.serverVersion = SERVER_VERSION;
   error.context.serverUrl = req.originalUrl;
+
+  //Set origin if not set yet
+  if (!error.context.origin) {
+    error.context.origin = 'server';
+  }
 
   //Call next middleware
   next(error);

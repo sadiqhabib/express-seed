@@ -5,11 +5,17 @@
  */
 let chalk = require('chalk');
 let ValidationError = require('../type/client/validation');
+let ReportedError = require('../type/reported');
 
 /**
  * Module export
  */
 module.exports = function(error, req, res, next) {
+
+  //Don't log reported errors
+  if (error instanceof ReportedError) {
+    return next(error);
+  }
 
   //Log stack if present and if not trivial
   if (error.stack && !error.isTrivial) {

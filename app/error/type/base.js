@@ -14,7 +14,6 @@ function BaseError(message, data) {
     if (error.code) {
       this.code = error.code;
     }
-    return;
   }
 
   //Otherwise, check if data given as first parameter
@@ -24,13 +23,19 @@ function BaseError(message, data) {
   }
 
   //Set message and data
-  this.message = message || '';
   this.data = data || null;
+  if (!this.message) {
+    this.message = message || '';
+  }
 
   //Capture stack trace
   if (!this.stack) {
     Error.captureStackTrace(this, this.constructor);
   }
+
+  //Clean up stack trace
+  let regex = new RegExp(process.cwd() + '/', 'gi');
+  this.stack = this.stack.replace(regex, '');
 
   //Still no message present?
   if (!this.message) {

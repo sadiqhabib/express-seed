@@ -18,13 +18,13 @@ module.exports = function(error, req, res, next) {
 
   //Get context
   let {
-    user, userAgent,
+    origin, user, userAgent,
     serverVersion, serverUrl,
     clientVersion, clientUrl
   } = error.context;
 
   //Prepare labels and title
-  let labels = ['error', error.isClientOriginated ? 'client' : 'server'];
+  let labels = ['error', origin];
   let title = error.message;
 
   //Initialize body parts
@@ -32,14 +32,15 @@ module.exports = function(error, req, res, next) {
 
   //Context
   parts.push('\n### Context');
+  parts.push('Origin: **' + origin + '**');
   parts.push('Server version: **' + serverVersion + '**');
-  parts.push('Server URL: `' + serverUrl + '`');
   parts.push('Client version: **' + clientVersion + '**');
-  parts.push('Client URL: `' + clientUrl + '`');
+  parts.push('Server URL: `' + serverUrl + '`');
+  parts.push('Client URL: `' + (clientUrl || '–') + '`');
 
   //User data
   if (user) {
-    parts.push('User: `' + user.id + '`');
+    parts.push('Member: `' + user.id + '`');
   }
 
   //User agent
