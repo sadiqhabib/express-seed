@@ -131,9 +131,7 @@ module.exports = {
       }
 
       //Send response
-      return res.send({
-        accessToken: accessToken
-      });
+      return res.send({accessToken});
     }
 
     //Handle specific grant types

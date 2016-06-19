@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * External dependencies
+ * Dependencies
  */
 let util = require('util');
 let Strategy = require('passport-strategy');
@@ -32,29 +32,23 @@ RefreshStrategy.prototype.authenticate = function(req) {
 
   //Initialize vars
   let refreshToken;
-  let self = this;
 
   //Get refresh token from cookies
   if (req.cookies.refreshToken) {
     refreshToken = req.cookies.refreshToken;
   }
 
-  /**
-   * Verification handler
-   */
-  function verified(error, user, info) {
+  //Call verify handler
+  this._verify(refreshToken, (error, user, info) => {
     if (error) {
-      return self.error(error);
+      return this.error(error);
     }
     if (!user) {
       info = info || {};
-      self.fail('invalid_token', info);
+      return this.fail('invalid_token', info);
     }
-    self.success(user, info);
-  }
-
-  //Call verify handler
-  this._verify(refreshToken, verified);
+    this.success(user, info);
+  });
 };
 
 /**

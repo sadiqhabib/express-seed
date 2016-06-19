@@ -35,8 +35,6 @@ module.exports = function() {
           return cb(null, user);
         });
       })
-      .catch(error => {
-        return cb(error);
-      });
+      .catch(cb);
   }));
 };
