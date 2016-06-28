@@ -4,11 +4,10 @@
  * Dependencies
  */
 let passport = require('passport');
-let mongoose = require('mongoose');
 let RefreshStrategy = require('../../plugins/passport/refresh-strategy');
 let InvalidTokenError = require('../../error/type/client/invalid-token');
 let tokens = require('../../services/tokens');
-let User = mongoose.model('User');
+let User = require('../../services/user');
 
 /**
  * Refresh token strategy
@@ -23,8 +22,7 @@ module.exports = function() {
 
     //Validate token
     tokens.validate('refresh', refreshToken)
-      .then(tokens.getId)
-      .then(id => User.findByIdAndPopulate(id))
+      .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {
           throw new InvalidTokenError('No matching user found');

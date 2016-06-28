@@ -137,15 +137,5 @@ module.exports = {
     //Get config and return expiration
     let config = TypesMap.get(type);
     return config.expiration || 0;
-  },
-
-  /**
-   * Get the ID out of token payload
-   */
-  getId(payload) {
-    if (!payload || !payload.id) {
-      throw new InvalidTokenError('No payload or no ID in payload');
-    }
-    return payload.id;
   }
 };

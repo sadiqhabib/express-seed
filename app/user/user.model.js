@@ -4,6 +4,7 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
+let Promise = require('bluebird');
 let bcrypt = require('bcryptjs');
 let Schema = mongoose.Schema;
 let config = require('../config');
@@ -22,13 +23,6 @@ const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
 const PASSWORD_MIN_LENGTH = config.USER_PASSWORD_MIN_LENGTH;
 
 /**
- * Helper to create full name
- */
-function createFullName(firstName, lastName) {
-  return String(firstName + ' ' + lastName).trim();
-}
-
-/**
  * User schema
  */
 let UserSchema = new Schema({
@@ -43,10 +37,6 @@ let UserSchema = new Schema({
     type: String,
     required: true,
     trim: true
-  },
-  fullName: {
-    type: String,
-    default: ''
   },
   avatar: FileSchema,
   locale: {
@@ -95,9 +85,6 @@ let UserSchema = new Schema({
  */
 UserSchema.pre('save', function(next) {
 
-  //Create full name
-  this.fullName = createFullName(this.firstName, this.lastName);
-
   //Check if email address modified
   if (this.isModified('email')) {
     this.isEmailVerified = false;
@@ -137,27 +124,16 @@ UserSchema.pre('save', function(next) {
 });
 
 /**
- * Email with name
- */
-UserSchema.virtual('emailWithName').get(() => {
-  if (!this.email) {
-    return '';
-  }
-  if (!this.fullName) {
-    return this.email;
-  }
-  return this.fullName + ' <' + this.email + '>';
-});
-
-/**
  * Password validation helper
  */
-UserSchema.methods.comparePassword = function(candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function(error, isMatch) {
-    if (error) {
-      return cb(error);
-    }
-    cb(null, isMatch);
+UserSchema.methods.comparePassword = function(candidatePassword) {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(candidatePassword, this.password, function(error, isMatch) {
+      if (error) {
+        return reject(error);
+      }
+      resolve(isMatch);
+    });
   });
 };
 
@@ -188,31 +164,6 @@ UserSchema.methods.getClaims = function() {
 };
 
 /**
- * Helper to populate users
- */
-function populate(query) {
-  return query;
-}
-
-/**
- * Find users by ID and populates data as needed
- */
-UserSchema.statics.findByIdAndPopulate = function(id) {
-  let query = this.findById(id);
-  return populate(query);
-};
-
-/**
- * Find users by email and populates data as needed
- */
-UserSchema.statics.findByEmailAndPopulate = function(email) {
-  let query = this.findOne({
-    email: email
-  });
-  return populate(query);
-};
-
-/**
  * Transformation to JSON
  */
 UserSchema.options.toJSON = {
@@ -221,9 +172,6 @@ UserSchema.options.toJSON = {
     //Delete sensitive data
     delete ret.password;
     delete ret.usedTokens;
-
-    //Delete unnecessary data
-    delete ret.fullName;
   }
 };
 
