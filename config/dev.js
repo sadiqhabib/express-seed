@@ -13,12 +13,17 @@ module.exports = {
   //App
   APP_NAME: pkg.name,
   APP_VERSION: pkg.version,
-  APP_DOMAIN: 'my-application.com',
   APP_BASE_URL: 'http://localhost:8080',
 
   //API
   API_BASE_URL: 'http://localhost:8081',
   API_BASE_PATH: '/api/',
+
+  //CORS origins
+  CORS_ORIGINS: [
+    /localhost\:8080/,
+    /192\.168\.1\.[0-9]+/
+  ],
 
   //Server
   SERVER_PORT: process.env.PORT || 8081,
@@ -48,7 +53,9 @@ module.exports = {
   GITHUB_USER_AGENT: '',
 
   //Error handling middleware
-  ERROR_MIDDLEWARE: ['normalize', 'log-to-console'],
+  ERROR_MIDDLEWARE: [
+    'normalize', 'log-to-console'
+  ],
 
   //Internationalization
   I18N_LOCALES: ['en'],

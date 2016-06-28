@@ -8,7 +8,6 @@ let moment = require('moment');
 let NotAuthenticatedError = require('../error/type/auth/not-authenticated');
 let NotAuthorizedError = require('../error/type/auth/not-authorized');
 let UserSuspendedError = require('../error/type/auth/user-suspended');
-let UserPendingError = require('../error/type/auth/user-pending');
 let tokens = require('../services/tokens');
 let config = require('../config');
 
@@ -96,11 +95,6 @@ module.exports = {
         error = new UserSuspendedError();
       }
 
-      //User pending approval?
-      else if (!user.isApproved) {
-        error = new UserPendingError();
-      }
-
       //Check error
       if (error) {
         return next(error);
@@ -182,11 +176,6 @@ module.exports = {
       //User suspended?
       else if (user.isSuspended) {
         error = new UserSuspendedError();
-      }
-
-      //User pending approval?
-      else if (!user.isApproved) {
-        error = new UserPendingError();
       }
 
       //Check error

@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let Locale = require('../../services/locale');
 let tokens = require('../../services/tokens');
+let Locale = require('../../services/locale');
 let mailer = require('../../services/mailer');
 let config = require('../../config');
 
@@ -35,20 +35,20 @@ module.exports = function resetPassword(user) {
   //Create data for emails
   let data = {
     link,
-    instructions: locale.t('user.resetPassword.mail.instructions'),
-    action: locale.t('user.resetPassword.mail.action'),
-    validityNotice: locale.t('user.resetPassword.mail.validityNotice', {
+    instructions: locale.t('mail.resetPassword.instructions'),
+    action: locale.t('mail.resetPassword.action'),
+    validityNotice: locale.t('mail.resetPassword.validityNotice', {
       numHours
     }),
-    ignoreNotice: locale.t('user.resetPassword.mail.ignoreNotice')
+    ignoreNotice: locale.t('mail.resetPassword.ignoreNotice')
   };
 
   //Load
-  return mailer.load('reset-password', data)
+  return mailer.load('user/emails/reset-password', data)
     .spread((text, html) => ({
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
-      subject: locale.t('user.resetPassword.mail.subject'),
+      subject: locale.t('mail.resetPassword.subject'),
       text, html
     }));
 };

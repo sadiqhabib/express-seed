@@ -13,12 +13,16 @@ module.exports = {
   //App
   APP_NAME: pkg.name,
   APP_VERSION: pkg.version,
-  APP_DOMAIN: 'my-application.com',
   APP_BASE_URL: 'http://my-application.com',
 
   //API
   API_BASE_URL: 'http://my-application.com',
   API_BASE_PATH: '/api/',
+
+  //CORS origins
+  CORS_ORIGINS: [
+    /[[a-z0-9\-]+\.]*my\-application\.com/
+  ],
 
   //Server
   SERVER_PORT: process.env.PORT || 80,
@@ -48,7 +52,9 @@ module.exports = {
   GITHUB_USER_AGENT: '',
 
   //Error handling middleware
-  ERROR_MIDDLEWARE: ['normalize', 'log-to-console', 'log-to-gcloud'],
+  ERROR_MIDDLEWARE: [
+    'normalize', 'log-to-console', 'log-to-gcloud'
+  ],
 
   //Internationalization
   I18N_LOCALES: ['en'],

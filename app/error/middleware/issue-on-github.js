@@ -40,7 +40,7 @@ module.exports = function(error, req, res, next) {
 
   //User data
   if (user) {
-    parts.push('Member: `' + user.id + '`');
+    parts.push('User: `' + user.id + '`');
   }
 
   //User agent

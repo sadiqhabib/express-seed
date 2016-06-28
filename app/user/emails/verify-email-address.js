@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let Locale = require('../../services/locale');
 let tokens = require('../../services/tokens');
+let Locale = require('../../services/locale');
 let mailer = require('../../services/mailer');
 let config = require('../../config');
 
@@ -30,16 +30,16 @@ module.exports = function verifyEmailAddress(user) {
   //Create data for emails
   let data = {
     link: APP_BASE_URL + '/email/verify/' + token,
-    instructions: locale.t('user.verifyEmailAddress.mail.instructions'),
-    action: locale.t('user.verifyEmailAddress.mail.action')
+    instructions: locale.t('mail.verifyEmailAddress.instructions'),
+    action: locale.t('mail.verifyEmailAddress.action')
   };
 
   //Load
-  return mailer.load('verify-email-address', data)
+  return mailer.load('user/emails/verify-email-address', data)
     .spread((text, html) => ({
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
-      subject: locale.t('user.verifyEmailAddress.mail.subject'),
+      subject: locale.t('mail.verifyEmailAddress.subject'),
       text, html
     }));
 };

@@ -22,15 +22,15 @@ module.exports = function passwordHasChanged(user) {
 
   //Create data for emails
   let data = {
-    confirmation: locale.t('user.passwordHasChanged.mail.confirmation')
+    confirmation: locale.t('mail.passwordHasChanged.confirmation')
   };
 
   //Load
-  return mailer.load('password-has-changed', data)
+  return mailer.load('user/emails/password-has-changed', data)
     .spread((text, html) => ({
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
-      subject: locale.t('user.passwordHasChanged.mail.subject'),
+      subject: locale.t('mail.passwordHasChanged.subject'),
       text, html
     }));
 };
