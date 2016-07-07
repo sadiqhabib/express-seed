@@ -1,4 +1,3 @@
-/* jshint -W083 */
 'use strict';
 
 /**
@@ -79,18 +78,18 @@ function setObject(obj, data, parentPath) {
           continue;
         }
 
-        //Check if the data is an object as well
-        if (typeof data[key] !== 'object') {
-          throw new Error(
-            'Path `' + path + '` in data is expected to be an object`'
-          );
-        }
-
         //If either the current value or the new value are null, it's safe
         //to simply set the replacement value.
         if (obj[key] === null || data[key] === null) {
           obj[key] = data[key];
           continue;
+        }
+
+        //Check if the data is an object as well
+        if (typeof data[key] !== 'object') {
+          throw new Error(
+            'Path `' + path + '` in data is expected to be an object`'
+          );
         }
 
         //Recursive object check
