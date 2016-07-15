@@ -20,13 +20,13 @@
   },
   "keywords": [],
   "engines": {
-    "node": ">=6.2.2",
-    "npm": ">=3.10.2"
+    "node": ">=6.3.0",
+    "npm": ">=3.10.3"
   },
   "main": "scripts/server.js",
   "scripts": {
     "start": "node scripts/server.js",
-    "dev": "nodemon scripts/server.js",
+    "dev": "nodemon --inspect scripts/server.js",
     "lint": "eslint .",
     "pretest": "npm run lint -s",
     "istanbul": "babel-node ./node_modules/istanbul/lib/cli cover ./node_modules/mocha/bin/_mocha",
@@ -35,9 +35,13 @@
     "posttest": "npm run coverage -s",
     "preversion": "npm run test -s",
     "postversion": "git push && git push --tags",
-    "migrate": "node scripts/migrate.js",
+    "migrate:up": "node scripts/migrate.js up",
+    "migrate:down": "node scripts/migrate.js down",
     "refresh": "node scripts/migrate.js refresh",
-    "deploy": "gcloud preview app deploy"
+    "dump": "mongodump -d DB_NAME_LOCAL -o ./migrations/dump",
+    "restore": "mongorestore -h DB_HOST -d DB_NAME -u DB_USER -p DB_PASS ./migrations/dump/DB_NAME_LOCAL --drop",
+    "deploy:heroku": "git subtree push --prefix server heroku master",
+    "deploy:gcloud": "gcloud preview app deploy"
   },
   "dependencies": {
     "bcryptjs": "^2.3.0",

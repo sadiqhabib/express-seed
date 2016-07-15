@@ -109,7 +109,7 @@ rules:
     - always
   newline-per-chained-call:
     - error
-    - ignoreChainWithDepth: 2
+    - ignoreChainWithDepth: 3
   one-var-declaration-per-line:
     - error
     - initializations
@@ -132,3 +132,4 @@ rules:
   no-lonely-if: error
   no-var: error
   no-implicit-coercion: error
+  no-console: off
