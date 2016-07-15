@@ -17,6 +17,12 @@ let stack = config.ERROR_MIDDLEWARE
 //Export handler
 module.exports = function(error, req) {
 
+  //Must have request specified
+  if (!req || typeof req !== 'object') {
+    console.warn('Error handler should be called with the request object');
+    req = {};
+  }
+
   //No error handlers?
   if (stack.length === 0) {
     return;

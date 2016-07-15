@@ -68,8 +68,9 @@ function setObject(obj, data, parentPath) {
       //If the value is an object, it requires further handling
       else if (typeof obj[key] === 'object') {
 
-        //If one of the values is a model instance, compare by ID's
-        if (obj[key] instanceof Model || data[key] instanceof Model) {
+        //If one of the values is a full model instance, compare by ID's
+        if ((obj[key] instanceof Model && obj[key]._id) ||
+            (data[key] instanceof Model && data[key]._id)) {
           let current = onlyId(obj[key]);
           let updated = onlyId(data[key]);
           if (current !== updated) {
