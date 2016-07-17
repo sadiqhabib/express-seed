@@ -5,7 +5,8 @@
  */
 let multer = require('multer');
 let mimeTypesFilter = require('meanie-multer-mime-types-filter');
-let NotFoundError = require('meanie-express-error-types').NotFoundError;
+let errors = require('meanie-express-error-handling');
+let NotFoundError = errors.NotFoundError;
 
 /**
  * Avatar URL generator

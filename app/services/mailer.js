@@ -7,9 +7,9 @@ let fs = require('fs');
 let path = require('path');
 let Promise = require('bluebird');
 let sendgrid = require('sendgrid');
-let types = require('meanie-express-error-types');
+let errors = require('meanie-express-error-handling');
 let readFile = Promise.promisify(fs.readFile);
-let SendMailError = types.SendMailError;
+let SendMailError = errors.SendMailError;
 let config = require('../config');
 
 /**

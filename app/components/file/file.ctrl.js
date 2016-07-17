@@ -5,10 +5,9 @@
  */
 let multer = require('multer');
 let mimeTypesFilter = require('meanie-multer-mime-types-filter');
-let types = require('meanie-express-error-types');
-let BadRequestError = types.BadRequestError;
-let FileTooLargeError = types.FileTooLargeError;
-let errorHandler = require('../error/handler');
+let errors = require('meanie-express-error-handling');
+let BadRequestError = errors.BadRequestError;
+let FileTooLargeError = errors.FileTooLargeError;
 let gcloud = require('../../services/gcloud');
 let gcs = gcloud.storage();
 
@@ -131,7 +130,7 @@ module.exports = {
     //Delete the file (allow failures but log errors)
     gcsFile.delete(error => {
       if (error) {
-        errorHandler(error, req);
+        errors.handler(error, req);
       }
       next();
     });

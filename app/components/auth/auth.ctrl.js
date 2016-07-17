@@ -6,10 +6,10 @@
 let passport = require('passport');
 let moment = require('moment');
 let jwt = require('meanie-express-jwt-service');
-let types = require('meanie-express-error-types');
-let NotAuthenticatedError = types.NotAuthenticatedError;
-let NotAuthorizedError = types.NotAuthorizedError;
-let UserSuspendedError = types.UserSuspendedError;
+let errors = require('meanie-express-error-handling');
+let NotAuthenticatedError = errors.NotAuthenticatedError;
+let NotAuthorizedError = errors.NotAuthorizedError;
+let UserSuspendedError = errors.UserSuspendedError;
 
 /**
  * To camel case

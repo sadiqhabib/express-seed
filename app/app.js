@@ -12,7 +12,7 @@ let bodyParser = require('body-parser');
 let compression = require('compression');
 let serveStatic = require('serve-static');
 let cookieParser = require('cookie-parser');
-let errorMiddleware = require('meanie-express-error-middleware');
+let errors = require('meanie-express-error-handling');
 let jwt = require('meanie-express-jwt-service');
 let router = require('./services/router');
 let db = require('./services/db');
@@ -120,8 +120,8 @@ module.exports = function() {
   router(app);
 
   //Create error handling middleware stack
-  errorMiddleware
-    .load(ERROR_MIDDLEWARE.concat(['auth-clear-cookie', 'send']))
+  errors
+    .middleware(ERROR_MIDDLEWARE.concat(['auth-clear-cookie', 'send']))
     .forEach(handler => app.use(handler));
 
   //Return express server instance

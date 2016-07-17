@@ -5,11 +5,10 @@
  */
 let mongoose = require('mongoose');
 let jwt = require('meanie-express-jwt-service');
-let types = require('meanie-express-error-types');
-let NotFoundError = types.NotFoundError;
-let BadRequestError = types.BadRequestError;
-let InvalidTokenError = types.InvalidTokenError;
-let errorHandler = require('../error/handler');
+let errors = require('meanie-express-error-handling');
+let NotFoundError = errors.NotFoundError;
+let BadRequestError = errors.BadRequestError;
+let InvalidTokenError = errors.InvalidTokenError;
 let mailer = require('../../services/mailer');
 
 /**
@@ -50,7 +49,7 @@ module.exports = {
       .then(user => {
         verifyEmailAddressEmail(user)
           .then(email => mailer.send(email))
-          .catch(error => errorHandler(error, req));
+          .catch(error => errors.handler(error, req));
         return (req.user = user);
       })
       .then(user => {
@@ -85,7 +84,7 @@ module.exports = {
         if (isEmailChanged) {
           verifyEmailAddressEmail(user)
           .then(email => mailer.send(email))
-          .catch(error => errorHandler(error, req));
+          .catch(error => errors.handler(error, req));
         }
         return (req.user = user);
       })
@@ -111,7 +110,7 @@ module.exports = {
       .then(user => {
         passwordHasChangedEmail(user)
           .then(email => mailer.send(email))
-          .catch(error => errorHandler(error, req));
+          .catch(error => errors.handler(error, req));
         res.end();
       })
       .catch(next);
@@ -183,7 +182,7 @@ module.exports = {
       .then(user => {
         passwordHasChangedEmail(user)
           .then(email => mailer.send(email))
-          .catch(error => errorHandler(error, req));
+          .catch(error => errors.handler(error, req));
         res.end();
       })
       .catch(next);

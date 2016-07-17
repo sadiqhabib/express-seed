@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let types = require('meanie-express-error-types');
-let ReportedError = types.ReportedError;
+let errors = require('meanie-express-error-handling');
+let ReportedError = errors.ReportedError;
 
 /**
  * Error controller
