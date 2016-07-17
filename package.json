@@ -60,7 +60,7 @@
     "i18n": "^0.8.3",
     "meanie-express-error-handling": "^1.0.3",
     "meanie-express-github-service": "^1.0.0",
-    "meanie-express-jwt-service": "^1.0.0",
+    "meanie-express-jwt-service": "^1.0.1",
     "meanie-mongoose-only-id": "^1.0.0",
     "meanie-mongoose-to-json": "^1.0.1",
     "meanie-multer-mime-types-filter": "^1.0.0",

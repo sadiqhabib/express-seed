@@ -84,15 +84,11 @@ module.exports = function() {
   app.use(morgan('dev'));
 
   //Parse application/x-www-form-urlencoded
-  app.use(bodyParser.urlencoded({
-    extended: true,
-  }));
+  app.use(bodyParser.urlencoded({extended: true}));
 
   //Parse application/json
   app.use(bodyParser.json());
-  app.use(bodyParser.json({
-    type: 'application/vnd.api+json',
-  }));
+  app.use(bodyParser.json({type: 'application/vnd.api+json'}));
 
   //Add cookie parser middleware
   app.use(cookieParser());
