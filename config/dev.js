@@ -50,7 +50,6 @@ module.exports = {
   GITHUB_USER: '',
   GITHUB_REPO: '',
   GITHUB_TOKEN: '',
-  GITHUB_USER_AGENT: '',
 
   //Error handling middleware
   ERROR_MIDDLEWARE: [

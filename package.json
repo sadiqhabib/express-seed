@@ -62,6 +62,7 @@
     "meanie-express-github-service": "^1.0.0",
     "meanie-express-jwt-service": "^1.0.1",
     "meanie-mongoose-only-id": "^1.0.0",
+    "meanie-mongoose-set-properties": "^1.0.0",
     "meanie-mongoose-to-json": "^1.0.1",
     "meanie-multer-mime-types-filter": "^1.0.0",
     "meanie-passport-refresh-strategy": "^1.0.0",
