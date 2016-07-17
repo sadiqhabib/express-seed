@@ -55,5 +55,5 @@ function logSuccess(message) {
 module.exports = {
   success: logSuccess,
   error: logError,
-  validationError: logValidationError
+  validationError: logValidationError,
 };

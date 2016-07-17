@@ -36,5 +36,5 @@ module.exports = {
   start: statusStart,
   ok: statusOk,
   error: statusError,
-  skip: statusSkip
+  skip: statusSkip,
 };

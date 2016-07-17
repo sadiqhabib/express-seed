@@ -39,8 +39,9 @@
     "migrate:up": "node scripts/migrate.js up",
     "migrate:down": "node scripts/migrate.js down",
     "refresh": "node scripts/migrate.js refresh",
-    "dump": "mongodump -d DB_NAME_LOCAL -o ./migrations/dump",
-    "restore": "mongorestore -h DB_HOST -d DB_NAME -u DB_USER -p DB_PASS ./migrations/dump/DB_NAME_LOCAL --drop",
+    "dump:local": "mongodump -d DB_NAME_LOCAL -o ./migrations/dump",
+    "dump:remote": "mongodump -h DB_HOST -d DB_NAME -u DB_USER -p DB_PASS -o ./migrations/dump",
+    "restore:remote": "mongorestore -h DB_HOST -d DB_NAME -u DB_USER -p DB_PASS ./migrations/dump/DB_NAME_LOCAL --drop",
     "deploy:heroku": "git subtree push --prefix server heroku master",
     "deploy:gcloud": "gcloud preview app deploy"
   },

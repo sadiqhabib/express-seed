@@ -11,7 +11,6 @@ let Promise = require('bluebird');
 let db = require('../app/services/db');
 let log = require('./lib/log');
 let run = require('./lib/run');
-let Migration = require('./lib/migration');
 
 /**
  * Fix CWD if run from scripts path
@@ -43,22 +42,23 @@ let commands = {
       return Promise.resolve('No migrations found');
     }
 
-    //Query existing migrations and then run the UP migrations
-    return Migration.find(true)
-      .then(existing => run.up(migrations, existing));
+    //Run up migrations
+    return run.up(migrations);
   },
 
   /**
    * Migrate down
    */
   down() {
-    return Migration.find()
-      .then(migrations => {
-        if (!migrations.length) {
-          return 'No existing migrations to roll back';
-        }
-        return run.down(migrations);
-      });
+
+    //Load all migrations from the migrations path
+    let migrations = glob.sync(MIGRATIONS_PATH + '*.js');
+    if (migrations.length === 0) {
+      return Promise.resolve('No migrations found');
+    }
+
+    //Run down migrations
+    return run.down(migrations);
   },
 
   /**
@@ -68,7 +68,7 @@ let commands = {
     return this.down()
       .then(() => this.up())
       .then(() => 'Database refreshed');
-  }
+  },
 };
 
 //Defaults
