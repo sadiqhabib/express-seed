@@ -32,7 +32,7 @@ module.exports = {
    * Get data of authenticated user
    */
   me(req, res) {
-    let user = req.user;
+    let user = req.me;
     res.json(user.toJSON());
   },
 
@@ -50,7 +50,7 @@ module.exports = {
         verifyEmailAddressEmail(user)
           .then(email => mailer.send(email))
           .catch(error => errors.handler(error, req));
-        return (req.user = user);
+        return (req.me = user);
       })
       .then(user => {
 
@@ -86,7 +86,7 @@ module.exports = {
           .then(email => mailer.send(email))
           .catch(error => errors.handler(error, req));
         }
-        return (req.user = user);
+        return (req.me = user);
       })
       .then(user => user.toJSON())
       .then(user => {
@@ -101,7 +101,7 @@ module.exports = {
   changePassword(req, res, next) {
 
     //Get user and new password
-    let user = req.user;
+    let user = req.me;
     let password = req.body.password;
 
     //Set password
@@ -135,14 +135,14 @@ module.exports = {
 
     //If no user was found, send response anyway to prevent hackers from
     //figuring out which email addresses are valid and which aren't.
-    if (!req.user) {
+    if (!req.me) {
       return setTimeout(() => {
         res.end();
       }, 1000);
     }
 
     //Get user
-    let user = req.user;
+    let user = req.me;
 
     //Send password reset email
     resetPasswordEmail(user)
@@ -192,7 +192,7 @@ module.exports = {
    * Send verification email
    */
   sendVerificationEmail(req, res, next) {
-    let user = req.user;
+    let user = req.me;
     verifyEmailAddressEmail(user)
       .then(email => mailer.send(email))
       .then(() => res.end())
@@ -239,7 +239,7 @@ module.exports = {
         if (!user) {
           return next(new NotFoundError());
         }
-        req.user = user;
+        req.me = user;
         next();
       })
       .catch(next);
@@ -259,7 +259,7 @@ module.exports = {
     User.findOne({
       email: req.body.email,
     }).then(user => {
-      req.user = user;
+      req.me = user;
       next();
     }).catch(next);
   },
@@ -271,7 +271,7 @@ module.exports = {
 
     //Extract posted data and collect other data from request
     let {firstName, lastName, email, phone, address, password} = req.body;
-    let user = req.user;
+    let user = req.me;
 
     //Prepare data object
     req.data = {

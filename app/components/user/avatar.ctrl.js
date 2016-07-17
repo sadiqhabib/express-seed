@@ -11,7 +11,7 @@ module.exports = {
   save(req, res, next) {
 
     //Get user
-    let user = req.user;
+    let user = req.me;
     let file = req.file;
 
     //Save file data
@@ -29,7 +29,7 @@ module.exports = {
   delete(req, res, next) {
 
     //Get user and clear avatar data
-    let user = req.user;
+    let user = req.me;
     user.avatar = null;
 
     //Save
@@ -53,7 +53,7 @@ module.exports = {
     const MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
 
     //Get user
-    let user = req.user;
+    let user = req.me;
 
     //Configure file handling
     req.fileConfig = {
