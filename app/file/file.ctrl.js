@@ -4,10 +4,11 @@
  * Dependencies
  */
 let multer = require('multer');
-let mimeTypesFilter = require('../plugins/multer/mime-types-filter');
+let types = require('meanie-express-error-types');
+let BadRequestError = types.BadRequestError;
+let FileTooLargeError = types.FileTooLargeError;
+let mimeTypesFilter = require('../helpers/mime-types-filter');
 let errorHandler = require('../error/handler');
-let BadRequestError = require('../error/type/client/bad-request');
-let FileTooLargeError = require('../error/type/client/file-too-large');
 let gcloud = require('../services/gcloud');
 let gcs = gcloud.storage();
 

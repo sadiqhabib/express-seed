@@ -3,7 +3,7 @@
 /**
  * Dependencies
  */
-let onlyId = require('../../helpers/only-id');
+let onlyId = require('meanie-mongoose-only-id');
 let mongoose = require('mongoose');
 let Model = mongoose.Model;
 let ObjectId = mongoose.Types.ObjectId;
@@ -110,10 +110,6 @@ function setObject(obj, data, parentPath) {
  * Note that for arrays, it assume primitive values
  */
 module.exports = function setProperties(schema) {
-
-  /**
-   * Method for all schema's
-   */
   schema.methods.setProperties = function(data) {
     setObject(this, data);
   };

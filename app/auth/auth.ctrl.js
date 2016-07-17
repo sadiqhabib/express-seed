@@ -5,9 +5,10 @@
  */
 let passport = require('passport');
 let moment = require('moment');
-let NotAuthenticatedError = require('../error/type/auth/not-authenticated');
-let NotAuthorizedError = require('../error/type/auth/not-authorized');
-let UserSuspendedError = require('../error/type/auth/user-suspended');
+let types = require('meanie-express-error-types');
+let NotAuthenticatedError = types.NotAuthenticatedError;
+let NotAuthorizedError = types.NotAuthorizedError;
+let UserSuspendedError = types.UserSuspendedError;
 let tokens = require('../services/tokens');
 let config = require('../config');
 
@@ -34,7 +35,7 @@ function toCamelCase(str, ucfirst) {
   return str
     .replace(/_+|\-+/g, ' ')
     .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
-      if (+match === 0) {
+      if (Number(match) === 0) {
         return '';
       }
       return (index === 0 && !ucfirst) ?
@@ -60,7 +61,7 @@ module.exports = {
   forget(req, res) {
     res.clearCookie('refreshToken', {
       secure: REFRESH_TOKEN_COOKIE_SECURE,
-      httpOnly: true
+      httpOnly: true,
     });
     res.end();
   },
@@ -120,7 +121,7 @@ module.exports = {
         res.cookie('refreshToken', refreshToken, {
           maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE * 1000, //in ms
           secure: REFRESH_TOKEN_COOKIE_SECURE,
-          httpOnly: true
+          httpOnly: true,
         });
       }
 
@@ -160,7 +161,7 @@ module.exports = {
 
     //Authenticate now
     passport.authenticate('bearer', {
-      session: false
+      session: false,
     }, (error, user) => {
 
       //Error given?
@@ -198,12 +199,12 @@ module.exports = {
 
     //Authenticate now
     passport.authenticate('bearer', {
-      session: false
+      session: false,
     }, (error, user) => {
       if (user) {
         req.me = user;
       }
       next();
     })(req, res, next);
-  }
+  },
 };

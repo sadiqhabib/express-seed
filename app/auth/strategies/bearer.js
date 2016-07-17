@@ -5,7 +5,8 @@
  */
 let passport = require('passport');
 let BearerStrategy = require('passport-http-bearer').Strategy;
-let InvalidTokenError = require('../../error/type/client/invalid-token');
+let types = require('meanie-express-error-types');
+let InvalidTokenError = types.InvalidTokenError;
 let tokens = require('../../services/tokens');
 let User = require('../../services/user');
 

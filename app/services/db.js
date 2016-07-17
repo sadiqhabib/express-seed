@@ -13,8 +13,7 @@ let config = require('../config');
  * Configure mongoose
  */
 mongoose.Promise = require('bluebird');
-mongoose.plugin(require('../plugins/mongoose/to-json-plugin'));
-mongoose.plugin(require('../plugins/mongoose/set-properties'));
+mongoose.plugin(require('meanie-mongoose-to-json'));
 
 /**
  * Settings

@@ -4,9 +4,10 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
-let NotFoundError = require('../error/type/client/not-found');
-let BadRequestError = require('../error/type/client/bad-request');
-let InvalidTokenError = require('../error/type/client/invalid-token');
+let types = require('meanie-express-error-types');
+let NotFoundError = types.NotFoundError;
+let BadRequestError = types.BadRequestError;
+let InvalidTokenError = types.InvalidTokenError;
 let errorHandler = require('../error/handler');
 let tokens = require('../services/tokens');
 let mailer = require('../services/mailer');

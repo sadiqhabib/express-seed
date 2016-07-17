@@ -5,8 +5,9 @@
  */
 let Promise = require('bluebird');
 let jwt = require('jsonwebtoken');
-let InvalidTokenError = require('../error/type/client/invalid-token');
-let ExpiredTokenError = require('../error/type/client/expired-token');
+let types = require('meanie-express-error-types');
+let InvalidTokenError = types.InvalidTokenError;
+let ExpiredTokenError = types.ExpiredTokenError;
 
 /**
  * Check if token config is valid

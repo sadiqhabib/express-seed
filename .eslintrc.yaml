@@ -43,7 +43,7 @@ rules:
     - all
   comma-dangle:
     - error
-    - only-multiline
+    - always-multiline
   new-cap:
     - error
     - newIsCap: true
@@ -116,6 +116,12 @@ rules:
   brace-style:
     - error
     - stroustrup
+  no-implicit-coercion:
+    - error
+    - boolean: false
+  no-multiple-empty-lines:
+    - error
+    - max: 1
   eol-last: error
   dot-notation: error
   space-infix-ops: error
@@ -131,5 +137,4 @@ rules:
   no-whitespace-before-property: error
   no-lonely-if: error
   no-var: error
-  no-implicit-coercion: error
   no-console: off

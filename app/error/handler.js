@@ -9,12 +9,20 @@
  * from the request.
  */
 
-//Create error middleware stack
-let config = require('../config');
-let stack = config.ERROR_MIDDLEWARE
-  .map(handler => require('./middleware/' + handler));
+/**
+ * Dependencies
+ */
+const errorMiddleware = require('meanie-express-error-middleware');
+const config = require('../config');
 
-//Export handler
+/**
+ * Load error middleware stack
+ */
+const stack = errorMiddleware.load(config.ERROR_MIDDLEWARE);
+
+/**
+ * Export wrapper handler
+ */
 module.exports = function(error, req) {
 
   //Must have request specified

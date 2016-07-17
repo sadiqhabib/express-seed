@@ -4,8 +4,9 @@
  * Dependencies
  */
 let passport = require('passport');
-let RefreshStrategy = require('../../plugins/passport/refresh-strategy');
-let InvalidTokenError = require('../../error/type/client/invalid-token');
+let RefreshStrategy = require('meanie-passport-refresh-strategy');
+let types = require('meanie-express-error-types');
+let InvalidTokenError = types.InvalidTokenError;
 let tokens = require('../../services/tokens');
 let User = require('../../services/user');
 

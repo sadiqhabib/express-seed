@@ -12,6 +12,7 @@ let bodyParser = require('body-parser');
 let compression = require('compression');
 let serveStatic = require('serve-static');
 let cookieParser = require('cookie-parser');
+let errorMiddleware = require('meanie-express-error-middleware');
 let router = require('./services/router');
 let tokens = require('./services/tokens');
 let db = require('./services/db');
@@ -38,9 +39,7 @@ i18n.configure({
   locales: I18N_LOCALES,
   defaultLocale: I18N_DEFAULT_LOCALE,
   objectNotation: true,
-  api: {
-    '__': 't'
-  }
+  api: {'__': 't'},
 });
 
 /**
@@ -51,13 +50,16 @@ module.exports = function() {
   //Initialize express app
   let app = express();
 
+  //Set locals
+  app.locals = config;
+
   //Setup database
   db(app);
 
   //Setup tokens
   tokens.setDefaults({
     issuer: TOKEN_DEFAULT_ISSUER,
-    audience: TOKEN_DEFAULT_AUDIENCE
+    audience: TOKEN_DEFAULT_AUDIENCE,
   });
   tokens.register(TOKEN_TYPES);
 
@@ -67,7 +69,7 @@ module.exports = function() {
   //CORS
   app.use(cors({
     origin: CORS_ORIGINS,
-    credentials: true //NOTE: needed for cross domain cookies to work
+    credentials: true, //NOTE: needed for cross domain cookies to work
   }));
 
   //Compression
@@ -75,7 +77,7 @@ module.exports = function() {
     level: 3,
     filter(req, res) {
       return (/json|text|javascript|css/).test(res.getHeader('Content-Type'));
-    }
+    },
   }));
 
   //Logger
@@ -83,13 +85,13 @@ module.exports = function() {
 
   //Parse application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({
-    extended: true
+    extended: true,
   }));
 
   //Parse application/json
   app.use(bodyParser.json());
   app.use(bodyParser.json({
-    type: 'application/vnd.api+json'
+    type: 'application/vnd.api+json',
   }));
 
   //Add cookie parser middleware
@@ -106,7 +108,7 @@ module.exports = function() {
   if (SERVER_LATENCY) {
     let latency = require('express-simulate-latency')({
       min: SERVER_LATENCY_MIN,
-      max: SERVER_LATENCY_MAX
+      max: SERVER_LATENCY_MAX,
     });
     app.use(latency);
   }
@@ -117,10 +119,9 @@ module.exports = function() {
   //Load router
   router(app);
 
-  //Create error handling middleware stack with two permanent handlers
-  ERROR_MIDDLEWARE
-    .concat(['process', 'send'])
-    .map(handler => require('./error/middleware/' + handler))
+  //Create error handling middleware stack
+  errorMiddleware
+    .load(ERROR_MIDDLEWARE.concat(['auth-clear-cookie', 'send']))
     .forEach(handler => app.use(handler));
 
   //Return express server instance

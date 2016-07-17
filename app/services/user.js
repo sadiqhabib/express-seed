@@ -4,7 +4,8 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
-let InvalidTokenError = require('../error/type/client/invalid-token');
+let types = require('meanie-express-error-types');
+let InvalidTokenError = types.InvalidTokenError;
 
 /**
  * Models

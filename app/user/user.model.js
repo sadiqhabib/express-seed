@@ -13,7 +13,7 @@ let config = require('../config');
  * Schemas
  */
 let AddressSchema = require('../shared/address.schema');
-let FileSchema = require('../shared/file.schema');
+let FileSchema = require('../file/file.schema');
 
 /**
  * Configuration
@@ -31,17 +31,17 @@ let UserSchema = new Schema({
   firstName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   lastName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   avatar: FileSchema,
   locale: {
     type: String,
-    default: DEFAULT_LOCALE
+    default: DEFAULT_LOCALE,
   },
 
   //Contact details
@@ -49,10 +49,10 @@ let UserSchema = new Schema({
     type: String,
     trim: true,
     required: true,
-    unique: true
+    unique: true,
   },
   phone: {
-    type: String
+    type: String,
   },
   address: AddressSchema,
 
@@ -60,24 +60,24 @@ let UserSchema = new Schema({
   password: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   roles: {
     type: [{
       type: String,
-      enum: ['user', 'admin']
+      enum: ['user', 'admin'],
     }],
-    default: ['user']
+    default: ['user'],
   },
   isSuspended: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isEmailVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  usedTokens: [String]
+  usedTokens: [String],
 });
 
 /**
@@ -159,7 +159,7 @@ UserSchema.methods.addRole = function(role) {
 UserSchema.methods.getClaims = function() {
   return {
     id: this._id.toString(),
-    roles: this.roles
+    roles: this.roles,
   };
 };
 
@@ -172,7 +172,7 @@ UserSchema.options.toJSON = {
     //Delete sensitive data
     delete ret.password;
     delete ret.usedTokens;
-  }
+  },
 };
 
 /**

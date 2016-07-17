@@ -4,8 +4,9 @@
  * Dependencies
  */
 let multer = require('multer');
-let mimeTypesFilter = require('../plugins/multer/mime-types-filter');
-let NotFoundError = require('../error/type/client/not-found');
+let mimeTypesFilter = require('../helpers/mime-types-filter');
+let types = require('meanie-express-error-types');
+let NotFoundError = types.NotFoundError;
 let config = require('../config');
 
 /**
