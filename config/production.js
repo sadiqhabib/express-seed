@@ -33,7 +33,7 @@ module.exports = {
   SERVER_PUBLIC_INDEX: './public/index.html',
 
   //Database
-  DB_URI: 'mongodb://localhost/my-application',
+  DB_URI: process.env.MONGODB_URI,
   DB_DEBUG: false,
   DB_USER: '',
   DB_PASS: '',
@@ -48,7 +48,10 @@ module.exports = {
   //Github
   GITHUB_USER: '',
   GITHUB_REPO: '',
-  GITHUB_TOKEN: '',
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+
+  //Sendgrid
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
 
   //Error handling middleware
   ERROR_MIDDLEWARE: [
@@ -90,13 +93,10 @@ module.exports = {
     },
   },
 
-  //Sendgrid
-  SENDGRID_API_KEY: '',
-
   //Cryptography
-  BCRYPT_ROUNDS: 10,
+  BCRYPT_ROUNDS: 15,
 
   //User
-  USER_PASSWORD_MIN_LENGTH: 6,
+  USER_PASSWORD_MIN_LENGTH: 8,
   USER_AVATAR_MAX_FILE_SIZE: 512 * 1024, //bytes
 };
