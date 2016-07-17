@@ -10,6 +10,7 @@ let errors = require('meanie-express-error-handling');
 let NotAuthenticatedError = errors.NotAuthenticatedError;
 let NotAuthorizedError = errors.NotAuthorizedError;
 let UserSuspendedError = errors.UserSuspendedError;
+let UserPendingError = errors.UserPendingError;
 
 /**
  * To camel case
@@ -87,6 +88,11 @@ module.exports = {
       //User suspended?
       else if (user.isSuspended) {
         error = new UserSuspendedError();
+      }
+
+      //User pending approval?
+      else if (user.isPending) {
+        error = new UserPendingError();
       }
 
       //Check error
@@ -177,6 +183,11 @@ module.exports = {
       //User suspended?
       else if (user.isSuspended) {
         error = new UserSuspendedError();
+      }
+
+      //User pending approval?
+      else if (user.isPending) {
+        error = new UserPendingError();
       }
 
       //Check error
