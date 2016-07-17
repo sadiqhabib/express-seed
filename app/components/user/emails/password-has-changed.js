@@ -3,9 +3,9 @@
 /**
  * Dependencies
  */
-let Locale = require('../../services/locale');
-let mailer = require('../../services/mailer');
-let config = require('../../config');
+let Locale = require('../../../services/locale');
+let mailer = require('../../../services/mailer');
+let config = require('../../../config');
 
 /**
  * Constants
@@ -22,7 +22,7 @@ module.exports = function passwordHasChanged(user) {
 
   //Create data for emails
   let data = {
-    confirmation: locale.t('mail.passwordHasChanged.confirmation')
+    confirmation: locale.t('mail.passwordHasChanged.confirmation'),
   };
 
   //Load
@@ -31,6 +31,6 @@ module.exports = function passwordHasChanged(user) {
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
       subject: locale.t('mail.passwordHasChanged.subject'),
-      text, html
+      text, html,
     }));
 };

@@ -4,24 +4,15 @@
  * Dependencies
  */
 let multer = require('multer');
-let mimeTypesFilter = require('../helpers/mime-types-filter');
-let types = require('meanie-express-error-types');
-let NotFoundError = types.NotFoundError;
-let config = require('../config');
-
-/**
- * Configuration
- */
-const API_BASE = config.API_BASE_URL + config.API_BASE_PATH;
-const MAX_FILE_SIZE = config.USER_AVATAR_MAX_FILE_SIZE;
-const MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+let mimeTypesFilter = require('meanie-multer-mime-types-filter');
+let NotFoundError = require('meanie-express-error-types').NotFoundError;
 
 /**
  * Avatar URL generator
  */
 function avatarUrl(id, mimeType, timestamp) {
   let ext = mimeType.split('/')[1].toLowerCase().replace('jpeg', 'jpg');
-  let url = API_BASE + 'user/' + id + '/avatar.' + ext;
+  let url = 'user/' + id + '/avatar.' + ext;
   if (timestamp) {
     url += '?' + String(Math.floor(Date.now() / 1000));
   }
@@ -42,17 +33,21 @@ module.exports = {
     let user = req.user;
     let file = req.file;
 
+    //Get API base
+    const API_BASE = req.app.locals.API_BASE;
+
+    //Create file object
     user.avatar = {
-      url: avatarUrl(user.id, file.mimetype, true),
+      url: API_BASE + avatarUrl(user.id, file.mimetype, true),
       data: file.buffer,
-      mimeType: file.mimetype
+      mimeType: file.mimetype,
     };
 
     //Save
     user.save()
       .then(() => {
         res.json({
-          avatar: user.avatar.url
+          avatar: user.avatar.url,
         });
       })
       .catch(next);
@@ -102,16 +97,20 @@ module.exports = {
    */
   upload(req, res, next) {
 
+    //Get locals
+    const MAX_FILE_SIZE = req.app.locals.USER_AVATAR_MAX_FILE_SIZE;
+    const MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+
     //Create upload middleware
     let upload = multer({
       storage: multer.memoryStorage(),
       fileFilter: mimeTypesFilter(MIME_TYPES),
       limits: {
-        fileSize: MAX_FILE_SIZE
-      }
+        fileSize: MAX_FILE_SIZE,
+      },
     }).single('avatar');
 
     //Use middleware
     upload(req, res, next);
-  }
+  },
 };

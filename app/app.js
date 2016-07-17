@@ -13,8 +13,8 @@ let compression = require('compression');
 let serveStatic = require('serve-static');
 let cookieParser = require('cookie-parser');
 let errorMiddleware = require('meanie-express-error-middleware');
+let jwt = require('meanie-express-jwt-service');
 let router = require('./services/router');
-let tokens = require('./services/tokens');
 let db = require('./services/db');
 let auth = require('./services/auth');
 let config = require('./config');
@@ -56,12 +56,12 @@ module.exports = function() {
   //Setup database
   db(app);
 
-  //Setup tokens
-  tokens.setDefaults({
+  //Setup JSON web tokens service
+  jwt.setDefaults({
     issuer: TOKEN_DEFAULT_ISSUER,
     audience: TOKEN_DEFAULT_AUDIENCE,
   });
-  tokens.register(TOKEN_TYPES);
+  jwt.register(TOKEN_TYPES);
 
   //Trust proxy (for Cloud hosted forwarding of requests)
   app.set('trust_proxy', 1);

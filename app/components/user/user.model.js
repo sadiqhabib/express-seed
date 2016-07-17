@@ -7,12 +7,12 @@ let mongoose = require('mongoose');
 let Promise = require('bluebird');
 let bcrypt = require('bcryptjs');
 let Schema = mongoose.Schema;
-let config = require('../config');
+let config = require('../../config');
 
 /**
  * Schemas
  */
-let AddressSchema = require('../shared/address.schema');
+let AddressSchema = require('./address.schema');
 let FileSchema = require('../file/file.schema');
 
 /**

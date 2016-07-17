@@ -5,10 +5,9 @@
  */
 let passport = require('passport');
 let RefreshStrategy = require('meanie-passport-refresh-strategy');
-let types = require('meanie-express-error-types');
-let InvalidTokenError = types.InvalidTokenError;
-let tokens = require('../../services/tokens');
-let User = require('../../services/user');
+let jwt = require('meanie-express-jwt-service');
+let InvalidTokenError = jwt.InvalidTokenError;
+let User = require('../components/user/user.service');
 
 /**
  * Refresh token strategy
@@ -22,7 +21,7 @@ module.exports = function() {
     }
 
     //Validate token
-    tokens.validate('refresh', refreshToken)
+    jwt.validate('refresh', refreshToken)
       .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {

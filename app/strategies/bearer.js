@@ -5,17 +5,16 @@
  */
 let passport = require('passport');
 let BearerStrategy = require('passport-http-bearer').Strategy;
-let types = require('meanie-express-error-types');
-let InvalidTokenError = types.InvalidTokenError;
-let tokens = require('../../services/tokens');
-let User = require('../../services/user');
+let jwt = require('meanie-express-jwt-service');
+let InvalidTokenError = jwt.InvalidTokenError;
+let User = require('../components/user/user.service');
 
 /**
  * Bearer strategy
  */
 module.exports = function() {
   passport.use(new BearerStrategy((accessToken, cb) => {
-    tokens.validate('access', accessToken)
+    jwt.validate('access', accessToken)
       .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {

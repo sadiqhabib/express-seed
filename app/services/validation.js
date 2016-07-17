@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Validation utilities
+ * Validation service
  */
 module.exports = {
 
@@ -13,7 +13,7 @@ module.exports = {
   },
 
   /**
-   * Find field errors helper for use in promise chains
+   * Find field errors helper for use in validation promise chains
    */
   getErroredFields(results) {
     let fields = {};
@@ -27,5 +27,5 @@ module.exports = {
       return fields;
     }
     return null;
-  }
+  },
 };

@@ -4,12 +4,12 @@
  * Dependencies
  */
 let multer = require('multer');
+let mimeTypesFilter = require('meanie-multer-mime-types-filter');
 let types = require('meanie-express-error-types');
 let BadRequestError = types.BadRequestError;
 let FileTooLargeError = types.FileTooLargeError;
-let mimeTypesFilter = require('../helpers/mime-types-filter');
 let errorHandler = require('../error/handler');
-let gcloud = require('../services/gcloud');
+let gcloud = require('../../services/gcloud');
 let gcs = gcloud.storage();
 
 /**
@@ -44,8 +44,8 @@ module.exports = {
       storage: multer.memoryStorage(),
       fileFilter: mimeTypesFilter(config.mimeTypes),
       limits: {
-        fileSize: config.maxFileSize
-      }
+        fileSize: config.maxFileSize,
+      },
     }).single(config.field);
 
     //Use middleware
@@ -86,8 +86,8 @@ module.exports = {
     let gcsFile = gcsBucket.file(path);
     let stream = gcsFile.createWriteStream({
       metadata: {
-        contentType
-      }
+        contentType,
+      },
     });
 
     //Handle errors
@@ -98,7 +98,7 @@ module.exports = {
     //When done, overwrite file object
     stream.on('finish', () => {
       req.file = {
-        bucket, path
+        bucket, path,
       };
       next();
     });
@@ -135,5 +135,5 @@ module.exports = {
       }
       next();
     });
-  }
+  },
 };

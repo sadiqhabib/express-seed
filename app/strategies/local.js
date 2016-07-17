@@ -5,7 +5,7 @@
  */
 let passport = require('passport');
 let LocalStrategy = require('passport-local').Strategy;
-let User = require('../../services/user');
+let User = require('../components/user/user.service');
 
 /**
  * Local strategy
@@ -14,7 +14,7 @@ module.exports = function() {
   passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
-    passReqToCallback: true
+    passReqToCallback: true,
   }, (req, email, password, cb) => {
 
     //Find user by email

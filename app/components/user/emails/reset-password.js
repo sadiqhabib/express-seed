@@ -3,17 +3,17 @@
 /**
  * Dependencies
  */
-let tokens = require('../../services/tokens');
-let Locale = require('../../services/locale');
-let mailer = require('../../services/mailer');
-let config = require('../../config');
+let jwt = require('meanie-express-jwt-service');
+let Locale = require('../../../services/locale');
+let mailer = require('../../../services/mailer');
+let config = require('../../../config');
 
 /**
  * Constants
  */
 const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
 const APP_BASE_URL = config.APP_BASE_URL;
-const TOKEN_EXPIRATION = tokens.getExpiration('resetPassword');
+const TOKEN_EXPIRATION = jwt.getExpiration('resetPassword');
 
 /**
  * Verification email helper
@@ -24,8 +24,8 @@ module.exports = function resetPassword(user) {
   let locale = new Locale(user.locale);
 
   //Generate a password reset token
-  let token = tokens.generate('resetPassword', {
-    id: user.id
+  let token = jwt.generate('resetPassword', {
+    id: user.id,
   });
 
   //Get link and number of hours link is valid
@@ -38,9 +38,9 @@ module.exports = function resetPassword(user) {
     instructions: locale.t('mail.resetPassword.instructions'),
     action: locale.t('mail.resetPassword.action'),
     validityNotice: locale.t('mail.resetPassword.validityNotice', {
-      numHours
+      numHours,
     }),
-    ignoreNotice: locale.t('mail.resetPassword.ignoreNotice')
+    ignoreNotice: locale.t('mail.resetPassword.ignoreNotice'),
   };
 
   //Load
@@ -49,6 +49,6 @@ module.exports = function resetPassword(user) {
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
       subject: locale.t('mail.resetPassword.subject'),
-      text, html
+      text, html,
     }));
 };

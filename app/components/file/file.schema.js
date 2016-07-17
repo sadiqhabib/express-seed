@@ -4,7 +4,7 @@
  * Dependencies
  */
 let Schema = require('mongoose').Schema;
-let config = require('../config');
+let config = require('../../config');
 
 /**
  * Constants
@@ -16,9 +16,9 @@ const BASE_URL = config.GCLOUD_STORAGE_BASE_URL;
  */
 let FileSchema = new Schema({
   bucket: String,
-  path: String
+  path: String,
 }, {
-  _id: false
+  _id: false,
 });
 
 /**
@@ -30,7 +30,7 @@ FileSchema.options.toJSON = {
       return BASE_URL + ret.bucket + '/' + ret.path;
     }
     return null;
-  }
+  },
 };
 
 /**

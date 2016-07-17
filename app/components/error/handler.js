@@ -12,13 +12,13 @@
 /**
  * Dependencies
  */
-const errorMiddleware = require('meanie-express-error-middleware');
-const config = require('../config');
+let errorMiddleware = require('meanie-express-error-middleware');
+let config = require('../../config');
 
 /**
  * Load error middleware stack
  */
-const stack = errorMiddleware.load(config.ERROR_MIDDLEWARE);
+let stack = errorMiddleware.load(config.ERROR_MIDDLEWARE);
 
 /**
  * Export wrapper handler

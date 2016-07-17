@@ -3,10 +3,10 @@
 /**
  * Dependencies
  */
-let tokens = require('../../services/tokens');
-let Locale = require('../../services/locale');
-let mailer = require('../../services/mailer');
-let config = require('../../config');
+let jwt = require('meanie-express-jwt-service');
+let Locale = require('../../../services/locale');
+let mailer = require('../../../services/mailer');
+let config = require('../../../config');
 
 /**
  * Constants
@@ -23,15 +23,15 @@ module.exports = function verifyEmailAddress(user) {
   let locale = new Locale(user.locale);
 
   //Generate a verify email token
-  let token = tokens.generate('verifyEmail', {
-    id: user.id
+  let token = jwt.generate('verifyEmail', {
+    id: user.id,
   });
 
   //Create data for emails
   let data = {
     link: APP_BASE_URL + '/email/verify/' + token,
     instructions: locale.t('mail.verifyEmailAddress.instructions'),
-    action: locale.t('mail.verifyEmailAddress.action')
+    action: locale.t('mail.verifyEmailAddress.action'),
   };
 
   //Load
@@ -40,6 +40,6 @@ module.exports = function verifyEmailAddress(user) {
       to: user.email,
       from: EMAIL_IDENTITY_NOREPLY,
       subject: locale.t('mail.verifyEmailAddress.subject'),
-      text, html
+      text, html,
     }));
 };

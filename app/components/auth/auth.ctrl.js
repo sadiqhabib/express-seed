@@ -5,19 +5,11 @@
  */
 let passport = require('passport');
 let moment = require('moment');
+let jwt = require('meanie-express-jwt-service');
 let types = require('meanie-express-error-types');
 let NotAuthenticatedError = types.NotAuthenticatedError;
 let NotAuthorizedError = types.NotAuthorizedError;
 let UserSuspendedError = types.UserSuspendedError;
-let tokens = require('../services/tokens');
-let config = require('../config');
-
-/**
- * Constants
- */
-const REFRESH_TOKEN_COOKIE_MAX_AGE = config.REFRESH_TOKEN_COOKIE_MAX_AGE;
-const REFRESH_TOKEN_COOKIE_SECURE = config.REFRESH_TOKEN_COOKIE_SECURE;
-const SECURE_STATUS_EXPIRATION = config.SECURE_STATUS_EXPIRATION;
 
 /**
  * To camel case
@@ -59,8 +51,9 @@ module.exports = {
    * Forget a user
    */
   forget(req, res) {
+    const COOKIE_SECURE = req.app.locals.REFRESH_TOKEN_COOKIE_SECURE;
     res.clearCookie('refreshToken', {
-      secure: REFRESH_TOKEN_COOKIE_SECURE,
+      secure: COOKIE_SECURE,
       httpOnly: true,
     });
     res.end();
@@ -107,20 +100,27 @@ module.exports = {
 
       //Requesting secure status?
       if (secureStatus && grantType === 'password') {
+        const EXPIRATION = req.app.locals.SECURE_STATUS_EXPIRATION;
         claims.secureStatus = moment()
-          .add(SECURE_STATUS_EXPIRATION, 'seconds')
+          .add(EXPIRATION, 'seconds')
           .toJSON();
       }
 
       //Generate access token
-      let accessToken = tokens.generate('access', claims);
+      let accessToken = jwt.generate('access', claims);
 
       //Generate refresh token if we want to be remembered
       if (remember) {
-        let refreshToken = tokens.generate('refresh', user.getClaims());
+
+        //Get locals
+        const COOKIE_MAX_AGE = req.app.locals.REFRESH_TOKEN_COOKIE_MAX_AGE;
+        const COOKIE_SECURE = req.app.locals.REFRESH_TOKEN_COOKIE_SECURE;
+
+        //Create refresh token and set cookie
+        let refreshToken = jwt.generate('refresh', user.getClaims());
         res.cookie('refreshToken', refreshToken, {
-          maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE * 1000, //in ms
-          secure: REFRESH_TOKEN_COOKIE_SECURE,
+          maxAge: COOKIE_MAX_AGE * 1000, //in ms
+          secure: COOKIE_SECURE,
           httpOnly: true,
         });
       }

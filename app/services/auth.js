@@ -18,7 +18,7 @@ module.exports = function(app) {
 
   //Load authentication strategies
   console.log('Loading authentication strategies...');
-  glob.sync('./app/auth/strategies/**/*.js')
+  glob.sync('./app/strategies/**/*.js')
     .forEach(strategyPath => {
       console.log(chalk.grey(' - %s'), strategyPath.replace('./app/', ''));
       require(path.resolve(strategyPath))();

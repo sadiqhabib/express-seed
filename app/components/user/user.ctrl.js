@@ -4,13 +4,13 @@
  * Dependencies
  */
 let mongoose = require('mongoose');
+let jwt = require('meanie-express-jwt-service');
 let types = require('meanie-express-error-types');
 let NotFoundError = types.NotFoundError;
 let BadRequestError = types.BadRequestError;
 let InvalidTokenError = types.InvalidTokenError;
 let errorHandler = require('../error/handler');
-let tokens = require('../services/tokens');
-let mailer = require('../services/mailer');
+let mailer = require('../../services/mailer');
 
 /**
  * Emails
@@ -57,7 +57,7 @@ module.exports = {
 
         //Generate access token for immediate login
         let json = user.toJSON();
-        json.accessToken = tokens.generate('access', user.getClaims());
+        json.accessToken = jwt.generate('access', user.getClaims());
         return json;
       })
       .then(user => {
@@ -161,8 +161,8 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    tokens.validate('resetPassword', token)
-      .then(tokens.getId)
+    jwt.validate('resetPassword', token)
+      .then(jwt.getId)
       .then(id => User.findById(id))
       .then(user => {
 
@@ -209,18 +209,14 @@ module.exports = {
     let token = req.body.token;
 
     //Validate token
-    tokens.validate('verifyEmail', token)
-      .then(tokens.getId)
+    jwt.validate('verifyEmail', token)
+      .then(jwt.getId)
       .then(id => User.findOneAndUpdate({
-        _id: id
+        _id: id,
       }, {
-        isEmailVerified: true
+        isEmailVerified: true,
       }))
-      .then(() => {
-        res.json({
-          isValid: true
-        });
-      })
+      .then(() => res.json({isValid: true}))
       .catch(next);
   },
 
@@ -262,7 +258,7 @@ module.exports = {
 
     //Find by email
     User.findOne({
-      email: req.body.email
+      email: req.body.email,
     }).then(user => {
       req.user = user;
       next();
@@ -280,7 +276,7 @@ module.exports = {
 
     //Prepare data object
     req.data = {
-      firstName, lastName, email, phone, address
+      firstName, lastName, email, phone, address,
     };
 
     //Password is only appended when creating a new user. For editing, we
@@ -291,5 +287,5 @@ module.exports = {
 
     //Next middleware
     next();
-  }
+  },
 };
