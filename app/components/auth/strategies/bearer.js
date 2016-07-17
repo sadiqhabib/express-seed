@@ -4,24 +4,17 @@
  * Dependencies
  */
 let passport = require('passport');
-let RefreshStrategy = require('meanie-passport-refresh-strategy');
+let BearerStrategy = require('passport-http-bearer').Strategy;
 let jwt = require('meanie-express-jwt-service');
 let InvalidTokenError = jwt.InvalidTokenError;
-let User = require('../components/user/user.service');
+let User = require('../../user/user.service');
 
 /**
- * Refresh token strategy
+ * Bearer strategy
  */
 module.exports = function() {
-  passport.use(new RefreshStrategy((refreshToken, cb) => {
-
-    //No refresh token?
-    if (!refreshToken) {
-      return cb(null, false);
-    }
-
-    //Validate token
-    jwt.validate('refresh', refreshToken)
+  passport.use(new BearerStrategy((accessToken, cb) => {
+    jwt.validate('access', accessToken)
       .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {

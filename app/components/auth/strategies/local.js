@@ -5,7 +5,7 @@
  */
 let passport = require('passport');
 let LocalStrategy = require('passport-local').Strategy;
-let User = require('../components/user/user.service');
+let User = require('../../user/user.service');
 
 /**
  * Local strategy
