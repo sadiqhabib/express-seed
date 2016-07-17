@@ -55,7 +55,7 @@ module.exports = function(app, options) {
   options = Object.assign({
     user: DB_USER,
     pass: DB_PASS,
-    debug: DB_DEBUG
+    debug: DB_DEBUG,
   }, options);
 
   //Set debugging on or off

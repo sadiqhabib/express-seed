@@ -16,6 +16,6 @@ module.exports = [
     password: 'test123',
     isSuspended: false,
     isEmailVerified: true,
-    roles: ['user', 'admin']
-  }
+    roles: ['user', 'admin'],
+  },
 ];

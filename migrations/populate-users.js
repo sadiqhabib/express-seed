@@ -26,8 +26,8 @@ module.exports = {
     let emails = users.map((user) => user.email);
     return User.remove({
       email: {
-        $in: emails
-      }
+        $in: emails,
+      },
     });
-  }
+  },
 };

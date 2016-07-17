@@ -15,9 +15,9 @@ let AddressSchema = new Schema({
   suburb: String,
   postalCode: String,
   city: String,
-  country: String
+  country: String,
 }, {
-  _id: false
+  _id: false,
 });
 
 /**

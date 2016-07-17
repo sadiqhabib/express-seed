@@ -22,5 +22,5 @@ module.exports = {
 
     //Use express error middleware to handle it
     next(error);
-  }
+  },
 };

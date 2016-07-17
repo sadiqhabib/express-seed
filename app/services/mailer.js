@@ -141,7 +141,7 @@ module.exports = {
     //Return promise
     return Promise.all([
       readFile(text, 'utf8'),
-      readFile(html, 'utf8')
+      readFile(html, 'utf8'),
     ]).then(result => result.map(contents => replaceData(contents, data)));
   },
 
@@ -170,7 +170,7 @@ module.exports = {
     //Get and send the mail
     let mail = getMail(data);
     return sendMail(mail);
-  }
+  },
 };
 
 /**

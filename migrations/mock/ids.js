@@ -11,5 +11,5 @@ let ObjectId = require('mongoose').Types.ObjectId;
 module.exports = {
 
   //Users
-  USER_ADMIN: new ObjectId('111aee3e4527879d33c7b41a')
+  USER_ADMIN: new ObjectId('111aee3e4527879d33c7b41a'),
 };

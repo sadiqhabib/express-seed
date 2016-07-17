@@ -64,5 +64,5 @@ let UserService = module.exports = {
    */
   findByEmail(email) {
     return User.findOne({email});
-  }
+  },
 };

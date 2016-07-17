@@ -22,7 +22,7 @@ module.exports = {
   //CORS origins
   CORS_ORIGINS: [
     /localhost\:8080/,
-    /192\.168\.1\.[0-9]+/
+    /192\.168\.1\.[0-9]+/,
   ],
 
   //Server
@@ -54,7 +54,7 @@ module.exports = {
 
   //Error handling middleware
   ERROR_MIDDLEWARE: [
-    'normalize', 'log-to-console'
+    'normalize', 'log-to-console',
   ],
 
   //Internationalization
@@ -76,20 +76,20 @@ module.exports = {
   TOKEN_TYPES: {
     access: {
       secret: 'test',
-      expiration: 3600
+      expiration: 3600,
     },
     refresh: {
       secret: 'test',
-      expiration: 30 * 24 * 3600
+      expiration: 30 * 24 * 3600,
     },
     verifyEmail: {
       secret: 'test',
-      expiration: 48 * 3600
+      expiration: 48 * 3600,
     },
     resetPassword: {
       secret: 'test',
-      expiration: 24 * 3600
-    }
+      expiration: 24 * 3600,
+    },
   },
 
   //Sendgrid
@@ -100,5 +100,5 @@ module.exports = {
 
   //User
   USER_PASSWORD_MIN_LENGTH: 6,
-  USER_AVATAR_MAX_FILE_SIZE: 512 * 1024 //bytes
+  USER_AVATAR_MAX_FILE_SIZE: 512 * 1024, //bytes
 };
