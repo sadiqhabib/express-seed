@@ -122,9 +122,7 @@ module.exports = {
   exists(req, res, next) {
     User.find(req.body).limit(1)
       .then(users => (users.length > 0))
-      .then(exists => {
-        res.json({exists: exists});
-      })
+      .then(exists => res.json({exists}))
       .catch(next);
   },
 
@@ -138,7 +136,7 @@ module.exports = {
     if (!req.me) {
       return setTimeout(() => {
         res.end();
-      }, 1000);
+      }, 1234);
     }
 
     //Get user
