@@ -13,6 +13,7 @@ module.exports = function(app) {
   //Get controllers and middleware
   let userCtrl = require('./user.ctrl');
   let avatarCtrl = require('./avatar.ctrl');
+  let fileCtrl = require('../file/file.ctrl');
   let ensureAuthenticated = require('../auth/auth.ctrl').ensureAuthenticated;
 
   //Create new router
@@ -89,25 +90,24 @@ module.exports = function(app) {
     userCtrl.changePassword
   );
 
-  //Upload an avatar
+  //Upload new avatar
   router.post(
-    '/avatar',
+    '/:userId/avatar',
     ensureAuthenticated,
-    avatarCtrl.upload,
+    avatarCtrl.configure,
+    fileCtrl.deleteFromCloud,
+    fileCtrl.upload,
+    fileCtrl.streamToCloud,
     avatarCtrl.save
   );
 
-  //Delete an avatar
+  //Delete avatar
   router.delete(
-    '/avatar',
+    '/:userId/avatar',
     ensureAuthenticated,
+    avatarCtrl.configure,
+    fileCtrl.deleteFromCloud,
     avatarCtrl.delete
-  );
-
-  //Get a user's avatar stream
-  router.get(
-    '/:userId/avatar.*',
-    avatarCtrl.stream
   );
 
   //Register router
