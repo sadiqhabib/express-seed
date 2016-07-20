@@ -45,6 +45,7 @@ module.exports = {
   GCLOUD_BUCKET_CONTENT: '',
   GCLOUD_LOG_PATH: '',
   GCLOUD_LOG_FILE: '',
+  GCLOUD_TEST_FILES: [],
 
   //Github
   GITHUB_USER: '',

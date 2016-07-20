@@ -123,6 +123,15 @@ module.exports = {
       return next();
     }
 
+    //Get test files
+    const TEST_FILES = req.app.locals.GCLOUD_TEST_FILES;
+
+    //Don't delete test files
+    if (TEST_FILES && TEST_FILES.indexOf(data.path) !== -1) {
+      console.warn('Not deleting test file ', data.path, 'from cloud storage');
+      return next();
+    }
+
     //Get GCS bucket and file
     let gcsBucket = gcs.bucket(data.bucket);
     let gcsFile = gcsBucket.file(data.path);
