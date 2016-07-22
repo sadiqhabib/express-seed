@@ -77,6 +77,11 @@ module.exports = {
 
     //Get uploaded file and path for bucket
     let file = req.file;
+    if (!file) {
+      return next(new BadRequestError('No file'));
+    }
+
+    //Get data
     let contentType = file.mimetype;
     let path = gcsPath(folder, name, contentType, timestamp);
 
