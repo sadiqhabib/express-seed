@@ -9,7 +9,6 @@ let errors = require('meanie-express-error-handling');
 let BadRequestError = errors.BadRequestError;
 let FileTooLargeError = errors.FileTooLargeError;
 let gcloud = require('../../services/gcloud');
-let gcs = gcloud.storage();
 
 /**
  * Helper to generate a path for a GCS file
@@ -86,6 +85,7 @@ module.exports = {
     let path = gcsPath(folder, name, contentType, timestamp);
 
     //Prepare file and stream
+    let gcs = gcloud.storage();
     let gcsBucket = gcs.bucket(bucket);
     let gcsFile = gcsBucket.file(path);
     let stream = gcsFile.createWriteStream({
@@ -138,6 +138,7 @@ module.exports = {
     }
 
     //Get GCS bucket and file
+    let gcs = gcloud.storage();
     let gcsBucket = gcs.bucket(data.bucket);
     let gcsFile = gcsBucket.file(data.path);
 
