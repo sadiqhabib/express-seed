@@ -11,7 +11,8 @@ let ids = require('./ids');
 module.exports = [
   {
     _id: ids.USER_ADMIN,
-    name: 'Admin',
+    firstName: 'Admin',
+    lastName: 'User',
     email: 'admin@my-application.com',
     password: 'test123',
     isSuspended: false,
