@@ -135,8 +135,8 @@ module.exports = {
   load(email, data) {
 
     //Get filenames
-    let text = path.resolve('./app/' + email + '.txt');
-    let html = path.resolve('./app/' + email + '.html');
+    let text = path.resolve('./app/components/' + email + '.txt');
+    let html = path.resolve('./app/components/' + email + '.html');
 
     //Return promise
     return Promise.all([
