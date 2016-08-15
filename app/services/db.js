@@ -3,11 +3,11 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let glob = require('glob');
-let chalk = require('chalk');
-let mongoose = require('mongoose');
-let config = require('../config');
+const path = require('path');
+const glob = require('glob');
+const chalk = require('chalk');
+const mongoose = require('mongoose');
+const config = require('../config');
 
 /**
  * Configure mongoose
@@ -19,6 +19,7 @@ mongoose.plugin(require('meanie-mongoose-set-properties'));
 /**
  * Settings
  */
+const ENV = config.ENV;
 const DB_URI = config.DB_URI;
 const DB_USER = config.DB_USER;
 const DB_PASS = config.DB_PASS;
@@ -57,6 +58,9 @@ module.exports = function(app, options) {
     user: DB_USER,
     pass: DB_PASS,
     debug: DB_DEBUG,
+    config: {
+      autoIndex: (ENV === 'dev'),
+    },
   }, options);
 
   //Set debugging on or off
