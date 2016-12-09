@@ -3,56 +3,70 @@
 /**
  * Dependencies
  */
-let express = require('express');
+const express = require('express');
+const userCtrl = require('./user.ctrl');
+const avatarCtrl = require('./avatar.ctrl');
+const fileCtrl = require('../file/file.ctrl');
+const authCtrl = require('../auth/auth.ctrl');
 
 /**
  * User routes
  */
 module.exports = function(app) {
 
-  //Get controllers and middleware
-  let userCtrl = require('./user.ctrl');
-  let avatarCtrl = require('./avatar.ctrl');
-  let fileCtrl = require('../file/file.ctrl');
-  let ensureAuthenticated = require('../auth/auth.ctrl').ensureAuthenticated;
+  //Extract middleware
+  const {ensureAuthenticated} = authCtrl;
 
   //Create new router
-  let router = express.Router();
+  const router = express.Router();
 
   //Parameter handling
-  router.param('userId', userCtrl.findById);
+  router.param('property', userCtrl.setProperty);
 
-  //Create user
+  //Register user
   router.post(
     '/',
+    userCtrl.ensureUsernameNotInUse,
     userCtrl.collectData,
-    userCtrl.create
+    userCtrl.create,
+    userCtrl.get
   );
 
-  //Edit logged in user
+  //Update logged in user
   router.put(
     '/',
-    ensureAuthenticated,
+    ensureAuthenticated(),
     userCtrl.collectData,
-    userCtrl.update
+    userCtrl.update,
+    userCtrl.get
+  );
+
+  //Change credentials
+  router.patch(
+    '/credentials',
+    ensureAuthenticated(),
+    userCtrl.ensureUsernameNotInUse,
+    userCtrl.changeCredentials
+  );
+
+  //Patch logged in user
+  router.patch(
+    '/:property',
+    ensureAuthenticated(),
+    userCtrl.collectData,
+    userCtrl.patch
   );
 
   //Get logged in user data
   router.get(
     '/me',
-    ensureAuthenticated,
-    userCtrl.me
-  );
-
-  //Change password
-  router.post(
-    '/changePassword',
-    ensureAuthenticated,
-    userCtrl.changePassword
+    ensureAuthenticated(),
+    userCtrl.me,
+    userCtrl.get
   );
 
   //Check if a user exists
-  router.post(
+  router.get(
     '/exists',
     userCtrl.exists
   );
@@ -60,40 +74,69 @@ module.exports = function(app) {
   //Verify an email address verification token
   router.post(
     '/verifyEmail',
+    function(req, res, next) {
+      req.tokenType = 'verifyEmail';
+      next();
+    },
+    userCtrl.findByToken,
     userCtrl.verifyEmail
   );
 
   //Send out an email address verification token
   router.get(
     '/verifyEmail',
-    ensureAuthenticated,
+    ensureAuthenticated(),
     userCtrl.sendVerificationEmail
   );
 
-  //Sent out a password reset email
+  //Send out a password reset email
   router.post(
     '/forgotPassword',
-    userCtrl.findByEmail,
+    userCtrl.findByUsername,
     userCtrl.sendPasswordResetEmail
+  );
+
+  //Send out an email with username
+  router.post(
+    '/forgotUsername',
+    userCtrl.findByEmail,
+    userCtrl.sendUsernamesEmail
+  );
+
+  //Check user for reset password
+  router.get(
+    '/checkResetPassword',
+    function(req, res, next) {
+      req.tokenType = 'resetPassword';
+      next();
+    },
+    userCtrl.findByToken,
+    userCtrl.get
   );
 
   //Reset a user's password
   router.post(
     '/resetPassword',
+    function(req, res, next) {
+      req.tokenType = 'resetPassword';
+      next();
+    },
+    userCtrl.findByToken,
     userCtrl.resetPassword
   );
 
-  //Change a user's password
+  //Change a user's credentials
   router.post(
-    '/changePassword',
-    ensureAuthenticated,
-    userCtrl.changePassword
+    '/changeCredentials',
+    ensureAuthenticated(),
+    userCtrl.changeCredentials
   );
 
-  //Upload new avatar
+  //Upload an avatar
   router.post(
-    '/:userId/avatar',
-    ensureAuthenticated,
+    '/avatar',
+    ensureAuthenticated(),
+    userCtrl.setUser,
     avatarCtrl.configure,
     fileCtrl.deleteFromCloud,
     fileCtrl.upload,
@@ -101,10 +144,11 @@ module.exports = function(app) {
     avatarCtrl.save
   );
 
-  //Delete avatar
+  //Delete an avatar
   router.delete(
-    '/:userId/avatar',
-    ensureAuthenticated,
+    '/avatar',
+    ensureAuthenticated(),
+    userCtrl.setUser,
     avatarCtrl.configure,
     fileCtrl.deleteFromCloud,
     avatarCtrl.delete

@@ -3,17 +3,14 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let chalk = require('chalk');
-let log = require('./log');
+const chalk = require('chalk');
+const log = require('./log');
 
 /**
  * Helpers to output status messages
  */
 function statusStart(message, file) {
-  process.stdout.write(chalk.grey(
-    message + ' ' + path.basename(file) + '... '
-  ));
+  process.stdout.write(chalk.grey(message + ' ' + file + '... '));
 }
 function statusOk() {
   process.stdout.write(chalk.green('OK\n'));
@@ -21,12 +18,6 @@ function statusOk() {
 function statusError(error) {
   process.stdout.write(chalk.red('ERROR\n'));
   log.error(error);
-}
-function statusSkip(reason) {
-  process.stdout.write(chalk.yellow('SKIP\n'));
-  if (reason) {
-    console.log(chalk.yellow(reason));
-  }
 }
 
 /**
@@ -36,5 +27,4 @@ module.exports = {
   start: statusStart,
   ok: statusOk,
   error: statusError,
-  skip: statusSkip,
 };

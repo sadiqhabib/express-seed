@@ -3,11 +3,11 @@
 /**
  * Dependencies
  */
-let passport = require('passport');
-let RefreshStrategy = require('meanie-passport-refresh-strategy');
-let jwt = require('meanie-express-jwt-service');
-let InvalidTokenError = jwt.InvalidTokenError;
-let User = require('../../user/user.service');
+const passport = require('passport');
+const RefreshStrategy = require('meanie-passport-refresh-strategy');
+const jwt = require('meanie-express-jwt-service');
+const InvalidTokenError = jwt.InvalidTokenError;
+const User = require('../../user/user.service');
 
 /**
  * Refresh token strategy

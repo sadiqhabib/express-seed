@@ -3,29 +3,30 @@
 /**
  * Dependencies
  */
-let mongoose = require('mongoose');
-let Promise = require('bluebird');
-let bcrypt = require('bcryptjs');
-let Schema = mongoose.Schema;
-let config = require('../../config');
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const errors = require('meanie-express-error-handling');
+const Schema = mongoose.Schema;
+const ValidationError = errors.ValidationError;
+const config = require('../../config');
+const roles = require('../../constants/roles');
 
 /**
  * Schemas
  */
-let AddressSchema = require('./address.schema');
-let FileSchema = require('../file/file.schema');
+const AddressSchema = require('./address.schema');
+const FileSchema = require('../file/file.schema');
 
 /**
  * Configuration
  */
 const DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
 const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
-const PASSWORD_MIN_LENGTH = config.USER_PASSWORD_MIN_LENGTH;
 
 /**
  * User schema
  */
-let UserSchema = new Schema({
+const UserSchema = new Schema({
 
   //Personal details
   firstName: {
@@ -38,6 +39,9 @@ let UserSchema = new Schema({
     required: true,
     trim: true,
   },
+  fullName: {
+    type: String,
+  },
   avatar: FileSchema,
   locale: {
     type: String,
@@ -48,32 +52,30 @@ let UserSchema = new Schema({
   email: {
     type: String,
     trim: true,
-    required: true,
-    unique: true,
   },
   phone: {
     type: String,
+    trim: true,
   },
   address: AddressSchema,
 
   //Security
+  username: {
+    type: String,
+    trim: true,
+  },
   password: {
     type: String,
-    required: true,
     trim: true,
   },
   roles: {
     type: [{
       type: String,
-      enum: ['user', 'admin'],
+      enum: Object.values(roles),
     }],
-    default: ['user'],
+    default: [roles.USER],
   },
   isSuspended: {
-    type: Boolean,
-    default: false,
-  },
-  isPending: {
     type: Boolean,
     default: false,
   },
@@ -81,64 +83,165 @@ let UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  usedTokens: [String],
+  lastActive: {
+    type: Date,
+  },
 });
 
+//Index for logging in, looking up users and finding existing usernames
+UserSchema.index({username: 1}, {unique: true});
+
 /**
- * Pre save hook to hash passwords
+ * Data pre-parser
+ */
+UserSchema.statics.parseData = function(data) {
+  return data;
+};
+
+/**
+ * Name cleaner
+ */
+UserSchema.statics.cleanName = function(name) {
+  return name
+    .replace(/\'/g, '’')
+    .replace(/—/g, '-')
+    .replace(/[\\\/]/g, '');
+};
+
+/**
+ * Helper to create full name
+ */
+UserSchema.statics.createFullName = function(firstName, lastName) {
+  return String(firstName + ' ' + lastName).trim();
+};
+
+/**
+ * Generate a unique username based on user data
+ */
+UserSchema.statics.uniqueUsername = function(data) {
+
+  //Extract data
+  const {email, firstName, lastName} = data;
+  const name = String(firstName + lastName).toLowerCase();
+
+  //Random number generator 1-100
+  function random() {
+    return String(Math.floor(Math.random() * 100) + 1);
+  }
+
+  //Possible usernames
+  const usernames = [
+    name,
+    name + random(),
+    name + random(),
+    name + random(),
+    name + random(),
+    name + random(),
+  ];
+
+  //Email first
+  if (email) {
+    usernames.unshift(email.toLowerCase());
+  }
+
+  //Find existing users
+  return this
+    .find({username: {$in: usernames}})
+    .select('username')
+    .then(users => {
+
+      //Find first one that didn't exist
+      const username = usernames.find(username => {
+        return !users.some(user => user.username === username);
+      });
+
+      //Still nothing found? Give up
+      if (!username) {
+        throw new Error('Unable to find unique username for user');
+      }
+
+      //Return username
+      return username;
+    });
+};
+
+/**
+ * Clean up names
  */
 UserSchema.pre('save', function(next) {
 
-  //Check if email address modified
-  if (this.isModified('email')) {
-    this.isEmailVerified = false;
+  //Clean up names
+  if (this.isModified('firstName')) {
+    this.firstName = this.constructor.cleanName(this.firstName);
+  }
+  if (this.isModified('lastName')) {
+    this.lastName = this.constructor.cleanName(this.lastName);
   }
 
-  //Check if password modified and present
+  //Create full name
+  if (this.isModified('firstName') || this.isModified('lastName')) {
+    this.fullName = this.constructor
+      .createFullName(this.firstName, this.lastName);
+  }
+
+  //Next middleware
+  next();
+});
+
+/**
+ * Hash password
+ */
+UserSchema.pre('save', function(next) {
+
+  //Check if password modified
   if (!this.isModified('password')) {
     return next();
   }
 
   //Validate password
-  if (!this.password || this.password.length < PASSWORD_MIN_LENGTH) {
-    return next('Invalid password');
-    //TODO use proper error format for validation errors
+  if (!this.password) {
+    return next(new ValidationError({
+      fields: {
+        password: {
+          type: 'required',
+        },
+      },
+    }));
   }
 
-  //Get self
-  let self = this;
-
   //Generate salt
-  bcrypt.genSalt(BCRYPT_ROUNDS, function(error, salt) {
-    if (error) {
-      return next(error);
-    }
+  bcrypt
+    .genSalt(BCRYPT_ROUNDS)
+    .then(salt => bcrypt.hash(this.password, salt))
+    .then(hash => {
+      this.password = hash;
+    })
+    .then(next)
+    .catch(next);
+});
 
-    //Hash password
-    bcrypt.hash(self.password, salt, function(error, hash) {
-      if (error) {
-        return next(error);
-      }
-
-      //Set hashed password
-      self.password = hash;
-      next();
-    });
-  });
+/**
+ * Email with name
+ */
+UserSchema.virtual('emailWithName').get(function() {
+  if (!this.email) {
+    return '';
+  }
+  if (this.fullName) {
+    return this.fullName + ' <' + this.email + '>';
+  }
+  else if (this.firstName || this.lastName) {
+    return String(this.firstName + ' ' + this.lastName).trim() +
+      ' <' + this.email + '>';
+  }
+  return this.email;
 });
 
 /**
  * Password validation helper
  */
 UserSchema.methods.comparePassword = function(candidatePassword) {
-  return new Promise((resolve, reject) => {
-    bcrypt.compare(candidatePassword, this.password, function(error, isMatch) {
-      if (error) {
-        return reject(error);
-      }
-      resolve(isMatch);
-    });
-  });
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 /**
@@ -175,7 +278,9 @@ UserSchema.options.toJSON = {
 
     //Delete sensitive data
     delete ret.password;
-    delete ret.usedTokens;
+
+    //Delete unnecessary data
+    delete ret.fullName;
   },
 };
 

@@ -3,25 +3,26 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let i18n = require('i18n');
-let cors = require('cors');
-let morgan = require('morgan');
-let express = require('express');
-let bodyParser = require('body-parser');
-let compression = require('compression');
-let serveStatic = require('serve-static');
-let cookieParser = require('cookie-parser');
-let errors = require('meanie-express-error-handling');
-let jwt = require('meanie-express-jwt-service');
-let router = require('./services/router');
-let db = require('./services/db');
-let auth = require('./services/auth');
-let config = require('./config');
+const i18n = require('i18n');
+const cors = require('cors');
+const morgan = require('morgan');
+const express = require('express');
+const bodyParser = require('body-parser');
+const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const errors = require('meanie-express-error-handling');
+const raven = require('meanie-express-raven-service');
+const jwt = require('meanie-express-jwt-service');
+const router = require('./services/router');
+const db = require('./services/db');
+const auth = require('./services/auth');
+const config = require('./config');
 
 /**
  * Configuration
  */
+const ENV = config.ENV;
+const APP_VERSION = config.APP_VERSION;
 const CORS_ORIGINS = config.CORS_ORIGINS;
 const I18N_LOCALES = config.I18N_LOCALES;
 const I18N_DEFAULT_LOCALE = config.I18N_DEFAULT_LOCALE;
@@ -31,7 +32,19 @@ const TOKEN_DEFAULT_AUDIENCE = config.TOKEN_DEFAULT_AUDIENCE;
 const SERVER_LATENCY = config.SERVER_LATENCY;
 const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
 const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
+const SENTRY_DSN = config.SENTRY_DSN;
+const SENTRY_CONFIG = config.SENTRY_CONFIG;
 const ERROR_MIDDLEWARE = config.ERROR_MIDDLEWARE;
+
+//Increase stack trace limit for non production environments
+if (ENV !== 'production') {
+  Error.stackTraceLimit = Infinity;
+}
+
+//Use sentry
+if (SENTRY_DSN) {
+  raven(SENTRY_DSN, SENTRY_CONFIG);
+}
 
 //Configure i18n
 i18n.configure({
@@ -96,10 +109,6 @@ module.exports = function() {
   //Use i18n
   app.use(i18n.init);
 
-  //Set static folders
-  app.use(serveStatic(path.resolve('./public')));
-  app.use(serveStatic(path.resolve('./data')));
-
   //Simulate latency
   if (SERVER_LATENCY) {
     let latency = require('express-simulate-latency')({
@@ -112,12 +121,18 @@ module.exports = function() {
   //Load authentication
   auth(app);
 
+  //Set global headers
+  app.all('/*', (req, res, next) => {
+    res.header('X-Version', APP_VERSION);
+    next();
+  });
+
   //Load router
   router(app);
 
   //Create error handling middleware stack
   errors
-    .middleware(ERROR_MIDDLEWARE.concat(['auth-clear-cookie', 'send']))
+    .middleware(ERROR_MIDDLEWARE.concat(['send']))
     .forEach(handler => app.use(handler));
 
   //Return express server instance

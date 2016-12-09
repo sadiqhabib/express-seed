@@ -1,0 +1,7 @@
+{{app.title}}
+
+{{partial}}
+
+You are receiving this email because you are a user of {{app.title}}. To update your contact details or email preferences, please sign in to {{app.title}} via {{app.url}}. As this is an automated email you cannot reply to it directly.
+
+Copyright © {{moment now 'YYYY'}} — {{app.title}}, v{{app.version}}

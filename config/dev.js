@@ -3,7 +3,7 @@
 /**
  * Get package info and server port
  */
-let pkg = require('../package.json');
+const pkg = require('../package.json');
 
 /**
  * Environment configuration (dev)
@@ -27,7 +27,6 @@ module.exports = {
 
   //Server
   SERVER_PORT: process.env.PORT || 8081,
-  SERVER_HTTPS: false,
   SERVER_LATENCY: true,
   SERVER_LATENCY_MIN: 500,
   SERVER_LATENCY_MAX: 1000,
@@ -43,14 +42,7 @@ module.exports = {
   GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',
   GCLOUD_PROJECT_ID: '',
   GCLOUD_BUCKET_CONTENT: '',
-  GCLOUD_LOG_PATH: '',
-  GCLOUD_LOG_FILE: '',
   GCLOUD_TEST_FILES: [],
-
-  //Github
-  GITHUB_USER: '',
-  GITHUB_REPO: '',
-  GITHUB_TOKEN: '',
 
   //Error handling middleware
   ERROR_MIDDLEWARE: [

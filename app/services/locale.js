@@ -3,12 +3,12 @@
 /**
  * Dependencies
  */
-let i18n = require('i18n');
+const i18n = require('i18n');
 
 /**
  * Create locale bound locale/translation service
  */
-let Locale = function(locale) {
+const Locale = function(locale) {
 
   //Set locale
   this.locale = locale;

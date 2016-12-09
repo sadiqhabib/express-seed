@@ -3,11 +3,11 @@
 /**
  * Dependencies
  */
-let passport = require('passport');
-let BearerStrategy = require('passport-http-bearer').Strategy;
-let jwt = require('meanie-express-jwt-service');
-let InvalidTokenError = jwt.InvalidTokenError;
-let User = require('../../user/user.service');
+const passport = require('passport');
+const BearerStrategy = require('passport-http-bearer').Strategy;
+const jwt = require('meanie-express-jwt-service');
+const InvalidTokenError = jwt.InvalidTokenError;
+const User = require('../../user/user.service');
 
 /**
  * Bearer strategy

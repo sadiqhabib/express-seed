@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let chalk = require('chalk');
-let ValidationError = require('mongoose').Error.ValidationError;
+const chalk = require('chalk');
+const ValidationError = require('mongoose').Error.ValidationError;
 
 /**
  * Helper to log an error
@@ -55,5 +55,4 @@ function logSuccess(message) {
 module.exports = {
   success: logSuccess,
   error: logError,
-  validationError: logValidationError,
 };

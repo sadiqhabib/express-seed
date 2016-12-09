@@ -1,35 +1,37 @@
 'use strict';
 
 /**
- * Swatch controller
+ * Avatar controller
  */
 module.exports = {
 
   /**
-   * Upload image
+   * Save avatar
    */
   save(req, res, next) {
 
-    //Get user
-    let user = req.me;
-    let file = req.file;
+    //Get user and uploaded file
+    const user = req.user;
+    const file = req.file;
 
     //Save file data
     user.avatar = file;
 
-    //Save
+    //Save user
     user.save()
-      .then(user => res.json({avatar: user.avatar.toJSON()}))
+      .then(user => user.avatar)
+      .then(avatar => avatar.toJSON())
+      .then(avatar => res.json({avatar}))
       .catch(next);
   },
 
   /**
-   * Delete image
+   * Delete avatar
    */
   delete(req, res, next) {
 
-    //Get user and clear avatar data
-    let user = req.me;
+    //Get user and remove file data
+    const user = req.user;
     user.avatar = null;
 
     //Save
@@ -47,13 +49,13 @@ module.exports = {
    */
   configure(req, res, next) {
 
-    //Get config
+    //Get user
+    let user = req.user;
+
+    //Get configuration
     const BUCKET = req.app.locals.GCLOUD_BUCKET_CONTENT;
     const MAX_FILE_SIZE = req.app.locals.USER_AVATAR_MAX_FILE_SIZE;
-    const MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
-
-    //Get user
-    let user = req.me;
+    const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 
     //Configure file handling
     req.fileConfig = {
@@ -61,7 +63,7 @@ module.exports = {
       bucket: BUCKET,
       field: 'avatar',
       folder: 'avatars',
-      name: user.id,
+      name: user._id.toString(),
       timestamp: true,
       maxFileSize: MAX_FILE_SIZE,
       mimeTypes: MIME_TYPES,

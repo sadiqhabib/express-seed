@@ -33,13 +33,6 @@ mongoose.isObjectId = function(id) {
 };
 
 /**
- * Add string to object ID method
- */
-String.prototype.toObjectId = function() {
-  return new mongoose.Types.ObjectId(this.toString());
-};
-
-/**
  * Error handler
  */
 function dbErrorHandler(err) {

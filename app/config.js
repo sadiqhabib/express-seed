@@ -3,9 +3,9 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let chalk = require('chalk');
-let argv = require('yargs').argv;
+const path = require('path');
+const chalk = require('chalk');
+const argv = require('yargs').argv;
 
 /**
  * Determine environment and paths
@@ -17,9 +17,9 @@ const CONFIG_PATH = path.join(BASE_PATH, 'config');
 /**
  * Load and merge environment configuration files
  */
-let envCfg = loadConfig(ENV);
-let localCfg = loadConfig('local');
-let mergedCfg = Object.assign(envCfg, localCfg, {ENV});
+const envCfg = loadConfig(ENV);
+const localCfg = loadConfig('local');
+const mergedCfg = Object.assign(envCfg, localCfg, {ENV});
 
 /**
  * Export merged config

@@ -3,7 +3,8 @@
 /**
  * Dependencies
  */
-let ids = require('./ids');
+const ids = require('./ids');
+const roles = require('../../../app/constants/roles');
 
 /**
  * Users
@@ -17,6 +18,6 @@ module.exports = [
     password: 'test123',
     isSuspended: false,
     isEmailVerified: true,
-    roles: ['user', 'admin'],
+    roles: [roles.USER, roles.ADMIN],
   },
 ];

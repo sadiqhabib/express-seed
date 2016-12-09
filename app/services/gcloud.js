@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let chalk = require('chalk');
-let config = require('../config');
+const chalk = require('chalk');
+const config = require('../config');
 
 /**
  * Constants
@@ -20,11 +20,12 @@ if (!PROJECT_ID) {
     'No GCLOUD_PROJECT_ID present in configuration. You need to set this up',
     'before you can use Google Cloud services.'
   ));
+  gcloud = require('google-cloud')();
 }
 
 //Create and configure gcloud instance
 else {
-  gcloud = require('gcloud')({
+  gcloud = require('google-cloud')({
     projectId: PROJECT_ID,
     keyFilename: 'keys/gcloud-' + PROJECT_ID + '.json',
   });

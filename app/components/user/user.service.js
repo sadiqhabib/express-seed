@@ -3,19 +3,19 @@
 /**
  * Dependencies
  */
-let mongoose = require('mongoose');
-let errors = require('meanie-express-error-handling');
-let InvalidTokenError = errors.InvalidTokenError;
+const mongoose = require('mongoose');
+const errors = require('meanie-express-error-handling');
+const InvalidTokenError = errors.InvalidTokenError;
 
 /**
  * Models
  */
-let User = mongoose.model('User');
+const User = mongoose.model('User');
 
 /**
  * User service
  */
-let UserService = module.exports = {
+const UserService = module.exports = {
 
   /**
    * Find user by token payload
@@ -28,17 +28,24 @@ let UserService = module.exports = {
     }
 
     //Get ID
-    let id = payload.id;
+    const id = payload.id;
 
     //Find user by ID
     return UserService.findById(id);
   },
 
   /**
-   * Find user by email and password
+   * Find user by username and password
    */
-  findByEmailAndPassword(req, email, password) {
-    return UserService.findByEmail(email)
+  findByUsernameAndPassword(req, username, password) {
+
+    //No username or no password given?
+    if (!username || !password) {
+      return Promise.resolve(null);
+    }
+
+    //Find by username
+    return UserService.findByUsername(username)
       .then(user => {
 
         //No user?
@@ -60,9 +67,9 @@ let UserService = module.exports = {
   },
 
   /**
-   * Find user by email
+   * Find user by username
    */
-  findByEmail(email) {
-    return User.findOne({email});
+  findByUsername(username) {
+    return User.findOne({username});
   },
 };

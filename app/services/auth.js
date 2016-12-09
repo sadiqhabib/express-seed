@@ -3,10 +3,10 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let glob = require('glob');
-let chalk = require('chalk');
-let passport = require('passport');
+const path = require('path');
+const glob = require('glob');
+const chalk = require('chalk');
+const passport = require('passport');
 
 /**
  * Export

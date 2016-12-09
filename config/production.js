@@ -3,7 +3,7 @@
 /**
  * Get package info and server port
  */
-let pkg = require('../package.json');
+const pkg = require('../package.json');
 
 /**
  * Environment configuration (production)
@@ -26,11 +26,9 @@ module.exports = {
 
   //Server
   SERVER_PORT: process.env.PORT || 80,
-  SERVER_HTTPS: false,
   SERVER_LATENCY: false,
   SERVER_LATENCY_MIN: 0,
   SERVER_LATENCY_MAX: 0,
-  SERVER_PUBLIC_INDEX: './public/index.html',
 
   //Database
   DB_URI: process.env.MONGODB_URI,
@@ -42,20 +40,13 @@ module.exports = {
   GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',
   GCLOUD_PROJECT_ID: '',
   GCLOUD_BUCKET_CONTENT: '',
-  GCLOUD_LOG_PATH: '/var/log/app_engine/custom_logs/',
-  GCLOUD_LOG_FILE: 'errors.log.json',
-
-  //Github
-  GITHUB_USER: '',
-  GITHUB_REPO: '',
-  GITHUB_TOKEN: process.env.GITHUB_TOKEN,
 
   //Sendgrid
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
 
   //Error handling middleware
   ERROR_MIDDLEWARE: [
-    'normalize', 'log-to-console', 'issue-on-github',
+    'normalize', 'log-to-console', 'track-with-sentry',
   ],
 
   //Internationalization

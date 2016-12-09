@@ -3,7 +3,7 @@
 /**
  * Dependencies
  */
-let ObjectId = require('mongoose').Types.ObjectId;
+const ObjectId = require('mongoose').Types.ObjectId;
 
 /**
  * Some fixed ID's

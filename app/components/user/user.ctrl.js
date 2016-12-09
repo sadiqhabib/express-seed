@@ -3,25 +3,22 @@
 /**
  * Dependencies
  */
-let mongoose = require('mongoose');
-let jwt = require('meanie-express-jwt-service');
-let errors = require('meanie-express-error-handling');
-let NotFoundError = errors.NotFoundError;
-let BadRequestError = errors.BadRequestError;
-let InvalidTokenError = errors.InvalidTokenError;
-let mailer = require('../../services/mailer');
-
-/**
- * Emails
- */
-let verifyEmailAddressEmail = require('./emails/verify-email-address');
-let passwordHasChangedEmail = require('./emails/password-has-changed');
-let resetPasswordEmail = require('./emails/reset-password');
+const mongoose = require('mongoose');
+const jwt = require('meanie-express-jwt-service');
+const errors = require('meanie-express-error-handling');
+const BadRequestError = errors.BadRequestError;
+const NotFoundError = errors.NotFoundError;
+const InvalidTokenError = errors.InvalidTokenError;
+const ExpiredTokenError = errors.ExpiredTokenError;
+const ValidationError = errors.ValidationError;
+const UserSuspendedError = errors.UserSuspendedError;
+const mailer = require('../../services/mailer');
 
 /**
  * Models
  */
-let User = mongoose.model('User');
+const User = mongoose.model('User');
+const UsedToken = mongoose.model('UsedToken');
 
 /**
  * User controller
@@ -31,9 +28,30 @@ module.exports = {
   /**
    * Get data of authenticated user
    */
-  me(req, res) {
-    let user = req.me;
-    res.json(user.toJSON());
+  me(req, res, next) {
+
+    //Initialize user JSON
+    const user = req.me;
+
+    //Update last active
+    user.lastActive = new Date();
+    user.save().catch(error => errors.handler(error, req));
+
+    //Next middleware
+    next();
+  },
+
+  /**
+   * Get user data
+   */
+  get(req, res) {
+
+    //Get data and status
+    const user = req.me.toJSON();
+    const status = req.isCreate ? 201 : 200;
+
+    //Output
+    res.status(status).json(user);
   },
 
   /**
@@ -42,26 +60,23 @@ module.exports = {
   create(req, res, next) {
 
     //Get user data
-    let data = req.body;
+    const data = User.parseData(req.data);
+    data.isEmailVerified = false;
+
+    //Mark as a create
+    req.isCreate = true;
 
     //Create user
     User.create(data)
       .then(user => {
-        verifyEmailAddressEmail(user)
-          .then(email => mailer.send(email))
+        req.me = user;
+        mailer
+          .load('user/verify-email-address', req)
+          .compose(user)
+          .then(email => email.send())
           .catch(error => errors.handler(error, req));
-        return (req.me = user);
       })
-      .then(user => {
-
-        //Generate access token for immediate login
-        let json = user.toJSON();
-        json.accessToken = jwt.generate('access', user.getClaims());
-        return json;
-      })
-      .then(user => {
-        res.status(201).json(user);
-      })
+      .then(next)
       .catch(next);
   },
 
@@ -71,48 +86,89 @@ module.exports = {
   update(req, res, next) {
 
     //Get user and data
-    let user = req.me;
-    let data = User.parseData(req.data);
+    const user = req.me;
+    const data = User.parseData(req.data);
 
-    //Set data and check if email changed
+    //Set data
     user.setProperties(data);
-    let isEmailChanged = user.isModified('email');
+
+    //Check if certain data changed
+    const emailChanged = user.isModified('email');
+
+    //Mark as non email verified if email was changed
+    if (emailChanged) {
+      user.isEmailVerified = false;
+    }
 
     //Save user
     user.save()
       .then(user => {
-        if (isEmailChanged) {
-          verifyEmailAddressEmail(user)
-          .then(email => mailer.send(email))
-          .catch(error => errors.handler(error, req));
+
+        //Send new verification email
+        if (emailChanged) {
+          mailer
+            .load('user/verify-email-address', req)
+            .compose(user)
+            .then(email => email.send())
+            .catch(error => errors.handler(error, req));
         }
-        return (req.me = user);
+
+        //Set in request
+        req.me = user;
       })
-      .then(user => user.toJSON())
-      .then(user => {
-        res.json(user);
-      })
+      .then(next)
       .catch(next);
   },
 
   /**
-   * Change password
+   * Patch
    */
-  changePassword(req, res, next) {
+  patch(req, res, next) {
 
-    //Get user and new password
-    let user = req.me;
-    let password = req.body.password;
+    //Get user
+    const user = req.me;
 
-    //Set password
-    user.password = password;
+    //Determine what to patch
+    const property = req.property;
+    const value = req.data[property];
+    const patch = User.parseData({[property]: value});
+
+    //Set the property
+    user[property] = patch[property];
+
+    //Save the user
+    user.save()
+      .then(() => res.json(patch))
+      .catch(next);
+  },
+
+  /**
+   * Change credentials
+   */
+  changeCredentials(req, res, next) {
+
+    //Get user and new username/password
+    const user = req.me;
+    const {username, password} = req.body;
+
+    //Set username
+    user.username = username;
+
+    //Set new password if not empty
+    if (password) {
+      user.password = password;
+    }
+
+    //Save user
     user.save()
       .then(user => {
-        passwordHasChangedEmail(user)
-          .then(email => mailer.send(email))
+        mailer
+          .load('user/credentials-changed', req)
+          .compose(user)
+          .then(email => email.send())
           .catch(error => errors.handler(error, req));
-        res.end();
       })
+      .then(() => res.end())
       .catch(next);
   },
 
@@ -120,7 +176,26 @@ module.exports = {
    * Exists check
    */
   exists(req, res, next) {
-    User.find(req.body).limit(1)
+
+    //Initialize filter and allowed filter properties
+    let filter = {};
+    let allowed = ['username'];
+
+    //Find properties to filter on
+    for (let key in req.query) {
+      if (req.query.hasOwnProperty(key) && allowed.indexOf(key) >= 0) {
+        filter[key] = req.query[key];
+      }
+    }
+
+    //No filter properties?
+    if (Object.keys(filter).length === 0) {
+      return res.json({exists: false});
+    }
+
+    //Check if exists
+    User.find(filter)
+      .limit(1)
       .then(users => (users.length > 0))
       .then(exists => res.json({exists}))
       .catch(next);
@@ -134,18 +209,17 @@ module.exports = {
     //If no user was found, send response anyway to prevent hackers from
     //figuring out which email addresses are valid and which aren't.
     if (!req.me) {
-      return setTimeout(() => {
-        res.end();
-      }, 1234);
+      return res.end();
     }
 
     //Get user
-    let user = req.me;
+    const user = req.me;
 
     //Send password reset email
-    resetPasswordEmail(user)
-      .then(email => mailer.send(email))
-      .then(() => res.end())
+    mailer
+      .load('user/reset-password', req)
+      .compose(user)
+      .then(email => email.send())
       .catch(next);
   },
 
@@ -154,35 +228,51 @@ module.exports = {
    */
   resetPassword(req, res, next) {
 
-    //Get token from body
-    let token = req.body.token;
+    //Get user
+    const user = req.me;
+    const jti = req.jti;
 
-    //Validate token
-    jwt.validate('resetPassword', token)
-      .then(jwt.getId)
-      .then(id => User.findById(id))
+    //Update password
+    user.password = req.body.password;
+
+    //Save user
+    user.save()
       .then(user => {
 
-        //No user or token already used?
-        if (!user) {
-          throw new InvalidTokenError('No matching user found');
-        }
-        if (user.usedTokens && user.usedTokens.includes(token)) {
-          throw new InvalidTokenError('Token already used');
-        }
-
-        //Update password, mark token as used
-        user.password = req.body.password;
-        user.usedTokens.push(token);
-        return user;
-      })
-      .then(user => user.save())
-      .then(user => {
-        passwordHasChangedEmail(user)
-          .then(email => mailer.send(email))
+        //Send out credentials changed email
+        mailer
+          .load('user/credentials-changed', req)
+          .compose(user)
+          .then(email => email.send())
           .catch(error => errors.handler(error, req));
+
+        //Mark token as used
+        if (jti) {
+          UsedToken
+            .create({jti})
+            .catch(error => errors.handler(error, req));
+        }
+
+        //Rend request
         res.end();
       })
+      .catch(next);
+  },
+
+  /**
+   * Send usernames email
+   */
+  sendUsernamesEmail(req, res, next) {
+
+    //Get email and users
+    const email = req.body.email;
+    const users = req.users;
+
+    //Send email
+    mailer
+      .load('user/recover-username', req)
+      .compose(email, users)
+      .then(email => email.send())
       .catch(next);
   },
 
@@ -190,10 +280,15 @@ module.exports = {
    * Send verification email
    */
   sendVerificationEmail(req, res, next) {
-    let user = req.me;
-    verifyEmailAddressEmail(user)
-      .then(email => mailer.send(email))
-      .then(() => res.end())
+
+    //Get user
+    const user = req.me;
+
+    //Send email
+    mailer
+      .load('user/verify-email-address', req)
+      .compose(user)
+      .then(email => email.send())
       .catch(next);
   },
 
@@ -202,17 +297,14 @@ module.exports = {
    */
   verifyEmail(req, res, next) {
 
-    //Get token from body
-    let token = req.body.token;
+    //Get user
+    const user = req.me;
 
-    //Validate token
-    jwt.validate('verifyEmail', token)
-      .then(jwt.getId)
-      .then(id => User.findOneAndUpdate({
-        _id: id,
-      }, {
-        isEmailVerified: true,
-      }))
+    //Mark as email verified
+    user.isEmailVerified = true;
+
+    //Save user
+    user.save()
       .then(() => res.json({isValid: true}))
       .catch(next);
   },
@@ -222,44 +314,169 @@ module.exports = {
    ***/
 
   /**
-   * Find by ID
+   * Set user for avatar controller
    */
-  findById(req, res, next, id) {
+  setUser(req, res, next) {
+    req.user = req.me;
+    next();
+  },
 
-    //Validate ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+  /**
+   * Set patch property
+   */
+  setProperty(req, res, next, property) {
+
+    //Valid properties
+    const properties = [
+      'name',
+    ];
+
+    //Invalid?
+    if (properties.indexOf(property) === -1) {
       return next(new BadRequestError());
     }
 
-    //Find by ID
-    User.findById(id)
+    //Set in request
+    req.property = property;
+    next();
+  },
+
+  /**
+   * Find by username (doesn't trigger 404's)
+   */
+  findByUsername(req, res, next) {
+
+    //Get data
+    const username = req.body.username;
+    if (!username) {
+      return next();
+    }
+
+    //Find by username
+    User.findOne({username})
       .then(user => {
-        if (!user) {
-          return next(new NotFoundError());
+
+        //Found?
+        if (user) {
+
+          //Check if suspended
+          if (user.isSuspended) {
+            throw new UserSuspendedError();
+          }
         }
+
+        //Set in request
         req.me = user;
-        next();
       })
+      .then(next)
       .catch(next);
   },
 
   /**
-   * Find by email (doesn't trigger 404's)
+   * Find users by email
    */
   findByEmail(req, res, next) {
 
+    //Get data
+    const email = req.body.email;
+
     //No email?
-    if (!req.body.email) {
+    if (!email) {
       return next();
     }
 
     //Find by email
-    User.findOne({
-      email: req.body.email,
-    }).then(user => {
-      req.me = user;
-      next();
-    }).catch(next);
+    User.find({email})
+      .select('username firstName lastName')
+      .then(users => {
+
+        //Nothing found?
+        if (users.length === 0) {
+          throw new NotFoundError();
+        }
+
+        //Set in request
+        req.users = users;
+      })
+      .then(next)
+      .catch(next);
+  },
+
+  /**
+   * Find user by token
+   */
+  findByToken(req, res, next) {
+
+    //Get token and token type
+    const token = req.query.token || req.body.token;
+    const type = req.tokenType || req.query.type || req.body.type;
+
+    //Must have token and type
+    if (!token || !type) {
+      return next(new BadRequestError());
+    }
+
+    //Validate token
+    jwt.validate(type, token)
+      .then(payload => {
+        if (payload.jti) {
+          return UsedToken
+            .findOne({jti: payload.jti})
+            .then(used => {
+              if (used) {
+                throw new ExpiredTokenError('Already used');
+              }
+              req.jti = payload.jti;
+              return payload.id;
+            });
+        }
+        return payload.id;
+      })
+      .then(id => User.findById(id))
+      .then(user => {
+        if (!user) {
+          throw new InvalidTokenError('No matching user found');
+        }
+        req.me = user;
+      })
+      .then(next)
+      .catch(next);
+  },
+
+  /**
+   * Ensure username not in use
+   */
+  ensureUsernameNotInUse(req, res, next) {
+
+    //Get data
+    const userId = req.me._id;
+    const username = req.body.username;
+
+    //Prepare filter
+    const filter = {username};
+    if (userId) {
+      filter._id = {
+        $ne: userId,
+      };
+    }
+
+    //Check if doesn't exist
+    User
+      .findOne(filter)
+      .then(user => {
+        if (user) {
+          throw new ValidationError({
+            fields: {
+              username: {
+                type: 'exists',
+                message: 'Username already in use',
+              },
+            },
+          });
+        }
+      })
+      .then(next)
+      .catch(next);
   },
 
   /**
@@ -268,17 +485,18 @@ module.exports = {
   collectData(req, res, next) {
 
     //Extract posted data and collect other data from request
-    let {firstName, lastName, email, phone, address, password} = req.body;
-    let user = req.me;
+    const user = req.me;
+    const {
+      firstName, lastName, username, password, email, phone, address,
+    } = req.body;
 
     //Prepare data object
-    req.data = {
-      firstName, lastName, email, phone, address,
-    };
+    req.data = {firstName, lastName, email, phone, address};
 
-    //Password is only appended when creating a new user. For editing, we
-    //use a separate route to change password with higher security.
-    if (!user) {
+    //Username and password are only appended when creating a new user
+    //For editing, we use a separate route with higher security.
+    if (!user || !user.password) {
+      req.data.username = username;
       req.data.password = password;
     }
 

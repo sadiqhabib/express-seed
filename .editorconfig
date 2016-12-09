@@ -11,11 +11,19 @@ max_line_length = 80
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# JS
-[{*.js}]
+# HTML
+[*.html]
+max_line_length = 120
+
+# JS/JSON
+[*.{js,json}]
 quote_type = single
 curly_bracket_next_line = false
 spaces_around_operators = true
 space_after_control_statements = true
 space_after_anonymous_functions = false
 spaces_in_brackets = false
+
+# YAML
+[*.yaml]
+trim_trailing_whitespace = false

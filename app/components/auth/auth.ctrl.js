@@ -3,38 +3,17 @@
 /**
  * Dependencies
  */
-let passport = require('passport');
-let moment = require('moment');
-let jwt = require('meanie-express-jwt-service');
-let errors = require('meanie-express-error-handling');
-let NotAuthenticatedError = errors.NotAuthenticatedError;
-let NotAuthorizedError = errors.NotAuthorizedError;
-let UserSuspendedError = errors.UserSuspendedError;
-let UserPendingError = errors.UserPendingError;
-
-/**
- * To camel case
- */
-function toCamelCase(str, ucfirst) {
-  if (typeof str === 'number') {
-    return String(str);
-  }
-  else if (typeof str !== 'string') {
-    return '';
-  }
-  if ((str = String(str).trim()) === '') {
-    return '';
-  }
-  return str
-    .replace(/_+|\-+/g, ' ')
-    .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
-      if (Number(match) === 0) {
-        return '';
-      }
-      return (index === 0 && !ucfirst) ?
-        match.toLowerCase() : match.toUpperCase();
-    });
-}
+const passport = require('passport');
+const moment = require('moment');
+const mongoose = require('mongoose');
+const jwt = require('meanie-express-jwt-service');
+const errors = require('meanie-express-error-handling');
+const ObjectId = mongoose.Types.ObjectId;
+const ServerError = errors.ServerError;
+const NotAuthenticatedError = errors.NotAuthenticatedError;
+const NotAuthorizedError = errors.NotAuthorizedError;
+const UserSuspendedError = errors.UserSuspendedError;
+const toCamelCase = require('../../helpers/transform/to-camel-case');
 
 /**
  * Auth controller
@@ -52,9 +31,8 @@ module.exports = {
    * Forget a user
    */
   forget(req, res) {
-    const COOKIE_SECURE = req.app.locals.REFRESH_TOKEN_COOKIE_SECURE;
     res.clearCookie('refreshToken', {
-      secure: COOKIE_SECURE,
+      secure: req.secure,
       httpOnly: true,
     });
     res.end();
@@ -66,9 +44,9 @@ module.exports = {
   token(req, res, next) {
 
     //Get grant type and initialize access token
-    let grantType = toCamelCase(req.body.grantType);
-    let remember = !!req.body.remember;
-    let secureStatus = !!req.body.secureStatus;
+    const grantType = toCamelCase(req.body.grantType);
+    const remember = !!req.body.remember;
+    const secureStatus = !!req.body.secureStatus;
 
     /**
      * Callback handler
@@ -77,32 +55,22 @@ module.exports = {
 
       //Error given?
       if (error) {
-        error = new NotAuthenticatedError(error);
+        return next(new NotAuthenticatedError(error));
       }
 
       //No user found?
-      else if (!user) {
-        error = new NotAuthenticatedError();
+      if (!user) {
+        return next(new NotAuthenticatedError());
       }
 
       //User suspended?
-      else if (user.isSuspended) {
-        error = new UserSuspendedError();
-      }
-
-      //User pending approval?
-      else if (user.isPending) {
-        error = new UserPendingError();
-      }
-
-      //Check error
-      if (error) {
-        return next(error);
+      if (user.isSuspended) {
+        return next(new UserSuspendedError());
       }
 
       //Set user in request and get claims
       req.me = user;
-      let claims = user.getClaims();
+      const claims = user.getClaims();
 
       //Requesting secure status?
       if (secureStatus && grantType === 'password') {
@@ -113,20 +81,19 @@ module.exports = {
       }
 
       //Generate access token
-      let accessToken = jwt.generate('access', claims);
+      const accessToken = jwt.generate('access', claims);
 
       //Generate refresh token if we want to be remembered
       if (remember) {
 
         //Get locals
         const COOKIE_MAX_AGE = req.app.locals.REFRESH_TOKEN_COOKIE_MAX_AGE;
-        const COOKIE_SECURE = req.app.locals.REFRESH_TOKEN_COOKIE_SECURE;
 
         //Create refresh token and set cookie
-        let refreshToken = jwt.generate('refresh', user.getClaims());
+        const refreshToken = jwt.generate('refresh', user.getClaims());
         res.cookie('refreshToken', refreshToken, {
           maxAge: COOKIE_MAX_AGE * 1000, //in ms
-          secure: COOKIE_SECURE,
+          secure: req.secure,
           httpOnly: true,
         });
       }
@@ -137,6 +104,9 @@ module.exports = {
 
     //Handle specific grant types
     switch (grantType) {
+      case 'bearer':
+        passport.authenticate('bearer', authCallback)(req, res, next);
+        break;
       case 'password':
         passport.authenticate('local', authCallback)(req, res, next);
         break;
@@ -151,71 +121,109 @@ module.exports = {
    ***/
 
   /**
-   * Ensure a user is an admin
+   * Ensure a user is authenticated and has specific roles
    */
-  ensureAdmin(req, res, next) {
-    if (!req.me || !req.me.hasRole('admin')) {
-      return next(new NotAuthorizedError());
-    }
-    next();
-  },
+  ensureAuthenticated(...roles) {
+    return function(req, res, next) {
 
-  /**
-   * Ensure a user is authenticated
-   */
-  ensureAuthenticated(req, res, next) {
+      //Get user
+      const user = req.me;
 
-    //Authenticate now
-    passport.authenticate('bearer', {
-      session: false,
-    }, (error, user) => {
-
-      //Error given?
-      if (error) {
-        error = new NotAuthenticatedError(error);
-      }
-
-      //No user found?
-      else if (!user) {
-        error = new NotAuthenticatedError();
+      //No user present?
+      if (!user) {
+        return next(new NotAuthenticatedError());
       }
 
       //User suspended?
-      else if (user.isSuspended) {
-        error = new UserSuspendedError();
+      if (user.isSuspended) {
+        return next(new UserSuspendedError());
       }
 
-      //User pending approval?
-      else if (user.isPending) {
-        error = new UserPendingError();
+      //Check roles
+      if (roles.length && !roles.some(role => user.hasRole(role))) {
+        return next(new NotAuthorizedError());
       }
 
-      //Check error
-      if (error) {
-        return next(error);
-      }
-
-      //Set user in request
-      req.me = user;
+      //All good
       next();
-    })(req, res, next);
+    };
   },
 
   /**
-   * Check if a user is authenticated (doesn't throw errors if isn't)
-   * Use this if authentication is optional for a route but you
-   * need the authenticated user object if they are authenticated.
+   * Belongs to check
    */
-  checkAuthenticated(req, res, next) {
+  belongsTo(itemKey, ownerKey, propKey, roles) {
 
-    //Authenticate now
-    passport.authenticate('bearer', {
-      session: false,
-    }, (error, user) => {
-      if (user) {
-        req.me = user;
+    //Array given as prop key, assume roles
+    if (Array.isArray(propKey)) {
+      roles = propKey;
+      propKey = undefined;
+    }
+
+    //Guess prop key if not given
+    if (typeof propKey === 'undefined') {
+      switch (ownerKey) {
+        case 'me':
+          propKey = 'user';
+          break;
       }
+    }
+
+    //Still no prop key?
+    if (!propKey) {
+      throw new Error('Missing prop key and unknown owner key');
+    }
+
+    //Return middleware
+    return function(req, res, next) {
+
+      //Get data
+      const user = req.me;
+      const owner = req[ownerKey];
+      const item = req[itemKey];
+
+      //Check roles if given
+      if (Array.isArray(roles) && roles.some(role => user.hasRole(role))) {
+        return next();
+      }
+
+      //Must have owner
+      if (typeof owner === 'undefined') {
+        return next(new ServerError(
+          `Owner of type ${ownerKey} has not been loaded`
+        ));
+      }
+
+      //Must have item
+      if (typeof item === 'undefined') {
+        return next(new ServerError(
+          `Item of type ${itemKey} has not been loaded`
+        ));
+      }
+
+      //Must have prop key
+      if (typeof item[propKey] === 'undefined') {
+        return next(new ServerError(
+          `Item of type ${itemKey} has no ${propKey} property`
+        ));
+      }
+
+      //Get ID
+      const prop = item[propKey];
+      let _id = prop;
+
+      //If it's a populated object, check ID
+      if (typeof prop === 'object' && prop._id instanceof ObjectId) {
+        _id = prop._id;
+      }
+
+      //Compare
+      if (!owner._id.equals(_id)) {
+        return next(new NotAuthorizedError());
+      }
+
+      //All good
       next();
-    })(req, res, next);
+    };
   },
 };

@@ -3,8 +3,8 @@
 /**
  * Dependencies
  */
-let Schema = require('mongoose').Schema;
-let config = require('../../config');
+const Schema = require('mongoose').Schema;
+const config = require('../../config');
 
 /**
  * Constants
@@ -23,7 +23,7 @@ function extendFileSchema(fields, _id = false) {
   }, fields || {});
 
   //Create schema
-  let FileSchema = new Schema(fields, {_id});
+  const FileSchema = new Schema(fields, {_id});
 
   //Add transform
   FileSchema.options.toJSON = {
@@ -42,7 +42,7 @@ function extendFileSchema(fields, _id = false) {
 /**
  * Create basic schema and expose creation method
  */
-let FileSchema = extendFileSchema(null, false);
+const FileSchema = extendFileSchema(null, false);
 FileSchema.extend = extendFileSchema;
 
 /**

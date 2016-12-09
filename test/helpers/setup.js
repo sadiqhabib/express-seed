@@ -1,9 +1,15 @@
 'use strict';
 
 //Load dependencies
-let chai = require('chai');
-let dirtyChai = require('dirty-chai');
-let chaiAsPromised = require('chai-as-promised');
+const chai = require('chai');
+const sinon = require('sinon');
+const Promise = require('bluebird');
+const dirtyChai = require('dirty-chai');
+const chaiAsPromised = require('chai-as-promised');
+
+//Load sinon extensions
+require('sinon-mongoose');
+require('sinon-as-promised')(Promise);
 
 //Enable should assertion style for usage with chai-as-promised
 chai.should();
@@ -14,3 +20,4 @@ chai.use(chaiAsPromised);
 
 //Expose globals
 global.expect = chai.expect;
+global.sinon = sinon;

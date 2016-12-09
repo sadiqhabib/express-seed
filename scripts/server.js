@@ -1,28 +1,32 @@
 'use strict';
 
 /**
- * Dependencies
+ * Use bluebird for promises globally
  */
-let path = require('path');
-let chalk = require('chalk');
+global.Promise = require('bluebird');
 
 /**
- * Fix CWD if run from scripts path
+ * Dependencies
  */
-let cwd = process.cwd().split(path.sep);
-if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
-  cwd.pop();
-  process.chdir(cwd.join(path.sep));
-}
+const path = require('path');
+const chalk = require('chalk');
+const config = require('../app/config');
 
 /**
  * Configuration
  */
-let config = require('../app/config');
 const ENV = config.ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config.SERVER_PORT;
-const SERVER_HTTPS = config.SERVER_HTTPS;
+
+/**
+ * Fix CWD if run from scripts path
+ */
+const cwd = process.cwd().split(path.sep);
+if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
+  cwd.pop();
+  process.chdir(cwd.join(path.sep));
+}
 
 /**
  * Error handler
@@ -48,8 +52,8 @@ console.log('Running application', chalk.magenta(APP_NAME),
  * Initialize express application
  */
 console.log('Starting Express server...');
-let app = require('../app/app')();
-let server = app.listen(SERVER_PORT, function() {
+const app = require('../app/app')();
+const server = app.listen(SERVER_PORT, function() {
 
   //Skip if no address
   if (!this.address()) {
@@ -57,10 +61,9 @@ let server = app.listen(SERVER_PORT, function() {
   }
 
   //Determine address
-  let host = this.address().address.replace('::', 'localhost');
-  let port = this.address().port;
-  let protocol = SERVER_HTTPS ? 'https://' : 'http://';
-  let address = protocol + host + ':' + port;
+  const host = this.address().address.replace('::', 'localhost');
+  const port = this.address().port;
+  const address = host + ':' + port;
 
   //Output success message
   console.log(chalk.green('Express server started @ '), chalk.magenta(address));

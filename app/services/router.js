@@ -3,17 +3,16 @@
 /**
  * Dependencies
  */
-let path = require('path');
-let glob = require('glob');
-let chalk = require('chalk');
-let express = require('express');
-let config = require('../config');
+const path = require('path');
+const glob = require('glob');
+const chalk = require('chalk');
+const express = require('express');
+const config = require('../config');
 
 /**
  * Configuration
  */
 const API_BASE_PATH = config.API_BASE_PATH;
-const SERVER_PUBLIC_INDEX = config.SERVER_PUBLIC_INDEX;
 
 /**
  * Export
@@ -21,7 +20,7 @@ const SERVER_PUBLIC_INDEX = config.SERVER_PUBLIC_INDEX;
 module.exports = function(app) {
 
   //Create API sub router
-  let api = express.Router();
+  const api = express.Router();
 
   //Load API routes
   console.log('Loading API routes...');
@@ -32,11 +31,4 @@ module.exports = function(app) {
 
   //Use the API router
   app.use(API_BASE_PATH, api);
-
-  //Send all other GET requests to the index.html file if needed
-  if (SERVER_PUBLIC_INDEX) {
-    app.get('/*', (req, res) => {
-      res.sendFile(path.resolve(SERVER_PUBLIC_INDEX));
-    });
-  }
 };

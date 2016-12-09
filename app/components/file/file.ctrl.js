@@ -3,18 +3,19 @@
 /**
  * Dependencies
  */
-let multer = require('multer');
-let mimeTypesFilter = require('meanie-multer-mime-types-filter');
-let errors = require('meanie-express-error-handling');
-let BadRequestError = errors.BadRequestError;
-let FileTooLargeError = errors.FileTooLargeError;
-let gcloud = require('../../services/gcloud');
+const multer = require('multer');
+const mimeTypesFilter = require('meanie-multer-mime-types-filter');
+const errors = require('meanie-express-error-handling');
+const BadRequestError = errors.BadRequestError;
+const FileTooLargeError = errors.FileTooLargeError;
+const gcloud = require('../../services/gcloud');
+const gcs = gcloud.storage();
 
 /**
  * Helper to generate a path for a GCS file
  */
 function gcsPath(folder, name, mimeType, timestamp) {
-  let extension = mimeType.split('/')[1].toLowerCase().replace('jpeg', 'jpg');
+  const extension = mimeType.split('/')[1].toLowerCase().replace('jpeg', 'jpg');
   if (timestamp) {
     name += '_' + String(Math.floor(Date.now() / 1000));
   }
@@ -32,13 +33,13 @@ module.exports = {
   upload(req, res, next) {
 
     //Get GCS config
-    let config = req.fileConfig;
+    const config = req.fileConfig;
     if (!config) {
       return next();
     }
 
     //Create upload middleware
-    let upload = multer({
+    const upload = multer({
       storage: multer.memoryStorage(),
       fileFilter: mimeTypesFilter(config.mimeTypes),
       limits: {
@@ -66,29 +67,28 @@ module.exports = {
   streamToCloud(req, res, next) {
 
     //Get GCS config
-    let config = req.fileConfig;
+    const config = req.fileConfig;
     if (!config) {
       return next();
     }
 
     //Get config params
-    let {bucket, folder, name, timestamp} = config;
+    const {bucket, folder, name, timestamp} = config;
 
     //Get uploaded file and path for bucket
-    let file = req.file;
+    const file = req.file;
     if (!file) {
       return next(new BadRequestError('No file'));
     }
 
     //Get data
-    let contentType = file.mimetype;
-    let path = gcsPath(folder, name, contentType, timestamp);
+    const contentType = file.mimetype;
+    const path = gcsPath(folder, name, contentType, timestamp);
 
     //Prepare file and stream
-    let gcs = gcloud.storage();
-    let gcsBucket = gcs.bucket(bucket);
-    let gcsFile = gcsBucket.file(path);
-    let stream = gcsFile.createWriteStream({
+    const gcsBucket = gcs.bucket(bucket);
+    const gcsFile = gcsBucket.file(path);
+    const stream = gcsFile.createWriteStream({
       metadata: {
         contentType,
       },
@@ -117,13 +117,13 @@ module.exports = {
   deleteFromCloud(req, res, next) {
 
     //Get GCS config
-    let config = req.fileConfig;
+    const config = req.fileConfig;
     if (!config) {
       return next();
     }
 
     //Get data
-    let data = config.existing;
+    const data = config.existing;
     if (!data || !data.bucket || !data.path) {
       return next();
     }
@@ -138,9 +138,8 @@ module.exports = {
     }
 
     //Get GCS bucket and file
-    let gcs = gcloud.storage();
-    let gcsBucket = gcs.bucket(data.bucket);
-    let gcsFile = gcsBucket.file(data.path);
+    const gcsBucket = gcs.bucket(data.bucket);
+    const gcsFile = gcsBucket.file(data.path);
 
     //Delete the file (allow failures but log errors)
     gcsFile.delete(error => {
