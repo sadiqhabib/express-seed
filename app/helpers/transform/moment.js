@@ -9,8 +9,10 @@ const moment = require('moment');
  * Helper to format a moment into a date
  */
 module.exports = function(date, format, relative) {
-  if (typeof format !== 'string') {
-    format = '';
+
+  //Ensure input is valid
+  if (typeof format !== 'string' || !format) {
+    format = 'DD-MM-YYYY';
   }
   if (typeof relative !== 'boolean') {
     relative = false;
@@ -18,8 +20,10 @@ module.exports = function(date, format, relative) {
   if (!moment.isMoment(date)) {
     date = moment(date);
   }
+
+  //If relative, check if today or tomorrow
   if (relative) {
-    let now = moment();
+    const now = moment();
     if (now.isSame(date, 'day')) {
       return 'Today';
     }
@@ -27,5 +31,7 @@ module.exports = function(date, format, relative) {
       return 'Tomorrow';
     }
   }
-  return date.format(format || 'DD-MM-YYYY');
+
+  //Return date as format
+  return date.format(format);
 };
