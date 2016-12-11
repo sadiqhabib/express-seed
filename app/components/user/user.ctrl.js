@@ -71,8 +71,7 @@ module.exports = {
       .then(user => {
         req.me = user;
         mailer
-          .load('user/verify-email-address', req)
-          .compose(user)
+          .create('user/verify-email-address', req, user)
           .then(email => email.send())
           .catch(error => errors.handler(error, req));
       })
@@ -107,8 +106,7 @@ module.exports = {
         //Send new verification email
         if (emailChanged) {
           mailer
-            .load('user/verify-email-address', req)
-            .compose(user)
+            .create('user/verify-email-address', req, user)
             .then(email => email.send())
             .catch(error => errors.handler(error, req));
         }
@@ -163,8 +161,7 @@ module.exports = {
     user.save()
       .then(user => {
         mailer
-          .load('user/credentials-changed', req)
-          .compose(user)
+          .create('user/credentials-changed', req, user)
           .then(email => email.send())
           .catch(error => errors.handler(error, req));
       })
@@ -217,8 +214,7 @@ module.exports = {
 
     //Send password reset email
     mailer
-      .load('user/reset-password', req)
-      .compose(user)
+      .create('user/reset-password', req, user)
       .then(email => email.send())
       .catch(next);
   },
@@ -241,8 +237,7 @@ module.exports = {
 
         //Send out credentials changed email
         mailer
-          .load('user/credentials-changed', req)
-          .compose(user)
+          .create('user/credentials-changed', req, user)
           .then(email => email.send())
           .catch(error => errors.handler(error, req));
 
@@ -270,8 +265,7 @@ module.exports = {
 
     //Send email
     mailer
-      .load('user/recover-username', req)
-      .compose(email, users)
+      .create('user/recover-username', req, email, users)
       .then(email => email.send())
       .catch(next);
   },
@@ -286,8 +280,7 @@ module.exports = {
 
     //Send email
     mailer
-      .load('user/verify-email-address', req)
-      .compose(user)
+      .create('user/verify-email-address', req, user)
       .then(email => email.send())
       .catch(next);
   },

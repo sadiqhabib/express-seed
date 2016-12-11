@@ -6,6 +6,6 @@ Hello, we’ve received a request to recover the username of your {{app.title}} 
 
 To login to {{app.title}} with your username now, click on the following link:
 
-{{link}}
+{{app.url}}{{route}}
 
 If you did not request this email, please contact us.

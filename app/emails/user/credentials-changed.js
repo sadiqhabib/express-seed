@@ -3,7 +3,7 @@
 /**
  * Email generator
  */
-module.exports = function credentialsChangedEmail(req, user) {
+module.exports = function(user) {
 
   //Prepare data
   const to = user.email;

@@ -62,6 +62,7 @@
     "meanie-express-github-service": "^2.0.2",
     "meanie-express-jwt-service": "^1.0.2",
     "meanie-express-raven-service": "^1.0.1",
+    "meanie-mail-composer": "^1.0.0",
     "meanie-mongoose-only-id": "^1.0.1",
     "meanie-mongoose-set-properties": "^1.0.1",
     "meanie-mongoose-to-json": "^1.0.6",

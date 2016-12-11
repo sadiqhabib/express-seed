@@ -10,7 +10,7 @@ const ObjectId = mongoose.Types.ObjectId;
 /**
  * Email generator
  */
-module.exports = function resetPasswordEmail(req, user) {
+module.exports = function resetPasswordEmail(user) {
 
   //Generate unique token identifier
   const jti = new ObjectId();
@@ -21,13 +21,13 @@ module.exports = function resetPasswordEmail(req, user) {
     id: user._id.toString(),
     jti: jti.toString(),
   });
-  const link = req.locals.appUrl + '/reset/password/' + token;
+  const route = '/reset/password/' + token;
   const numHours = Math.floor(expiration / 3600);
 
   //Prepare data
   const to = user.email;
   const subject = 'Reset your password';
-  const data = {user, link, numHours};
+  const data = {user, route, numHours};
 
   //Return
   return {to, subject, data};

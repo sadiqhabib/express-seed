@@ -8,16 +8,16 @@ const jwt = require('meanie-express-jwt-service');
 /**
  * Email generator
  */
-module.exports = function verifyEmailAddressEmail(req, user) {
+module.exports = function(req, user) {
 
   //Generate a verify email token
   const token = jwt.generate('verifyEmail', {id: user._id.toString()});
-  const link = req.locals.appUrl + '/email/verify/' + token;
+  const route = '/email/verify/' + token;
 
   //Prepare data
   const to = user.email;
   const subject = 'Verify your email address';
-  const data = {user, link};
+  const data = {user, route};
 
   //Return
   return {to, subject, data};

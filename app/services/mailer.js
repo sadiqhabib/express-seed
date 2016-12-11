@@ -6,44 +6,36 @@
 const path = require('path');
 const moment = require('moment');
 const errors = require('meanie-express-error-handling');
+const composer = require('meanie-mail-composer');
 const sendgrid = require('sendgrid-mailer');
 const SendMailError = errors.SendMailError;
-const handlebars = require('./handlebars');
-const loadPartial = require('../helpers/load-partial');
 const config = require('../config');
 
 /**
- * Config
+ * Emails path
  */
-const SENDGRID_API_KEY = config.SENDGRID_API_KEY;
-const EMAIL_IDENTITY_NOREPLY = config.EMAIL_IDENTITY_NOREPLY;
-const EMAILS_PATH = path.resolve('./emails') + '/';
+const EMAILS_PATH = path.resolve('./app/emails/');
 
 /**
- * Configure sendgrid mailer
+ * Configure sendgrid mailer and mail composer
  */
-sendgrid.config(SENDGRID_API_KEY);
-sendgrid.Promise = Promise;
+sendgrid.config(config.SENDGRID_API_KEY);
+composer.config({
+  templateHtml: path.join(EMAILS_PATH, 'template.hbs'),
+  templateText: path.join(EMAILS_PATH, 'template.txt'),
+});
 
 /**
- * Helper to get globals
+ * Create locals for email templates from given context
  */
-function extractGlobals(req) {
-
-  //If no request just return empty object
-  if (!req) {
-    return {};
-  }
-
-  //Return globals
+function createLocals(context) {
   return {
     now: moment(),
     app: {
-      title: req.app.locals.APP_TITLE,
-      version: req.app.locals.APP_VERSION,
-      url: req.locals.appUrl,
+      title: context.app.locals.APP_TITLE,
+      version: context.app.locals.APP_VERSION,
+      url: context.app.locals.APP_BASE_URL,
     },
-    club: req.club,
   };
 }
 
@@ -53,54 +45,25 @@ function extractGlobals(req) {
 const mailer = module.exports = {
 
   /**
-   * Load an email composer
+   * Create an email
    */
-  load(path, req) {
+  create(type, context, ...args) {
 
-    //Load email generator
-    const generator = require(EMAILS_PATH + path);
+    //Load mail generator and create locals from data
+    const generator = require('../emails/' + type);
+    const locals = createLocals(context);
 
-    //Load HTMl and text partials
-    const html = loadPartial(EMAILS_PATH, path, 'hbs');
-    const text = loadPartial(EMAILS_PATH, path, 'txt');
+    //Create mail data and append locals
+    const mail = generator(...args);
+    const data = Object.assign(mail.data || {}, locals);
 
-    //Extract globals from request
-    const globals = extractGlobals(req);
+    //Set default from if none set
+    if (!mail.from) {
+      mail.from = config.EMAIL_IDENTITY_NOREPLY;
+    }
 
-    //Create email composer function
-    const composer = function(...args) {
-
-      //Generate email
-      const email = generator(req, ...args);
-
-      //Append globals to data
-      Object.assign(email.data, globals);
-
-      //Set default from identity
-      if (!email.from) {
-        email.from = EMAIL_IDENTITY_NOREPLY;
-      }
-
-      //Compile HTML and text
-      email.html = handlebars.compile(html)(email.data);
-      email.text = handlebars.compile(text)(email.data);
-
-      //Append send handler
-      email.send = function() {
-        return mailer.send(email);
-      };
-
-      //Return email
-      return email;
-    };
-
-    //Append helper method for promise chains
-    composer.compose = function(...args) {
-      return Promise.resolve(composer(...args));
-    };
-
-    //Return composer
-    return composer;
+    //Use composer to generate email instance
+    return composer.compose(mail, data);
   },
 
   /**
@@ -113,4 +76,11 @@ const mailer = module.exports = {
         throw new SendMailError(error);
       });
   },
+};
+
+/**
+ * Append send shortcut method to email prototype
+ */
+composer.Email.prototype.send = function() {
+  return mailer.send(this);
 };

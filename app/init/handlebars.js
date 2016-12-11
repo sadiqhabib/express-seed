@@ -10,20 +10,16 @@ const handlebars = require('handlebars');
 /**
  * Settings
  */
-const PATH_HELPERS = './app/helpers/transform/';
+const PATH_HELPERS = path.resolve('./app/helpers/transform/');
 
 /**
  * Register handlebars helpers
  */
-fs.readdirSync(path.resolve(PATH_HELPERS))
+fs.readdirSync(PATH_HELPERS)
   .forEach(file => {
     const ext = path.extname(file);
     const name = path.basename(file, ext);
-    const helper = require(path.resolve(PATH_HELPERS + file));
+    const helperPath = path.join(PATH_HELPERS, file);
+    const helper = require(helperPath);
     handlebars.registerHelper(name, helper);
   });
-
-/**
- * Export handlebars service now
- */
-module.exports = handlebars;
