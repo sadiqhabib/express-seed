@@ -20,7 +20,7 @@ const loadScripts = require('./lib/load-scripts');
 const target = (argv._.length ? argv._[0] : '');
 const basePath = path.resolve(__dirname, '..', 'migrations');
 const scripts = loadScripts(path.join(basePath, target));
-const isMany = (scripts.length > 0);
+const isMany = (scripts.length > 1);
 
 //Nothing found
 if (scripts.length === 0) {

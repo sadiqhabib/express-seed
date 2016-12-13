@@ -12,11 +12,14 @@ const glob = require('glob');
  */
 module.exports = function loadScripts(target) {
 
+  //Strip of JS extension
+  target = target.replace(/\.js$/, '');
+
   //Load multiple files
-  if (fs.statSync(target).isDirectory()) {
+  if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
     return glob.sync(path.join(target, '*.js'));
   }
 
   //Load single file
-  return target;
+  return [target];
 };
