@@ -30,16 +30,9 @@ module.exports = mergedCfg;
  * Helper to load a config file
  */
 function loadConfig(env) {
-  let configPath = path.join(CONFIG_PATH, env);
+  const configPath = path.join(CONFIG_PATH, env);
   try {
-    let config = require(configPath);
-    if (env === 'local') {
-      console.log(
-        chalk.yellow('Using local configuration file'),
-        chalk.magenta('local.js')
-      );
-    }
-    return config;
+    return require(configPath);
   }
   catch (e) {
     if (env === 'development') {

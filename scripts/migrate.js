@@ -12,40 +12,37 @@ const path = require('path');
 const chalk = require('chalk');
 const mongoose = require('mongoose');
 const argv = require('yargs').argv;
-const glob = require('glob');
 const log = require('./lib/log');
 const run = require('./lib/run');
+const loadScripts = require('./lib/load-scripts');
 
-//Fix CWD if run from scripts path
-const cwd = process.cwd().split(path.sep);
-if (cwd.length && cwd[cwd.length - 1] === 'scripts') {
-  cwd.pop();
-  process.chdir(cwd.join(path.sep));
-}
+//Get parameters and load scripts
+const target = (argv._.length ? argv._[0] : '');
+const basePath = path.resolve(__dirname, '..', 'migrations');
+const scripts = loadScripts(path.join(basePath, target));
+const isMany = (scripts.length > 0);
 
-//Get parameters
-const basePath = './migrations/';
-const folder = path.join(basePath, (argv._.length ? argv._[0] : ''));
-const debug = (typeof argv.debug !== 'undefined');
-
-//Initialize database
-require('../app/init/db');
-
-//Load migrations
-console.log(chalk.grey('Loading migrations from'), chalk.magenta(folder));
-const migrations = glob.sync(path.join(folder, '*.js'));
-if (migrations.length === 0) {
+//Nothing found
+if (scripts.length === 0) {
   console.warn(chalk.yellow('No migrations found!'));
   process.exit(0);
 }
 
-//Override mongoose debugging setting
-mongoose.set('debug', debug);
+//Initialize database
+require('../app/init/db');
+mongoose.set('debug', (typeof argv.debug !== 'undefined'));
 
 //Run when DB connected
 mongoose.connection.on('connected', () => {
-  run(migrations)
-    .then(() => log.success('Finished all migrations'))
+
+  //Log
+  console.log(
+    'Running migration' + (isMany ? 's from' : ''), chalk.magenta(target)
+  );
+
+  //Run scripts
+  run(scripts)
+    .then(() => log.success('Finished migration' + (isMany ? 's' : '')))
     .catch(log.error)
     .finally(() => process.exit(0));
 });
