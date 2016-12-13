@@ -34,9 +34,10 @@ module.exports = {
 
   //Database
   DB_URI: 'mongodb://localhost/my-application',
-  DB_DEBUG: true,
   DB_USER: '',
   DB_PASS: '',
+  DB_DEBUG: true,
+  DB_AUTO_INDEX: true,
 
   //Google cloud
   GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',

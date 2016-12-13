@@ -1,27 +1,18 @@
 'use strict';
 
 /**
- * Load initializers
- */
-require('./init/error-handling');
-require('./init/jwt');
-require('./init/i18n');
-require('./init/handlebars');
-
-/**
  * Dependencies
  */
 const i18n = require('i18n');
 const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
+const passport = require('passport');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const errors = require('meanie-express-error-handling');
 const router = require('./services/router');
-const db = require('./services/db');
-const auth = require('./services/auth');
 const config = require('./config');
 
 /**
@@ -35,18 +26,25 @@ const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
 const ERROR_MIDDLEWARE = config.ERROR_MIDDLEWARE;
 
 /**
+ * Initialization
+ */
+require('./init/error-handling');
+require('./init/db');
+require('./init/jwt');
+require('./init/auth');
+require('./init/i18n');
+require('./init/handlebars');
+
+/**
  * Export module
  */
 module.exports = function() {
 
   //Initialize express app
-  let app = express();
+  const app = express();
 
   //Set locals
   app.locals = config;
-
-  //Setup database
-  db(app);
 
   //Trust proxy (for Cloud hosted forwarding of requests)
   app.set('trust_proxy', 1);
@@ -90,8 +88,8 @@ module.exports = function() {
     app.use(latency);
   }
 
-  //Load authentication
-  auth(app);
+  //Initialize password
+  app.use(passport.initialize());
 
   //Set global headers
   app.all('/*', (req, res, next) => {

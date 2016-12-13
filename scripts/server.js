@@ -66,7 +66,7 @@ const server = app.listen(SERVER_PORT, function() {
   const address = host + ':' + port;
 
   //Output success message
-  console.log(chalk.green('Express server started @ '), chalk.magenta(address));
+  console.log(chalk.green('Express server started @'), chalk.magenta(address));
 });
 server.on('error', expressErrorHandler);
 

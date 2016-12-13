@@ -32,9 +32,10 @@ module.exports = {
 
   //Database
   DB_URI: process.env.MONGODB_URI,
-  DB_DEBUG: false,
   DB_USER: '',
   DB_PASS: '',
+  DB_DEBUG: false,
+  DB_AUTO_INDEX: false,
 
   //Google cloud
   GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',

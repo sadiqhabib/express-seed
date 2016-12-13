@@ -10,11 +10,6 @@ const express = require('express');
 const config = require('../config');
 
 /**
- * Configuration
- */
-const API_BASE_PATH = config.API_BASE_PATH;
-
-/**
  * Export
  */
 module.exports = function(app) {
@@ -30,5 +25,5 @@ module.exports = function(app) {
   });
 
   //Use the API router
-  app.use(API_BASE_PATH, api);
+  app.use(config.API_BASE_PATH, api);
 };
