@@ -13,10 +13,10 @@ function statusStart(message, file) {
   process.stdout.write(chalk.grey(message + ' ' + file + '... '));
 }
 function statusOk() {
-  process.stdout.write(chalk.green('OK\n'));
+  process.stdout.write(chalk.green('✓\n'));
 }
 function statusError(error) {
-  process.stdout.write(chalk.red('ERROR\n'));
+  process.stdout.write(chalk.red('✗\n'));
   log.error(error);
 }
 
