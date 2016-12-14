@@ -29,8 +29,10 @@ if (scripts.length === 0) {
 }
 
 //Initialize database
-require('../app/init/db');
-mongoose.set('debug', (typeof argv.debug !== 'undefined'));
+require('../app/init/db')({
+  debug: (typeof argv.debug !== 'undefined'),
+  autoIndex: false,
+});
 
 //Run when DB connected
 mongoose.connection.on('connected', () => {

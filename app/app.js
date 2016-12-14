@@ -29,7 +29,7 @@ const ERROR_MIDDLEWARE = config.ERROR_MIDDLEWARE;
  * Initialization
  */
 require('./init/error-handling');
-require('./init/db');
+require('./init/db')();
 require('./init/jwt');
 require('./init/auth');
 require('./init/i18n');
