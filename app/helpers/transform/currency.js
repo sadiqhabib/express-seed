@@ -4,7 +4,6 @@
  * Helper to format an amount into currency
  */
 module.exports = function(amount, symbol, absolute) {
-  console.log(amount, symbol, absolute);
   if (typeof symbol !== 'string') {
     symbol = '$';
   }
