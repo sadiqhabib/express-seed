@@ -16,8 +16,16 @@ const log = require('./lib/log');
 const run = require('./lib/run');
 const loadScripts = require('./lib/load-scripts');
 
-//Get parameters and load scripts
+//Get target
 const target = (argv._.length ? argv._[0] : '');
+
+//Must specify a target
+if (!target) {
+  console.warn(chalk.yellow('Please specify a script or subfolder'));
+  process.exit(0);
+}
+
+//Load scripts
 const basePath = path.resolve(__dirname, '..', 'migrations');
 const scripts = loadScripts(path.join(basePath, target));
 const isMany = (scripts.length > 1);
