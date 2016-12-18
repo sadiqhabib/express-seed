@@ -6,6 +6,7 @@
 const jwt = require('meanie-express-jwt-service');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const config = require('../../config');
 
 /**
  * Email generator
@@ -14,13 +15,14 @@ module.exports = function resetPasswordEmail(user) {
 
   //Generate unique token identifier
   const jti = new ObjectId();
-  const expiration = jwt.getExpiration('resetPassword');
-
-  //Generate a password reset token
-  const token = jwt.generate('resetPassword', {
+  const expiration = config.TOKEN_EXP_RESET_PASSWORD;
+  const payload = {
     id: user._id.toString(),
     jti: jti.toString(),
-  });
+  };
+
+  //Generate a password reset token
+  const token = jwt.generate(payload, expiration);
   const route = '/reset/password/' + token;
   const numHours = Math.floor(expiration / 3600);
 

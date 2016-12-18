@@ -44,15 +44,16 @@ rm -rf .git
 npm install
 ```
 
+### Setting the environment
+The application environment is determined by the `APP_ENV` environment variable.
+This is so you can use different application environments, e.g. `demo`, `staging`, `production`, each with a `NODE_ENV` set to `production`.
+
 ## Running the server
 Once installed, you can run the server using one of the following options:
 
 ```shell
-# Start the server using node
+# Start the server
 npm start
-
-# Start the server for development (with nodemon)
-npm run dev
 ```
 
 Look in the `package.json` for other scripts available to you.
@@ -77,8 +78,6 @@ The following is an outline of the folder structure of this seed project:
 # Test helpers and mocha options reside here.
 └─ test
 ```
-
-The app folder contains a mix of "route modules" (e.g. `user`, `auth`) and grouped helpers/services. The reason these are mixed is to prevent the need for excessively long relative paths for `require` statements (e.g. `../../../shared/services/db`). Feel free to restructure as needed for your application though.
 
 ## Issues & feature requests
 

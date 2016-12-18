@@ -6,9 +6,9 @@
 const jwt = require('meanie-express-jwt-service');
 const config = require('../config');
 
-//Setup tokens
+//Setup token defaults
 jwt.setDefaults({
-  issuer: config.TOKEN_DEFAULT_ISSUER,
-  audience: config.TOKEN_DEFAULT_AUDIENCE,
+  issuer: config.TOKEN_ISSUER,
+  audience: config.TOKEN_AUDIENCE,
+  secret: config.TOKEN_SECRET,
 });
-jwt.register(config.TOKEN_TYPES);

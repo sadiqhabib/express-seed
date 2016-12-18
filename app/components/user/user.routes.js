@@ -74,10 +74,6 @@ module.exports = function(app) {
   //Verify an email address verification token
   router.post(
     '/verifyEmail',
-    function(req, res, next) {
-      req.tokenType = 'verifyEmail';
-      next();
-    },
     userCtrl.findByToken,
     userCtrl.verifyEmail
   );
@@ -106,10 +102,6 @@ module.exports = function(app) {
   //Check user for reset password
   router.get(
     '/checkResetPassword',
-    function(req, res, next) {
-      req.tokenType = 'resetPassword';
-      next();
-    },
     userCtrl.findByToken,
     userCtrl.get
   );
@@ -117,10 +109,6 @@ module.exports = function(app) {
   //Reset a user's password
   router.post(
     '/resetPassword',
-    function(req, res, next) {
-      req.tokenType = 'resetPassword';
-      next();
-    },
     userCtrl.findByToken,
     userCtrl.resetPassword
   );

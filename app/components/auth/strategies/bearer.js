@@ -14,7 +14,7 @@ const User = require('../../user/user.service');
  */
 module.exports = function() {
   passport.use(new BearerStrategy((accessToken, cb) => {
-    jwt.validate('access', accessToken)
+    jwt.validate(accessToken)
       .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {

@@ -10,7 +10,7 @@ const argv = require('yargs').argv;
 /**
  * Determine environment and paths
  */
-const ENV = argv.env || process.env.NODE_ENV || 'dev';
+const ENV = argv.env || process.env.APP_ENV || 'dev';
 const BASE_PATH = path.resolve(path.join(__dirname, '..'));
 const CONFIG_PATH = path.join(BASE_PATH, 'config');
 

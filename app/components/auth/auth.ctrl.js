@@ -70,18 +70,17 @@ module.exports = {
 
       //Set user in request and get claims
       req.me = user;
-      const claims = user.getClaims();
+      const payload = user.getClaims();
 
       //Requesting secure status?
       if (secureStatus && grantType === 'password') {
-        const EXPIRATION = req.app.locals.SECURE_STATUS_EXPIRATION;
-        claims.secureStatus = moment()
-          .add(EXPIRATION, 'seconds')
-          .toJSON();
+        const exp = req.app.locals.SECURE_STATUS_EXPIRATION;
+        payload.secureStatus = moment().add(exp, 'seconds').toJSON();
       }
 
       //Generate access token
-      const accessToken = jwt.generate('access', claims);
+      const expiration = req.app.locals.TOKEN_EXP_ACCESS;
+      const accessToken = jwt.generate(payload, expiration);
 
       //Generate refresh token if we want to be remembered
       if (remember) {
@@ -90,7 +89,9 @@ module.exports = {
         const COOKIE_MAX_AGE = req.app.locals.REFRESH_TOKEN_COOKIE_MAX_AGE;
 
         //Create refresh token and set cookie
-        const refreshToken = jwt.generate('refresh', user.getClaims());
+        const payload = user.getClaims();
+        const expiration = req.app.locals.TOKEN_EXP_REFRESH;
+        const refreshToken = jwt.generate(payload, expiration);
         res.cookie('refreshToken', refreshToken, {
           maxAge: COOKIE_MAX_AGE * 1000, //in ms
           secure: req.secure,

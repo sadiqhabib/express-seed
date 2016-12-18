@@ -4,6 +4,7 @@
  * Dependencies
  */
 const jwt = require('meanie-express-jwt-service');
+const config = require('../../config');
 
 /**
  * Email generator
@@ -11,7 +12,9 @@ const jwt = require('meanie-express-jwt-service');
 module.exports = function(req, user) {
 
   //Generate a verify email token
-  const token = jwt.generate('verifyEmail', {id: user._id.toString()});
+  const expiration = config.TOKEN_EXP_VERIFY_EMAIL;
+  const payload = {id: user._id.toString()};
+  const token = jwt.generate(payload, expiration);
   const route = '/email/verify/' + token;
 
   //Prepare data

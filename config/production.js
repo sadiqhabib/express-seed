@@ -13,10 +13,10 @@ module.exports = {
   //App
   APP_NAME: pkg.name,
   APP_VERSION: pkg.version,
-  APP_BASE_URL: 'http://my-application.com',
+  APP_BASE_URL: 'https://my-application.com',
 
   //API
-  API_BASE_URL: 'http://my-application.com',
+  API_BASE_URL: 'https://my-application.com',
   API_BASE_PATH: '/api/',
 
   //CORS origins
@@ -64,26 +64,13 @@ module.exports = {
   SECURE_STATUS_EXPIRATION: 300, //seconds
 
   //Tokens
-  TOKEN_DEFAULT_AUDIENCE: 'http://my-application.com/app',
-  TOKEN_DEFAULT_ISSUER: 'http://my-application.com/api',
-  TOKEN_TYPES: {
-    access: {
-      secret: '',
-      expiration: 3600,
-    },
-    refresh: {
-      secret: '',
-      expiration: 30 * 24 * 3600,
-    },
-    verifyEmail: {
-      secret: '',
-      expiration: 48 * 3600,
-    },
-    resetPassword: {
-      secret: '',
-      expiration: 24 * 3600,
-    },
-  },
+  TOKEN_AUDIENCE: 'http://my-application.com/app',
+  TOKEN_ISSUER: 'http://my-application.com/api',
+  TOKEN_SECRET: process.env.TOKEN_SECRET,
+  TOKEN_EXP_ACCESS: 3600,
+  TOKEN_EXP_REFRESH: 30 * 24 * 3600,
+  TOKEN_EXP_VERIFY_EMAIL: 7 * 24 * 3600,
+  TOKEN_EXP_RESET_PASSWORD: 24 * 3600,
 
   //Cryptography
   BCRYPT_ROUNDS: 15,

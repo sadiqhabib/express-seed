@@ -21,7 +21,7 @@ module.exports = function() {
     }
 
     //Validate token
-    jwt.validate('refresh', refreshToken)
+    jwt.validate(refreshToken)
       .then(User.findByTokenPayload)
       .then(user => {
         if (!user) {

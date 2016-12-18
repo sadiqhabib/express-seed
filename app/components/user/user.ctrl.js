@@ -400,17 +400,14 @@ module.exports = {
    */
   findByToken(req, res, next) {
 
-    //Get token and token type
+    //Get token and validate
     const token = req.query.token || req.body.token;
-    const type = req.tokenType || req.query.type || req.body.type;
-
-    //Must have token and type
-    if (!token || !type) {
+    if (!token) {
       return next(new BadRequestError());
     }
 
     //Validate token
-    jwt.validate(type, token)
+    jwt.validate(token)
       .then(payload => {
         if (payload.jti) {
           return UsedToken
