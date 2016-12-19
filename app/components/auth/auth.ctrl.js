@@ -87,6 +87,7 @@ module.exports = {
 
         //Get locals
         const COOKIE_MAX_AGE = req.app.locals.REFRESH_TOKEN_COOKIE_MAX_AGE;
+        const API_BASE_PATH = req.app.locals.API_BASE_PATH;
 
         //Create refresh token and set cookie
         const payload = user.getClaims();
@@ -96,6 +97,7 @@ module.exports = {
           maxAge: COOKIE_MAX_AGE * 1000, //in ms
           secure: req.secure,
           httpOnly: true,
+          path: API_BASE_PATH + '/auth/token',
         });
       }
 
