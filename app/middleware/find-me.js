@@ -11,7 +11,7 @@ const InvalidTokenError = errors.InvalidTokenError;
 /**
  * Find logged in user
  */
-module.exports = function(req, res, next) {
+module.exports = function findMe(req, res, next) {
 
   //Authenticate now
   passport.authenticate('bearer', {
