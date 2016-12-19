@@ -13,13 +13,16 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const errors = require('meanie-express-error-handling');
 const router = require('./services/router');
+const findMe = require('./middleware/find-me');
+const initLocals = require('./middleware/init-locals');
+const ensureValidOrigin = require('./middleware/ensure-valid-origin');
 const config = require('./config');
 
 /**
  * Configuration
  */
 const APP_VERSION = config.APP_VERSION;
-const CORS_ORIGINS = config.CORS_ORIGINS;
+const APP_ORIGINS = config.APP_ORIGINS;
 const SERVER_LATENCY = config.SERVER_LATENCY;
 const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
 const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
@@ -51,7 +54,7 @@ module.exports = function() {
 
   //CORS
   app.use(cors({
-    origin: CORS_ORIGINS,
+    origin: APP_ORIGINS,
     credentials: true, //NOTE: needed for cross domain cookies to work
   }));
 
@@ -88,7 +91,12 @@ module.exports = function() {
     app.use(latency);
   }
 
-  //Initialize password
+  //Ensure valid origin, initialize locals and find logged in user
+  app.use(ensureValidOrigin);
+  app.use(initLocals);
+  app.use(findMe);
+
+  //Initialize passport
   app.use(passport.initialize());
 
   //Set global headers
