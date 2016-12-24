@@ -48,8 +48,8 @@ const UserService = module.exports = {
     return UserService.findByUsername(username)
       .then(user => {
 
-        //No user?
-        if (!user) {
+        //No user or user has no password?
+        if (!user || !user.password) {
           return null;
         }
 
