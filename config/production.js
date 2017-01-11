@@ -1,18 +1,16 @@
 'use strict';
 
 /**
- * Get package info and server port
+ * Get base environment to extend from
  */
-const pkg = require('../package.json');
+const base = require('./base');
 
 /**
  * Environment configuration (production)
  */
-module.exports = {
+module.exports = Object.assign({}, base, {
 
   //App
-  APP_NAME: pkg.name,
-  APP_VERSION: pkg.version,
   APP_BASE_URL: 'https://my-application.com',
 
   //API
@@ -38,7 +36,6 @@ module.exports = {
   DB_AUTO_INDEX: false,
 
   //Google cloud
-  GCLOUD_STORAGE_BASE_URL: 'https://storage.googleapis.com/',
   GCLOUD_PROJECT_ID: '',
   GCLOUD_BUCKET_CONTENT: '',
 
@@ -50,32 +47,6 @@ module.exports = {
     'normalize', 'log-to-console', 'track-with-sentry',
   ],
 
-  //Internationalization
-  I18N_LOCALES: ['en'],
-  I18N_DEFAULT_LOCALE: 'en',
-
-  //Email identities
-  EMAIL_IDENTITY_NOREPLY: 'My Application <no-reply@my-application.com>',
-  EMAIL_IDENTITY_ADMIN: 'Admin <admin@my-application.com>',
-
-  //Authentication
-  REFRESH_TOKEN_COOKIE_MAX_AGE: 30 * 24 * 3600, //seconds
-  REFRESH_TOKEN_COOKIE_SECURE: false,
-  SECURE_STATUS_EXPIRATION: 300, //seconds
-
   //Tokens
-  TOKEN_AUDIENCE: 'http://my-application.com/app',
-  TOKEN_ISSUER: 'http://my-application.com/api',
   TOKEN_SECRET: process.env.TOKEN_SECRET,
-  TOKEN_EXP_ACCESS: 3600,
-  TOKEN_EXP_REFRESH: 30 * 24 * 3600,
-  TOKEN_EXP_VERIFY_EMAIL: 7 * 24 * 3600,
-  TOKEN_EXP_RESET_PASSWORD: 24 * 3600,
-
-  //Cryptography
-  BCRYPT_ROUNDS: 15,
-
-  //User
-  USER_PASSWORD_MIN_LENGTH: 8,
-  USER_AVATAR_MAX_FILE_SIZE: 512 * 1024, //bytes
-};
+});
