@@ -335,7 +335,7 @@ module.exports = {
   },
 
   /**
-   * Find by username (doesn't trigger 404's)
+   * Find by username
    */
   findByUsername(req, res, next) {
 
@@ -349,13 +349,14 @@ module.exports = {
     User.findOne({username})
       .then(user => {
 
-        //Found?
-        if (user) {
+        //No user?
+        if (!user) {
+          throw new NotFoundError();
+        }
 
-          //Check if suspended
-          if (user.isSuspended) {
-            throw new UserSuspendedError();
-          }
+        //Check if suspended
+        if (user.isSuspended) {
+          throw new UserSuspendedError();
         }
 
         //Set in request
