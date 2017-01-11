@@ -8,8 +8,7 @@
   "verbose": false,
   "watch": [
     "app",
-    "config",
-    "emails"
+    "config"
   ],
   "ext": "js json",
   "env": {
