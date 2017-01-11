@@ -13,6 +13,7 @@ const ServerError = errors.ServerError;
 const NotAuthenticatedError = errors.NotAuthenticatedError;
 const NotAuthorizedError = errors.NotAuthorizedError;
 const UserSuspendedError = errors.UserSuspendedError;
+const BadRequestError = errors.BadRequestError;
 const toCamelCase = require('../../helpers/transform/to-camel-case');
 
 /**
@@ -21,19 +22,18 @@ const toCamelCase = require('../../helpers/transform/to-camel-case');
 module.exports = {
 
   /**
-   * Verify authentication
-   */
-  verify(req, res) {
-    res.end();
-  },
-
-  /**
-   * Forget a user
+   * Clear refresh token
    */
   forget(req, res) {
+
+    //Get locals
+    const API_BASE_PATH = req.app.locals.API_BASE_PATH;
+
+    //Clear cookie
     res.clearCookie('refreshToken', {
       secure: req.secure,
       httpOnly: true,
+      path: API_BASE_PATH + '/auth/token',
     });
     res.end();
   },
@@ -107,14 +107,14 @@ module.exports = {
 
     //Handle specific grant types
     switch (grantType) {
-      case 'bearer':
-        passport.authenticate('bearer', authCallback)(req, res, next);
-        break;
       case 'password':
         passport.authenticate('local', authCallback)(req, res, next);
         break;
       case 'refreshToken':
         passport.authenticate('refresh', authCallback)(req, res, next);
+        break;
+      default:
+        next(new BadRequestError('Invalid grant type'));
         break;
     }
   },

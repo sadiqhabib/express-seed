@@ -11,18 +11,8 @@ const authCtrl = require('./auth.ctrl');
  */
 module.exports = function(app) {
 
-  //Extract middleware
-  const {ensureAuthenticated} = authCtrl;
-
   //Create new router
   const router = express.Router();
-
-  //Verify authentication
-  router.get(
-    '/verify',
-    ensureAuthenticated(),
-    authCtrl.verify
-  );
 
   //Forget any refresh tokens
   router.get(
