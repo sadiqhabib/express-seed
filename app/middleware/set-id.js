@@ -4,9 +4,7 @@
  * Dependencies
  */
 const mongoose = require('mongoose');
-const errors = require('meanie-express-error-handling');
 const ObjectId = mongoose.Types.ObjectId;
-const BadRequestError = errors.BadRequestError;
 
 /**
  * Generic ID setter middleware
@@ -14,9 +12,9 @@ const BadRequestError = errors.BadRequestError;
 module.exports = function setId(key) {
   return function(req, res, next, id) {
 
-    //Validate ID
+    //If ID is invalid, try the next route
     if (!ObjectId.isValid(id)) {
-      return next(new BadRequestError());
+      return next('route');
     }
 
     //Set in request

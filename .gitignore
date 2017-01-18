@@ -5,3 +5,4 @@ coverage
 migrations/dump
 config/local.*
 keys
+yarn.lock

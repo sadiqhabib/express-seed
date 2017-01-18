@@ -5,23 +5,17 @@
  */
 const passport = require('passport');
 const BearerStrategy = require('passport-http-bearer').Strategy;
-const jwt = require('meanie-express-jwt-service');
-const InvalidTokenError = jwt.InvalidTokenError;
-const User = require('../../user/user.service');
+const validateToken = require('../helpers/validate-token');
+const findUserByClaims = require('../helpers/find-user-by-claims');
 
 /**
  * Bearer strategy
  */
 module.exports = function() {
   passport.use(new BearerStrategy((accessToken, cb) => {
-    jwt.validate(accessToken)
-      .then(User.findByTokenPayload)
-      .then(user => {
-        if (!user) {
-          throw new InvalidTokenError('No matching user found');
-        }
-        return cb(null, user);
-      })
+    validateToken(accessToken)
+      .then(findUserByClaims)
+      .then(([user, claims]) => cb(null, user, claims))
       .catch(cb);
   }));
 };

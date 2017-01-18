@@ -8,6 +8,7 @@ const userCtrl = require('./user.ctrl');
 const avatarCtrl = require('./avatar.ctrl');
 const fileCtrl = require('../file/file.ctrl');
 const authCtrl = require('../auth/auth.ctrl');
+const setId = require('../../middleware/set-id');
 
 /**
  * User routes
@@ -15,74 +16,173 @@ const authCtrl = require('../auth/auth.ctrl');
 module.exports = function(app) {
 
   //Extract middleware
-  const {ensureAuthenticated} = authCtrl;
+  const {ensureAuthenticated, ensureScope} = authCtrl;
 
   //Create new router
   const router = express.Router();
 
   //Parameter handling
-  router.param('property', userCtrl.setProperty);
+  router.param('userId', setId('userId'));
 
-  //Register user
+  //Get users
+  router.get(
+    '/',
+    ensureAuthenticated(),
+    ensureScope('user:read'),
+    userCtrl.findByQuery,
+    userCtrl.list
+  );
+
+  //Create user
   router.post(
     '/',
-    userCtrl.ensureUsernameNotInUse,
+    ensureAuthenticated(),
+    ensureScope('user:write'),
+    userCtrl.ensureUsernameNotInUse(),
     userCtrl.collectData,
     userCtrl.create,
     userCtrl.get
   );
 
-  //Update logged in user
-  router.put(
-    '/',
+  //Get specific user
+  router.get(
+    '/:userId',
     ensureAuthenticated(),
+    ensureScope('user:read'),
+    userCtrl.findById,
+    userCtrl.get
+  );
+
+  //Update specific user
+  router.put(
+    '/:userId',
+    ensureAuthenticated(),
+    ensureScope('user:write'),
+    userCtrl.ensureUsernameNotInUse(true),
+    userCtrl.findById,
     userCtrl.collectData,
     userCtrl.update,
     userCtrl.get
   );
 
-  //Change credentials
-  router.patch(
-    '/credentials',
+  //Delete specific user
+  router.delete(
+    '/:userId',
     ensureAuthenticated(),
-    userCtrl.ensureUsernameNotInUse,
-    userCtrl.changeCredentials
+    ensureScope('user:write'),
+    userCtrl.findById,
+    userCtrl.delete
   );
 
-  //Patch logged in user
-  router.patch(
-    '/:property',
+  //Update user's password
+  router.put(
+    '/:userId/password',
     ensureAuthenticated(),
+    ensureScope('user:write'),
+    userCtrl.findById,
+    userCtrl.updatePassword
+  );
+
+  /**************************************************************************
+   * Own user routes
+   ***/
+
+  //Register user
+  router.post(
+    '/me',
+    userCtrl.ensureUsernameNotInUse(),
     userCtrl.collectData,
-    userCtrl.patch
+    userCtrl.create,
+    userCtrl.get
   );
 
-  //Get logged in user data
+  //Get authenticated user
   router.get(
     '/me',
     ensureAuthenticated(),
-    userCtrl.me,
+    ensureScope('user:own'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
     userCtrl.get
   );
+
+  //Update authenticated user
+  router.put(
+    '/me',
+    ensureAuthenticated(),
+    ensureScope('user:own'),
+    userCtrl.setClaimedId,
+    userCtrl.ensureUsernameNotInUse(true),
+    userCtrl.findById,
+    userCtrl.collectData,
+    userCtrl.update,
+    userCtrl.get
+  );
+
+  //Update user's password
+  router.put(
+    '/me/password',
+    ensureAuthenticated(),
+    ensureScope('user:password'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
+    userCtrl.updatePassword
+  );
+
+  //Upload avatar
+  router.post(
+    '/me/avatar',
+    ensureAuthenticated(),
+    ensureScope('user:own'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
+    avatarCtrl.configure,
+    fileCtrl.deleteFromCloud,
+    fileCtrl.upload,
+    fileCtrl.streamToCloud,
+    avatarCtrl.save
+  );
+
+  //Delete avatar
+  router.delete(
+    '/me/avatar',
+    ensureAuthenticated(),
+    ensureScope('user:own'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
+    avatarCtrl.configure,
+    fileCtrl.deleteFromCloud,
+    avatarCtrl.delete
+  );
+
+  //Send out an email address verification mail
+  router.get(
+    '/verifyEmail',
+    ensureAuthenticated(),
+    ensureScope('user:own'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
+    userCtrl.sendVerificationEmail
+  );
+
+  //Verify an email address
+  router.post(
+    '/verifyEmail',
+    ensureAuthenticated(),
+    ensureScope('user:verify'),
+    userCtrl.setClaimedId,
+    userCtrl.findById,
+    userCtrl.verifyEmail
+  );
+
+  /**************************************************************************
+   * Unauthenticated routes
+   ***/
 
   //Check if a user exists
   router.get(
     '/exists',
     userCtrl.exists
-  );
-
-  //Verify an email address verification token
-  router.post(
-    '/verifyEmail',
-    userCtrl.findByToken,
-    userCtrl.verifyEmail
-  );
-
-  //Send out an email address verification token
-  router.get(
-    '/verifyEmail',
-    ensureAuthenticated(),
-    userCtrl.sendVerificationEmail
   );
 
   //Send out a password reset email
@@ -92,54 +192,11 @@ module.exports = function(app) {
     userCtrl.sendPasswordResetEmail
   );
 
-  //Send out an email with username
+  //Send out an email with usernames
   router.post(
     '/forgotUsername',
     userCtrl.findByEmail,
-    userCtrl.sendUsernamesEmail
-  );
-
-  //Check user for reset password
-  router.get(
-    '/checkResetPassword',
-    userCtrl.findByToken,
-    userCtrl.get
-  );
-
-  //Reset a user's password
-  router.post(
-    '/resetPassword',
-    userCtrl.findByToken,
-    userCtrl.resetPassword
-  );
-
-  //Change a user's credentials
-  router.post(
-    '/changeCredentials',
-    ensureAuthenticated(),
-    userCtrl.changeCredentials
-  );
-
-  //Upload an avatar
-  router.post(
-    '/avatar',
-    ensureAuthenticated(),
-    userCtrl.setUser,
-    avatarCtrl.configure,
-    fileCtrl.deleteFromCloud,
-    fileCtrl.upload,
-    fileCtrl.streamToCloud,
-    avatarCtrl.save
-  );
-
-  //Delete an avatar
-  router.delete(
-    '/avatar',
-    ensureAuthenticated(),
-    userCtrl.setUser,
-    avatarCtrl.configure,
-    fileCtrl.deleteFromCloud,
-    avatarCtrl.delete
+    userCtrl.sendUsernameRecoveryEmail
   );
 
   //Register router

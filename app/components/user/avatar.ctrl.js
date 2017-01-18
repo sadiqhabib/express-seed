@@ -50,7 +50,7 @@ module.exports = {
   configure(req, res, next) {
 
     //Get user
-    let user = req.user;
+    const user = req.user;
 
     //Get configuration
     const BUCKET = req.app.locals.GCLOUD_BUCKET_CONTENT;

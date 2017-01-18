@@ -14,12 +14,13 @@ const config = require('../../config');
 module.exports = function resetPasswordEmail(user) {
 
   //Generate unique token identifier
-  const jti = new ObjectId();
+  const id = new ObjectId();
   const expiration = config.TOKEN_EXP_RESET_PASSWORD;
-  const payload = {
-    id: user._id.toString(),
-    jti: jti.toString(),
-  };
+  const payload = Object.assign(user.getClaims(), {
+    id: id.toString(),
+    once: true,
+    scope: 'user:password',
+  });
 
   //Generate a password reset token
   const token = jwt.generate(payload, expiration);

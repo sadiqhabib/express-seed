@@ -9,14 +9,14 @@ const ExpiredTokenError = errors.ExpiredTokenError;
 const InvalidTokenError = errors.InvalidTokenError;
 
 /**
- * Find logged in user
+ * Authenticate
  */
-module.exports = function findMe(req, res, next) {
+module.exports = function authenticate(req, res, next) {
 
   //Authenticate now
   passport.authenticate('bearer', {
     session: false,
-  }, (error, user) => {
+  }, (error, user, claims) => {
 
     //Ignore token errors, they will trigger 401's later if no user is present
     if (error instanceof ExpiredTokenError) {
@@ -31,9 +31,9 @@ module.exports = function findMe(req, res, next) {
       return next(error);
     }
 
-    //Set user in request if found
+    //Set claims in request if authenticated
     if (user) {
-      req.me = user;
+      req.claims = claims;
     }
 
     //Next middleware

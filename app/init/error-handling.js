@@ -3,6 +3,7 @@
 /**
  * Dependencies
  */
+const errors = require('meanie-express-error-handling');
 const raven = require('meanie-express-raven-service');
 const config = require('../config');
 
@@ -15,3 +16,6 @@ if (config.ENV !== 'production') {
 if (config.SENTRY_DSN) {
   raven(config.SENTRY_DSN, config.SENTRY_CONFIG);
 }
+
+//Specify which middleware to use
+errors.use(config.ERROR_MIDDLEWARE.concat(['send']));

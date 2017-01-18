@@ -5,7 +5,7 @@
  */
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../../user/user.service');
+const UserService = require('../../user/user.service');
 
 /**
  * Local strategy
@@ -18,7 +18,8 @@ module.exports = function() {
   }, (req, username, password, cb) => {
 
     //Find user by username
-    User.findByUsernameAndPassword(req, username, password)
+    UserService
+      .findByUsernameAndPassword(username, password)
       .then(user => {
         if (!user) {
           return cb(null, false);

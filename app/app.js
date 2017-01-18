@@ -13,9 +13,10 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const errors = require('meanie-express-error-handling');
 const router = require('./services/router');
-const findMe = require('./middleware/find-me');
+const authenticate = require('./middleware/authenticate');
 const initLocals = require('./middleware/init-locals');
 const ensureValidOrigin = require('./middleware/ensure-valid-origin');
+const BadRequestError = errors.BadRequestError;
 const config = require('./config');
 
 /**
@@ -26,7 +27,6 @@ const APP_ORIGINS = config.APP_ORIGINS;
 const SERVER_LATENCY = config.SERVER_LATENCY;
 const SERVER_LATENCY_MIN = config.SERVER_LATENCY_MIN;
 const SERVER_LATENCY_MAX = config.SERVER_LATENCY_MAX;
-const ERROR_MIDDLEWARE = config.ERROR_MIDDLEWARE;
 
 /**
  * Initialization
@@ -94,7 +94,7 @@ module.exports = function() {
   //Ensure valid origin, initialize locals and find logged in user
   app.use(ensureValidOrigin);
   app.use(initLocals);
-  app.use(findMe);
+  app.use(authenticate);
 
   //Initialize passport
   app.use(passport.initialize());
@@ -108,10 +108,13 @@ module.exports = function() {
   //Load router
   router(app);
 
+  //Handle invalid routes (e.g. not captured by router)
+  app.all('/*', (req, res, next) => {
+    next(new BadRequestError('Invalid route'));
+  });
+
   //Create error handling middleware stack
-  errors
-    .middleware(ERROR_MIDDLEWARE.concat(['send']))
-    .forEach(handler => app.use(handler));
+  errors.middleware().forEach(handler => app.use(handler));
 
   //Return express server instance
   return app;

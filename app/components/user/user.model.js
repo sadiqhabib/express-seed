@@ -10,6 +10,7 @@ const Schema = mongoose.Schema;
 const ValidationError = errors.ValidationError;
 const config = require('../../config');
 const roles = require('../../constants/roles');
+const combineScopes = require('../auth/helpers/combine-scopes');
 
 /**
  * Schemas
@@ -38,9 +39,6 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-  },
-  fullName: {
-    type: String,
   },
   avatar: FileSchema,
   locale: {
@@ -75,10 +73,6 @@ const UserSchema = new Schema({
     }],
     default: [roles.USER],
   },
-  isSuspended: {
-    type: Boolean,
-    default: false,
-  },
   isEmailVerified: {
     type: Boolean,
     default: false,
@@ -97,96 +91,6 @@ UserSchema.index({username: 1}, {unique: true});
 UserSchema.statics.parseData = function(data) {
   return data;
 };
-
-/**
- * Name cleaner
- */
-UserSchema.statics.cleanName = function(name) {
-  return name
-    .replace(/\'/g, '’')
-    .replace(/—/g, '-')
-    .replace(/[\\\/]/g, '');
-};
-
-/**
- * Helper to create full name
- */
-UserSchema.statics.createFullName = function(firstName, lastName) {
-  return String(firstName + ' ' + lastName).trim();
-};
-
-/**
- * Generate a unique username based on user data
- */
-UserSchema.statics.uniqueUsername = function(data) {
-
-  //Extract data
-  const {email, firstName, lastName} = data;
-  const name = String(firstName + lastName).toLowerCase();
-
-  //Random number generator 1-100
-  function random() {
-    return String(Math.floor(Math.random() * 100) + 1);
-  }
-
-  //Possible usernames
-  const usernames = [
-    name,
-    name + random(),
-    name + random(),
-    name + random(),
-    name + random(),
-    name + random(),
-  ];
-
-  //Email first
-  if (email) {
-    usernames.unshift(email.toLowerCase());
-  }
-
-  //Find existing users
-  return this
-    .find({username: {$in: usernames}})
-    .select('username')
-    .then(users => {
-
-      //Find first one that didn't exist
-      const username = usernames.find(username => {
-        return !users.some(user => user.username === username);
-      });
-
-      //Still nothing found? Give up
-      if (!username) {
-        throw new Error('Unable to find unique username for user');
-      }
-
-      //Return username
-      return username;
-    });
-};
-
-/**
- * Clean up names
- */
-UserSchema.pre('save', function(next) {
-
-  //Clean up names
-  if (this.isModified('firstName')) {
-    this.firstName = this.constructor.cleanName(this.firstName);
-  }
-  if (this.isModified('lastName')) {
-    this.lastName = this.constructor.cleanName(this.lastName);
-  }
-
-  //Create full name
-  if (this.isModified('firstName') || this.isModified('lastName')) {
-    this.fullName = this.constructor
-      .createFullName(this.firstName, this.lastName);
-  }
-
-  //Next middleware
-  next();
-});
 
 /**
  * Hash password
@@ -227,10 +131,7 @@ UserSchema.virtual('emailWithName').get(function() {
   if (!this.email) {
     return '';
   }
-  if (this.fullName) {
-    return this.fullName + ' <' + this.email + '>';
-  }
-  else if (this.firstName || this.lastName) {
+  if (this.firstName || this.lastName) {
     return String(this.firstName + ' ' + this.lastName).trim() +
       ' <' + this.email + '>';
   }
@@ -252,21 +153,13 @@ UserSchema.methods.hasRole = function(role) {
 };
 
 /**
- * Add a user role
- */
-UserSchema.methods.addRole = function(role) {
-  if (!this.roles.includes(role)) {
-    this.roles.push(role);
-  }
-};
-
-/**
- * Get claims
+ * Get claims for an access token
  */
 UserSchema.methods.getClaims = function() {
   return {
-    id: this._id.toString(),
+    user: this._id.toString(),
     roles: this.roles,
+    scope: combineScopes(this.roles).join(' '),
   };
 };
 
@@ -275,12 +168,7 @@ UserSchema.methods.getClaims = function() {
  */
 UserSchema.options.toJSON = {
   transform(doc, ret) {
-
-    //Delete sensitive data
     delete ret.password;
-
-    //Delete unnecessary data
-    delete ret.fullName;
   },
 };
 

@@ -20,15 +20,15 @@ const UserService = module.exports = {
   /**
    * Find user by token payload
    */
-  findByTokenPayload(payload) {
+  findByClaims(claims) {
 
-    //Check payload
-    if (!payload || !payload.id) {
-      throw new InvalidTokenError('No payload or no ID in payload');
+    //Check claims
+    if (!claims || !claims.user) {
+      throw new InvalidTokenError('No payload or no user ID in payload');
     }
 
-    //Get ID
-    const id = payload.id;
+    //Get user ID
+    const id = claims.user;
 
     //Find user by ID
     return UserService.findById(id);
@@ -37,7 +37,7 @@ const UserService = module.exports = {
   /**
    * Find user by username and password
    */
-  findByUsernameAndPassword(req, username, password) {
+  findByUsernameAndPassword(username, password) {
 
     //No username or no password given?
     if (!username || !password) {
@@ -45,7 +45,8 @@ const UserService = module.exports = {
     }
 
     //Find by username
-    return UserService.findByUsername(username)
+    return UserService
+      .findByUsername(username)
       .then(user => {
 
         //No user or user has no password?
@@ -63,13 +64,17 @@ const UserService = module.exports = {
    * Find user by ID
    */
   findById(id) {
-    return User.findById(id);
+    return User
+      .findById(id)
+      .select('_id roles');
   },
 
   /**
    * Find user by username
    */
   findByUsername(username) {
-    return User.findOne({username});
+    return User
+      .findOne({username})
+      .select('_id roles');
   },
 };
