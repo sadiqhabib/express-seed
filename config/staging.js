@@ -15,7 +15,7 @@ module.exports = Object.assign({}, production, {
   API_BASE_URL: 'https://staging.my-application.com',
 
   //CORS origins
-  CORS_ORIGINS: [
+  APP_ORIGINS: [
     /staging\.my\-application\.com/,
   ],
 });

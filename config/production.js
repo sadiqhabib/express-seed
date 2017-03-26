@@ -18,7 +18,7 @@ module.exports = Object.assign({}, base, {
   API_BASE_PATH: '/api/',
 
   //CORS origins
-  CORS_ORIGINS: [
+  APP_ORIGINS: [
     /[[a-z0-9\-]+\.]*my\-application\.com/,
   ],
 
