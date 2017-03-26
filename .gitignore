@@ -6,3 +6,5 @@ migrations/dump
 config/local.*
 keys
 yarn.lock
+.s3cfg
+s3

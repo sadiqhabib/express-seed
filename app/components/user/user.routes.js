@@ -137,9 +137,9 @@ module.exports = function(app) {
     userCtrl.setClaimedId,
     userCtrl.findById,
     avatarCtrl.configure,
-    fileCtrl.deleteFromCloud,
+    fileCtrl.deleteFromGcs,
     fileCtrl.upload,
-    fileCtrl.streamToCloud,
+    fileCtrl.streamToGcs,
     avatarCtrl.save
   );
 
@@ -151,7 +151,7 @@ module.exports = function(app) {
     userCtrl.setClaimedId,
     userCtrl.findById,
     avatarCtrl.configure,
-    fileCtrl.deleteFromCloud,
+    fileCtrl.deleteFromGcs,
     avatarCtrl.delete
   );
 

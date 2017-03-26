@@ -12,15 +12,13 @@ module.exports = Object.assign({}, base, {
 
   //App
   APP_BASE_URL: 'https://my-application.com',
+  APP_ORIGINS: [
+    /[[a-z0-9\-]+\.]*my\-application\.com/,
+  ],
 
   //API
   API_BASE_URL: 'https://my-application.com',
   API_BASE_PATH: '/api/',
-
-  //CORS origins
-  CORS_ORIGINS: [
-    /[[a-z0-9\-]+\.]*my\-application\.com/,
-  ],
 
   //Server
   SERVER_PORT: process.env.PORT || 80,
@@ -34,6 +32,13 @@ module.exports = Object.assign({}, base, {
   DB_PASS: '',
   DB_DEBUG: false,
   DB_AUTO_INDEX: false,
+
+  //S3
+  S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+  S3_REGION: 'ap-southeast-2',
+  S3_BUCKET: 'content.my-application.com',
+  S3_BUCKET_URL: 'https://content.my-application.com/',
 
   //Google cloud
   GCLOUD_PROJECT_ID: '',

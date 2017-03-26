@@ -4,12 +4,6 @@
  * Dependencies
  */
 const Schema = require('mongoose').Schema;
-const config = require('../../config');
-
-/**
- * Constants
- */
-const BASE_URL = config.GCLOUD_STORAGE_BASE_URL;
 
 /**
  * Schema generator
@@ -28,10 +22,9 @@ function extendFileSchema(fields, _id = false) {
   //Add transform
   FileSchema.options.toJSON = {
     transform(doc, ret) {
-      if (ret.path && ret.bucket) {
-        return BASE_URL + ret.bucket + '/' + ret.path;
+      if (!ret.path) {
+        return null;
       }
-      return null;
     },
   };
 

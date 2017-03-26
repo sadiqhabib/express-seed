@@ -20,7 +20,7 @@
   },
   "keywords": [],
   "engines": {
-    "node": "^7.2.1"
+    "node": "^7.4.0"
   },
   "main": "scripts/server.js",
   "scripts": {
@@ -45,6 +45,7 @@
     "restore:remote": "mongorestore -h DB_HOST -d DB_NAME -u DB_USER -p DB_PASS ./migrations/dump/DB_NAME_LOCAL --drop"
   },
   "dependencies": {
+    "aws-sdk": "^2.6.7",
     "bcrypt": "^1.0.1",
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
