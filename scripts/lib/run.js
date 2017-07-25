@@ -6,6 +6,8 @@
 const path = require('path');
 const status = require('./status');
 const argv = require('yargs').argv;
+const errors = require('meanie-express-error-handling');
+const taskNameFromFile = require('./task-name');
 
 /**
  * Helper to run scripts
@@ -26,11 +28,23 @@ function run(scripts) {
   const file = scripts.shift();
   status.start('Running', path.basename(file));
 
+  //Define mock request object for error handling
+  const req = {
+    isTask: true,
+    taskName: taskNameFromFile(file),
+  };
+
+  console.log(req.taskName);
+
   //Load script and run it
-  return Promise.try(() => require(path.resolve(file)))
+  return Promise
+    .try(() => require(path.resolve(file)))
     .then(script => script(argv))
     .then(() => status.ok())
-    .catch(error => status.error(error))
+    .catch(error => {
+      errors.handler(error, req);
+      status.error(error);
+    })
     .then(() => run(scripts));
 }
 

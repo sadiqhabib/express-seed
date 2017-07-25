@@ -6,12 +6,17 @@
 global.Promise = require('bluebird');
 
 /**
+ * Common initialization scripts
+ */
+require('../app/init/console');
+
+/**
  * Dependencies
  */
 const path = require('path');
 const chalk = require('chalk');
-const mongoose = require('mongoose');
 const argv = require('yargs').argv;
+const db = require('../app/init/db');
 const log = require('./lib/log');
 const run = require('./lib/run');
 const loadScripts = require('./lib/load-scripts');
@@ -37,13 +42,10 @@ if (scripts.length === 0) {
 }
 
 //Initialize database
-require('../app/init/db')({
+db({
   debug: (typeof argv.debug !== 'undefined'),
   autoIndex: false,
-});
-
-//Run when DB connected
-mongoose.connection.on('connected', () => {
+}).then(() => {
 
   //Log
   console.log(

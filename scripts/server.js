@@ -18,6 +18,7 @@ const config = require('../app/config');
 const ENV = config.ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config.SERVER_PORT;
+const SERVER_TIMEOUT = config.SERVER_TIMEOUT;
 
 /**
  * Fix CWD if run from scripts path
@@ -68,6 +69,9 @@ const server = app.listen(SERVER_PORT, function() {
   //Output success message
   console.log(chalk.green('Express server started @'), chalk.magenta(address));
 });
+
+//Configure and apply error handler
+server.timeout = SERVER_TIMEOUT;
 server.on('error', expressErrorHandler);
 
 /**
