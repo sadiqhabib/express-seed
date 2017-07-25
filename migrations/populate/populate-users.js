@@ -9,7 +9,7 @@ const User = mongoose.model('User');
 /**
  * Migration
  */
-module.exports = function(argv) {
+module.exports = async function(argv) {
 
   //Determine data set to use
   const data = argv.data || 'mock';
@@ -18,6 +18,6 @@ module.exports = function(argv) {
   const users = require('./' + data + '/users');
 
   //Remove and then add users
-  return User.remove({})
-    .then(() => User.create(users));
+  await User.remove({});
+  await User.create(users);
 };
