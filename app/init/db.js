@@ -28,35 +28,12 @@ mongoose.isObjectId = function(id) {
  */
 module.exports = function(options) {
 
-  //Extend main config options
-  const cfg = Object.assign({}, {
+  //Extend main config options and extract data
+  const {uri, debug, autoIndex} = Object.assign({}, {
     uri: config.DB_URI,
-    user: config.DB_USER,
-    pass: config.DB_PASS,
     debug: config.DB_DEBUG,
     autoIndex: config.DB_AUTO_INDEX,
   }, options || {});
-
-  //Connect to database
-  console.log('Connecting to database', chalk.magenta(cfg.uri), '...');
-  mongoose.set('debug', cfg.debug);
-  mongoose.connect(cfg.uri, {
-    user: cfg.user,
-    pass: cfg.pass,
-    config: {
-      autoIndex: cfg.autoIndex,
-    },
-  });
-
-  //Handle connection events
-  mongoose.connection.on('error', error => {
-    console.log(chalk.red('Database error:'));
-    console.log(chalk.red(error.stack || error));
-    process.exit(-1);
-  });
-  mongoose.connection.on('connected', () => {
-    console.log(chalk.green('Database connected @'), chalk.magenta(cfg.uri));
-  });
 
   //Load models
   console.log('Loading model files...');
@@ -64,4 +41,23 @@ module.exports = function(options) {
     console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
     require(path.resolve(modelPath));
   });
+
+  //Connect to database
+  console.log('Connecting to database', chalk.magenta(uri), '...');
+  mongoose.set('debug', debug);
+  return mongoose
+    .connect(uri, {
+      useMongoClient: true,
+      config: {
+        autoIndex,
+      },
+    })
+    .then(() => {
+      console.log(chalk.green('Database connected @'), chalk.magenta(uri));
+    })
+    .catch(error => {
+      console.log(chalk.red('Database error:'));
+      console.log(chalk.red(error.stack || error));
+      process.exit(-1);
+    });
 };

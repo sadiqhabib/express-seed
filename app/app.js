@@ -92,8 +92,8 @@ module.exports = function() {
   }
 
   //Ensure valid origin, initialize locals and find logged in user
-  app.use(ensureValidOrigin);
   app.use(initLocals);
+  app.use(ensureValidOrigin);
   app.use(authenticate);
 
   //Initialize passport

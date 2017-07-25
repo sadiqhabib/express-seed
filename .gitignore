@@ -2,6 +2,7 @@
 *.log
 node_modules
 coverage
+.nyc_output
 migrations/dump
 config/local.*
 keys

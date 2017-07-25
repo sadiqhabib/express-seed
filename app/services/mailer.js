@@ -4,10 +4,11 @@
  * Dependencies
  */
 const path = require('path');
+const crypto = require('crypto');
 const moment = require('moment');
 const errors = require('meanie-express-error-handling');
 const composer = require('meanie-mail-composer');
-const sendgrid = require('sendgrid-mailer');
+const sgMail = require('@sendgrid/mail');
 const SendMailError = errors.SendMailError;
 const config = require('../config');
 
@@ -19,22 +20,31 @@ const EMAILS_PATH = path.resolve('./app/emails/');
 /**
  * Configure sendgrid mailer and mail composer
  */
-sendgrid.config(config.SENDGRID_API_KEY);
+sgMail.setApiKey(config.SENDGRID_API_KEY);
 composer.config({
   templateHtml: path.join(EMAILS_PATH, 'template.hbs'),
   templateText: path.join(EMAILS_PATH, 'template.txt'),
 });
 
 /**
- * Create locals for email templates from given context
+ * Create locals for email templates from given data
  */
 function createLocals(context) {
+
+  //Extract data from context
+  const {S3_BUCKET, APP_TITLE, APP_VERSION, APP_BASE_URL} = context.app.locals;
+
+  //Return locals
   return {
     now: moment(),
+    s3: {
+      bucket: S3_BUCKET,
+      base: 'https://' + S3_BUCKET,
+    },
     app: {
-      title: context.app.locals.APP_TITLE,
-      version: context.app.locals.APP_VERSION,
-      url: context.app.locals.APP_BASE_URL,
+      title: APP_TITLE,
+      version: APP_VERSION,
+      url: APP_BASE_URL,
     },
   };
 }
@@ -62,6 +72,19 @@ const mailer = module.exports = {
       mail.from = config.EMAIL_IDENTITY_NOREPLY;
     }
 
+    //Add reply to address
+    if (locals.club && locals.club.email) {
+      if (typeof mail.replyTo === 'undefined') {
+        mail.replyTo = locals.club.email;
+      }
+    }
+
+    //Add custom args
+    mail.uniqueArgs = mail.uniqueArgs || {};
+    if (locals.club && locals.club.subdomain) {
+      mail.uniqueArgs.club = locals.club.subdomain;
+    }
+
     //Use composer to generate email instance
     return composer.compose(mail, data);
   },
@@ -70,10 +93,23 @@ const mailer = module.exports = {
    * Send one or more emails
    */
   send(emails) {
-    return sendgrid
-      .send(emails)
+
+    //Ensure array given
+    if (!Array.isArray(emails)) {
+      emails = [emails];
+    }
+
+    //Ensure all emails have a recipient and check if anything to do
+    emails = emails.filter(email => !!email.to);
+    if (!emails.length) {
+      return Promise.resolve();
+    }
+
+    //Send now
+    return sgMail
+      .sendMultiple(emails)
       .catch(error => {
-        throw new SendMailError(error);
+        throw new SendMailError(error, error.response.body);
       });
   },
 };
