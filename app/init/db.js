@@ -35,17 +35,10 @@ module.exports = function(options) {
     autoIndex: config.DB_AUTO_INDEX,
   }, options || {});
 
-  //Load models
-  console.log('Loading model files...');
-  glob.sync('./app/**/*.model.js').forEach(modelPath => {
-    console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
-    require(path.resolve(modelPath));
-  });
-
   //Connect to database
   console.log('Connecting to database', chalk.magenta(uri), '...');
   mongoose.set('debug', debug);
-  return mongoose
+  const connection = mongoose
     .connect(uri, {
       useMongoClient: true,
       config: {
@@ -60,4 +53,14 @@ module.exports = function(options) {
       console.log(chalk.red(error.stack || error));
       process.exit(-1);
     });
+
+  //Load models
+  console.log('Loading model files...');
+  glob.sync('./app/**/*.model.js').forEach(modelPath => {
+    console.log(chalk.grey(' - %s'), modelPath.replace('./app/', ''));
+    require(path.resolve(modelPath));
+  });
+
+  //Return connection promise
+  return connection;
 };
