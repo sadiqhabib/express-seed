@@ -38,7 +38,7 @@
     "predev": "lsof -n -i:9229 | grep LISTEN | awk '{print $2}' | xargs kill -9",
     "inspect": "nodemon --inspect scripts/server.js",
     "lint": "eslint . --fix",
-    "mocha": "mocha app/**/*.spec.js",
+    "mocha": "mocha 'app/**/*.spec.js'",
     "test": "nyc --reporter=lcov --reporter=text yarn mocha",
     "coverage": "open -a \"Google Chrome\" ./coverage/lcov-report/index.html",
     "posttest": "yarn coverage",
