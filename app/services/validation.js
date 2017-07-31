@@ -6,7 +6,6 @@
 const errors = require('meanie-express-error-handling');
 const ValidationError = errors.ValidationError;
 const validators = require('../validators');
-const Promise = require('bluebird');
 
 /**
  * Validation service
@@ -141,9 +140,7 @@ const validation = {
 
     //Run validator
     return Promise
-      .try(() => {
-        return validator(value, ...args);
-      })
+      .try(() => validator(value, ...args))
       .catch(error => {
         const message = rule.message || error.message;
         throw {field, type, message};

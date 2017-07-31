@@ -10,6 +10,7 @@ exports.lt = require('./lt');
 exports.lte = require('./lte');
 exports.notEmpty = require('./not-empty');
 exports.isEmpty = require('./is-empty');
+exports.isArray = require('./is-array');
 exports.isBoolean = require('./is-boolean');
 exports.isString = require('./is-string');
 exports.isNumber = require('./is-number');

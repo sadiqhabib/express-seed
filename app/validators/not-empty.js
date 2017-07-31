@@ -6,9 +6,9 @@
 const checkEmpty = require('./helpers/check-empty');
 
 /**
- * Check if empty
+ * Check if not empty
  */
-module.exports = function isEmpty(value) {
+module.exports = function notEmpty(value) {
   if (checkEmpty(value)) {
     throw new Error('Expected non-empty value');
   }
