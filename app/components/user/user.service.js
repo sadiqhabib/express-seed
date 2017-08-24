@@ -75,6 +75,6 @@ const UserService = module.exports = {
   findByUsername(username) {
     return User
       .findOne({username})
-      .select('_id roles');
+      .select('_id roles password');
   },
 };

@@ -36,8 +36,10 @@ module.exports = function(app) {
   //Create user
   router.post(
     '/',
-    ensureAuthenticated(),
-    ensureScope('user:write'),
+    // (req, res, next) => { console.log('Nomi 1'); next(); },
+    // ensureAuthenticated(),
+    // (req, res, next) => { console.log('Nomi 2'); next(); },
+    // ensureScope('user:write'),
     userCtrl.ensureUsernameNotInUse(),
     userCtrl.collectData,
     userCtrl.create,

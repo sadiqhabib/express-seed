@@ -13,7 +13,8 @@ module.exports = Object.assign({}, base, {
   //App
   APP_BASE_URL: 'http://localhost:8080',
   APP_ORIGINS: [
-    /localhost\:8080/,
+    /localhost:8081/,
+    /chrome-extension:\/\/aicmkgpgakddgnaphhhpliifpcfhicfo/,
     /192\.168\.1\.[0-9]+/,
   ],
 

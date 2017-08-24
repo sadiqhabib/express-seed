@@ -35,7 +35,7 @@
     "start": "if [ $NODE_ENV == 'dev' ]; then npm run dev; else npm run prod; fi",
     "prod": "node scripts/server.js",
     "dev": "nodemon scripts/server.js",
-    "predev": "lsof -n -i:9229 | grep LISTEN | awk '{print $2}' | xargs kill -9",
+    "predev1": "lsof -n -i:9229 | grep LISTEN | awk '{print $2}' | xargs kill -9",
     "inspect": "nodemon --inspect scripts/server.js",
     "lint": "eslint . --fix",
     "mocha": "mocha 'app/**/*.spec.js'",
